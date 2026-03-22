@@ -182,6 +182,12 @@ async function main(): Promise<void> {
 	// Pre-deploy: Validate required Convex environment variables (production only)
 	// Preview validation happens AFTER convex deploy (the instance doesn't exist yet)
 	// =============================================================================
+	console.log('Building email templates...');
+	if (!runCommand('bun', ['run', 'build:emails'])) {
+		console.error(`${colors.red}Email template build failed${colors.reset}`);
+		process.exit(1);
+	}
+
 	if (VERCEL_ENV === 'production') {
 		console.log('Checking required Convex environment variables (production)...');
 		if (!runCommand('bun', ['scripts/validate-convex-env.ts', '--prod'])) {
