@@ -1,4 +1,4 @@
-# Promus – Local Development Guide
+# Promus – Local Development Guide 2
 
 > **Promus** is a Kanban board where each task can have an AI agent ("Coda") that uses connected accounts (email, LinkedIn, etc.) to perform real work via the Unipile SDK.
 
