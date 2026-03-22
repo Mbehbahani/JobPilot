@@ -7,7 +7,7 @@
  * Run with: bun run build:emails
  */
 
-import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { writeFileSync, mkdirSync, existsSync, copyFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer, type ViteDevServer } from 'vite';
@@ -134,6 +134,7 @@ async function buildEmails() {
 				// Write to file
 				const filePath = join(GENERATED_DIR, `${fileName}.ts`);
 				writeFileSync(filePath, fileContent, 'utf-8');
+				copyFileSync(filePath, join(GENERATED_DIR, `${fileName}.js`));
 
 				console.log(
 					`    -> Generated ${fileName}.ts (${html.length} chars HTML, ${text.length} chars text)`
@@ -155,6 +156,7 @@ async function buildEmails() {
 ${exportStatements}
 `;
 		writeFileSync(join(GENERATED_DIR, 'index.ts'), indexContent, 'utf-8');
+		copyFileSync(join(GENERATED_DIR, 'index.ts'), join(GENERATED_DIR, 'index.js'));
 
 		// Summary
 		console.log('\n--- Build Summary ---');
