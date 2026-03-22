@@ -179,13 +179,29 @@ async function main(): Promise<void> {
 	}
 
 	// =============================================================================
-	// Pre-deploy: Validate required Convex environment variables (production only)
-	// Preview validation happens AFTER convex deploy (the instance doesn't exist yet)
+	// Pre-deploy: Build email templates and validate env vars
+	// Email templates must be built BEFORE convex deploy (Convex bundles them).
+	// On Vercel, .env.local doesn't exist so we derive PUBLIC_CONVEX_URL from
+	// CONVEX_DEPLOY_KEY and call the build script directly (bypassing dotenv).
 	// =============================================================================
 	console.log('Building email templates...');
-	if (!runCommand('bun', ['run', 'build:emails'])) {
-		console.error(`${colors.red}Email template build failed${colors.reset}`);
-		process.exit(1);
+	{
+		const emailBuildEnv: Record<string, string | undefined> = { ...process.env };
+		if (!emailBuildEnv.PUBLIC_CONVEX_URL && CONVEX_DEPLOY_KEY) {
+			const parts = CONVEX_DEPLOY_KEY.split('|');
+			if (parts.length >= 2) {
+				const keyParts = parts[0].split(':');
+				const name = keyParts[keyParts.length - 1];
+				emailBuildEnv.PUBLIC_CONVEX_URL = `https://${name}.convex.cloud`;
+				console.log(
+					`  Derived PUBLIC_CONVEX_URL from CONVEX_DEPLOY_KEY: ${emailBuildEnv.PUBLIC_CONVEX_URL}`
+				);
+			}
+		}
+		if (!runCommand('bun', ['tsx', 'scripts/build-emails.ts'], emailBuildEnv)) {
+			console.error(`${colors.red}Email template build failed${colors.reset}`);
+			process.exit(1);
+		}
 	}
 
 	if (VERCEL_ENV === 'production') {
