@@ -1,0 +1,1208 @@
+{
+	"admin": {
+		"actions": {
+			"ban": "Benutzer sperren",
+			"impersonate": "Identität annehmen",
+			"revoke_sessions": "Sitzungen widerrufen",
+			"set_role": "Rolle ändern",
+			"unban": "Sperre aufheben"
+		},
+		"dashboard": {
+			"database_backend": "Datenbank & Backend",
+			"email_service": "E-Mail-Zustelldienst",
+			"external_services": "Externe Dienste",
+			"hosting_deployment": "Hosting & Deployment",
+			"title": "Admin Dashboard"
+		},
+		"dialog": {
+			"ban_description": "Möchtest du {email} wirklich sperren? Der Zugriff auf die App wird blockiert.",
+			"ban_reason_placeholder": "Sperrgrund (optional)",
+			"ban_title": "Benutzer sperren",
+			"impersonation_active_description": "Bitte lade die Seite neu, um als der andere Benutzer angemeldet zu werden.",
+			"impersonation_active_title": "Identitätswechsel aktiv",
+			"reload_page": "Seite neu laden",
+			"revoke_description": "Möchtest du wirklich alle Sitzungen für {email} widerrufen? Die Person wird überall abgemeldet.",
+			"revoke_title": "Sitzungen widerrufen",
+			"set_role_description": "Möchtest du die Rolle von {email} wirklich auf {role} ändern?",
+			"set_role_title": "Benutzerrolle ändern",
+			"unban_description": "Möchtest du die Sperre für {email} wirklich aufheben? Der Zugriff wird wiederhergestellt.",
+			"unban_title": "Sperre aufheben"
+		},
+		"metrics": {
+			"active_sessions": "Aktiv (24h)",
+			"active_sessions_desc": "In den letzten 24 Stunden aktiv",
+			"admin_users": "Plattformverwaltung",
+			"admins": "Admins",
+			"admins_desc": "Benutzer mit Admin-Rechten",
+			"banned_users": "Gesperrte Benutzer",
+			"banned_users_desc": "Zugriff eingeschränkt",
+			"currently_active": "Tägliche Aktivität",
+			"last_7_days": "Letzte 7 Tage",
+			"recent_signups": "Neuanmeldungen",
+			"recent_signups_desc": "Neue Benutzer",
+			"registered_users": "Plattform-Nutzerbasis",
+			"total_users": "Benutzer gesamt",
+			"total_users_desc": "Alle registrierten Konten",
+			"users_banned": "Konten zur Überprüfung"
+		},
+		"navigation": {
+			"app": "App",
+			"home": "Startseite",
+			"website": "Webseite"
+		},
+		"settings": {
+			"add_email": "E-Mail hinzufügen",
+			"add_email_dialog_desc": "E-Mail-Adresse für Admin-Benachrichtigungen hinzufügen",
+			"add_email_dialog_title": "Benutzerdefinierte E-Mail hinzufügen",
+			"add_email_placeholder": "email@example.com",
+			"column_email": "E-Mail",
+			"column_name": "Name",
+			"column_new_signups": "Neue Anmeldungen",
+			"column_new_tickets": "Neue Tickets",
+			"column_type": "Typ",
+			"column_user_replies": "Benutzerantworten",
+			"default_support_email": "Standard-Support-E-Mail",
+			"default_support_email_help": "Leer lassen, um Benachrichtigungen an alle Admin-Benutzer zu senden.",
+			"default_support_email_placeholder": "support@example.com",
+			"delete_email": "Entfernen",
+			"delete_email_confirm": "{email} aus den Benachrichtigungsempfängern entfernen?",
+			"delete_email_description": "{email} aus den Benachrichtigungsempfängern entfernen?",
+			"delete_email_title": "E-Mail entfernen",
+			"description": "Admin-Panel-Einstellungen und Benachrichtigungen konfigurieren.",
+			"email_add_failed": "E-Mail konnte nicht hinzugefügt werden",
+			"email_added": "E-Mail hinzugefügt",
+			"email_exists": "Diese E-Mail existiert bereits",
+			"email_removed": "E-Mail entfernt",
+			"field_new_signups": "Benachrichtigungen für neue Anmeldungen",
+			"field_new_tickets": "Benachrichtigungen für neue Tickets",
+			"field_user_replies": "Benachrichtigungen für Benutzerantworten",
+			"filter": {
+				"admin_only": "Nur Admins",
+				"all_types": "Alle Typen",
+				"clear": "Löschen",
+				"custom_only": "Nur Benutzerdefiniert"
+			},
+			"invalid_email": "Ungültige E-Mail-Adresse",
+			"no_recipients": "Keine Benachrichtigungsempfänger konfiguriert",
+			"notification_recipients": "Benachrichtigungsempfänger",
+			"notification_recipients_desc": "Lege fest, wer Admin-Benachrichtigungen erhält. Admin-Benutzer werden automatisch einbezogen.",
+			"preference_disabled": "{field} deaktiviert",
+			"preference_disabling": "{field} wird deaktiviert...",
+			"preference_enabled": "{field} aktiviert",
+			"preference_enabling": "{field} wird aktiviert...",
+			"preference_update_failed": "Einstellung konnte nicht aktualisiert werden",
+			"recipient_count": "{count, plural, other {# Empfänger}}",
+			"save": "Einstellungen speichern",
+			"saved": "Einstellungen gespeichert",
+			"saving": "Speichern...",
+			"selected": "{selected} von {total} ausgewählt",
+			"support_notifications": "Support-Benachrichtigungen",
+			"support_notifications_desc": "E-Mail-Benachrichtigungen für neue und nicht zugewiesene wiedereröffnete Support-Tickets konfigurieren.",
+			"tabs": {
+				"notifications": "Benachrichtigungen",
+				"recipients": "Empfänger"
+			},
+			"title": "Admin-Einstellungen",
+			"type_admin": "Admin",
+			"type_custom": "Benutzerdefiniert"
+		},
+		"sidebar": {
+			"back_to_app": "Zurück zur App",
+			"dashboard": "Dashboard",
+			"settings": "Einstellungen",
+			"support": "Support",
+			"users": "Benutzer"
+		},
+		"support": {
+			"all_statuses": "Alle Status",
+			"assignee": {
+				"not_assigned": "Nicht zugewiesen",
+				"unassigned": "Nicht zugewiesen"
+			},
+			"chat": {
+				"placeholder": "Antwort an Kunde...",
+				"send_error": "Antwort konnte nicht gesendet werden. Bitte erneut versuchen."
+			},
+			"details": {
+				"assignee": "Zugewiesen an",
+				"close_panel": "Details-Panel schließen",
+				"notes": "Interne Notizen",
+				"open_panel": "Details-Panel öffnen",
+				"page_url": "Seiten-URL",
+				"priority": "Priorität",
+				"status": "Status",
+				"title": "Details",
+				"user_notes": "Benutzernotizen",
+				"user_notes_description": "Notizen werden auf Benutzerebene gespeichert und erscheinen in allen Support-Threads des Benutzers"
+			},
+			"email": {
+				"label": "Benachrichtigungs-E-Mail"
+			},
+			"fallback": {
+				"admin": "Admin",
+				"no_user": "Kein Benutzer mit diesem Thread verknüpft"
+			},
+			"filter": {
+				"all": "Alle",
+				"my_inbox": "Mein Posteingang",
+				"unassigned": "Nicht zugewiesen"
+			},
+			"no_chats": "Keine Chats gefunden",
+			"no_done_chats": "Keine abgeschlossenen Chats",
+			"no_open_chats": "Keine offenen Chats",
+			"note": {
+				"add": "Notiz hinzufügen",
+				"adding": "Wird hinzugefügt...",
+				"placeholder": "Interne Notiz hinzufügen..."
+			},
+			"priority": {
+				"high": "Hoch",
+				"low": "Niedrig",
+				"medium": "Mittel",
+				"none": "Keine"
+			},
+			"search": {
+				"placeholder": "Chats suchen..."
+			},
+			"select_chat": "Wähle einen Chat, um die Unterhaltung anzuzeigen",
+			"select_chat_for_details": "Wähle einen Chat, um Details anzuzeigen",
+			"status": {
+				"done": "Erledigt",
+				"in_progress": "In Bearbeitung",
+				"open": "Offen",
+				"resolved": "Gelöst"
+			},
+			"thread": {
+				"badge": {
+					"new": "Neu"
+				},
+				"load_failed": "Laden fehlgeschlagen",
+				"loading": "Lädt mehr...",
+				"no_messages": "Keine Nachrichten",
+				"retry": "Erneut versuchen"
+			},
+			"title": "Support-Chats"
+		},
+		"title": "Admin-Bereich",
+		"users": {
+			"actions_column": "Aktionen",
+			"ban_reason": {
+				"default": "Verstoß gegen die Nutzungsbedingungen"
+			},
+			"banned": "Gesperrt",
+			"created": "Erstellt",
+			"email": "E-Mail",
+			"filter": {
+				"all_roles": "Alle Rollen",
+				"all_status": "Alle Status",
+				"clear": "Zurücksetzen",
+				"role_admin": "Admin",
+				"role_user": "Benutzer",
+				"status_banned": "Gesperrt",
+				"status_unverified": "Nicht verifiziert",
+				"status_verified": "Verifiziert"
+			},
+			"loading": "Benutzer werden geladen...",
+			"menu_open": "Menü öffnen",
+			"name": "Name",
+			"no_results": "Keine Ergebnisse.",
+			"page_indicator": "Seite {current} von {total}",
+			"pagination": {
+				"first": "Zur ersten Seite",
+				"last": "Zur letzten Seite",
+				"next": "Zur nächsten Seite",
+				"previous": "Zur vorherigen Seite"
+			},
+			"role": "Rolle",
+			"rows_per_page": "Zeilen pro Seite",
+			"search_placeholder": "Benutzer suchen...",
+			"select_all": "Alle auswählen",
+			"select_row": "Zeile auswählen",
+			"selected": "{selected} von {total} Benutzer ausgewählt",
+			"status": "Status",
+			"title": "Benutzerverwaltung",
+			"toast": {
+				"assignment_failed": "Zuweisung konnte nicht aktualisiert werden: {message}",
+				"assignment_updated": "Zuweisung aktualisiert",
+				"ban_failed": "Benutzer konnte nicht gesperrt werden: {message}",
+				"banned": "Benutzer wurde gesperrt",
+				"impersonate_failed": "Identitätswechsel fehlgeschlagen: {message}",
+				"note_added": "Notiz hinzugefügt",
+				"note_failed": "Notiz konnte nicht hinzugefügt werden: {message}",
+				"priority_failed": "Priorität konnte nicht aktualisiert werden: {message}",
+				"priority_updated": "Priorität aktualisiert",
+				"revoke_failed": "Sitzungen konnten nicht widerrufen werden: {message}",
+				"revoked": "Alle Sitzungen wurden widerrufen",
+				"role_failed": "Rolle konnte nicht geändert werden: {message}",
+				"role_updated": "Benutzerrolle auf {role} geändert",
+				"status_failed": "Status konnte nicht aktualisiert werden: {message}",
+				"status_updated": "Status aktualisiert",
+				"unban_failed": "Sperre konnte nicht aufgehoben werden: {message}",
+				"unbanned": "Benutzersperre wurde aufgehoben"
+			},
+			"total": "Benutzer",
+			"unnamed": "Unbenannt",
+			"unverified": "Nicht verifiziert",
+			"verified": "Verifiziert"
+		}
+	},
+	"app": {
+		"name": "Promus",
+		"sidebar": {
+			"admin_panel": "Admin-Bereich",
+			"browse_jobs": "Jobs durchsuchen",
+			"community_chat": "Community-Chat",
+			"connect_accounts": "Konten verbinden",
+			"connect_accounts_error": "Verbindungslink konnte nicht abgerufen werden. Bitte versuch es erneut.",
+			"dashboard": "Dashboard",
+			"docs": "Dokumentation",
+			"home": "Start",
+			"my_tasks": "Meine Aufgaben",
+			"sandbox": "Sandbox"
+		},
+		"user_menu": {
+			"account": "Konto",
+			"billing": "Abrechnung",
+			"impersonating_banner": "Du agierst als dieser Benutzer",
+			"impersonation_stop_failed": "Identitätswechsel konnte nicht beendet werden",
+			"impersonation_stopped": "Identitätswechsel beendet",
+			"logout": "Abmelden",
+			"notifications": "Benachrichtigungen",
+			"settings": "Einstellungen",
+			"stop_impersonating": "Identitätswechsel beenden",
+			"upgrade_pro": "Auf Pro upgraden"
+		}
+	},
+	"aria": {
+		"actions": "Aktionen",
+		"breadcrumb": "Brotkrümel",
+		"change_language": "Sprache ändern",
+		"close": "Schließen",
+		"confirmation": "Bestätigung",
+		"copied": "Kopiert",
+		"copy": "Kopieren",
+		"copy_failed": "Kopieren fehlgeschlagen",
+		"drag_to_reorder": "Zum Neuanordnen ziehen",
+		"feedback_close": "Feedback schließen",
+		"feedback_open": "Feedback öffnen",
+		"github_repository": "GitHub-Repository",
+		"go_back": "Zurück",
+		"hide_password": "Passwort ausblenden",
+		"home": "Startseite",
+		"interactive_pointer_tracking_area": "Interaktiver Bereich zur Zeigerverfolgung",
+		"limit": "Limit",
+		"loading": "Wird geladen",
+		"login_with_apple": "Mit Apple anmelden",
+		"login_with_google": "Mit Google anmelden",
+		"login_with_meta": "Mit Meta anmelden",
+		"logout": "Abmelden",
+		"menu_close": "Menü schließen",
+		"menu_open": "Menü öffnen",
+		"more": "Mehr",
+		"notification_toggle_for_email": "{field} für {email}",
+		"pagination_first": "Erste Seite",
+		"pagination_last": "Letzte Seite",
+		"pagination_next": "Nächste Seite",
+		"pagination_previous": "Vorherige Seite",
+		"remove_attachment": "Anhang entfernen",
+		"reviewer": "Prüfer",
+		"scroll_to_bottom": "Nach unten scrollen",
+		"select_all": "Alle auswählen",
+		"select_row": "Zeile auswählen",
+		"select_value": "Wert auswählen",
+		"show_password": "Passwort anzeigen",
+		"target": "Ziel",
+		"toggle_sidebar": "Seitenleiste umschalten",
+		"toggle_theme": "Design umschalten",
+		"view": "Ansicht"
+	},
+	"auth": {
+		"back_to_home": "Zurück zur Startseite",
+		"errors": {
+			"confirm_password_required": "Bitte bestätige dein Passwort",
+			"current_password_required": "Aktuelles Passwort ist erforderlich",
+			"invalid_credentials": "Ungültige E-Mail oder Passwort",
+			"invalid_email": "Bitte gib eine gültige E-Mail-Adresse ein",
+			"invalid_secret": "Ungültiges Geheimnis",
+			"name_required": "Name ist erforderlich",
+			"oauth_failed": "Soziale Anmeldung fehlgeschlagen. Bitte versuch es erneut.",
+			"passkey_failed": "Passkey-Authentifizierung fehlgeschlagen",
+			"password_lowercase": "Passwort muss mindestens einen Kleinbuchstaben enthalten",
+			"password_min_length": "Passwort muss mindestens {minLength} Zeichen lang sein",
+			"password_number": "Passwort muss mindestens eine Zahl enthalten",
+			"password_required": "Passwort ist erforderlich",
+			"password_uppercase": "Passwort muss mindestens einen Großbuchstaben enthalten",
+			"passwords_do_not_match": "Passwörter stimmen nicht überein",
+			"signup_failed": "Konto konnte nicht erstellt werden. E-Mail wird möglicherweise bereits verwendet.",
+			"verification_invalid": "Ungültiger oder abgelaufener Verifizierungscode. Bitte versuch es erneut."
+		},
+		"forgot_password": {
+			"back_to_signin": "Zurück zur Anmeldung",
+			"button_loading": "Wird gesendet...",
+			"button_submit": "Link senden",
+			"description": "Wir senden dir einen Link zum Zurücksetzen",
+			"title": "Passwort vergessen"
+		},
+		"login": "Anmelden",
+		"logout": "Abmelden",
+		"messages": {
+			"auth_cancelled": "Authentifizierung abgebrochen",
+			"email_change_failed": "E-Mail konnte nicht geändert werden",
+			"email_not_verified": "Bitte bestätige deine E-Mail-Adresse",
+			"email_same_as_current": "Neue E-Mail muss sich von der aktuellen E-Mail unterscheiden",
+			"email_updated": "E-Mail erfolgreich aktualisiert",
+			"email_verification_sent": "Bestätigungs-E-Mail wurde an deine aktuelle Adresse gesendet. Bitte prüfe deinen Posteingang, um die Änderung zu bestätigen.",
+			"generic_error": "Ein Fehler ist aufgetreten. Bitte versuch es erneut.",
+			"invalid_credentials": "Ungültige E-Mail oder Passwort",
+			"invalid_token": "Ungültiger oder abgelaufener Token",
+			"missing_reset_token": "Fehlender oder ungültiger Reset-Token",
+			"oauth_failed": "Soziale Anmeldung fehlgeschlagen. Bitte versuch es erneut.",
+			"passkey_add_failed": "Passkey konnte nicht hinzugefügt werden",
+			"passkey_added": "Passkey erfolgreich hinzugefügt",
+			"passkey_delete_failed": "Passkey konnte nicht gelöscht werden",
+			"passkey_deleted": "Passkey gelöscht",
+			"passkey_failed": "Passkey-Authentifizierung fehlgeschlagen",
+			"passkey_load_failed": "Passkeys konnten nicht geladen werden",
+			"password_change_failed": "Passwort konnte nicht geändert werden",
+			"password_changed": "Passwort erfolgreich geändert",
+			"password_compromised": "Dieses Passwort wurde kompromittiert",
+			"password_reset_success": "Dein Passwort wurde erfolgreich zurückgesetzt.",
+			"rate_limited": "Zu viele Anfragen. Bitte versuch es später erneut.",
+			"request_reset_failed": "Passwort-Reset konnte nicht angefordert werden",
+			"reset_failed": "Passwort konnte nicht zurückgesetzt werden",
+			"reset_link_sent": "Bitte prüfe deine E-Mail für den Reset-Link.",
+			"signup_disabled": "Registrierung ist deaktiviert",
+			"signup_failed": "Konto konnte nicht erstellt werden",
+			"too_many_attempts": "Zu viele Versuche. Bitte versuch es später erneut.",
+			"user_already_exists": "Ein Konto mit dieser E-Mail existiert bereits"
+		},
+		"reset_password": {
+			"back_to_signin": "Zurück zur Anmeldung",
+			"button_loading": "Wird zurückgesetzt...",
+			"button_submit": "Passwort zurücksetzen",
+			"confirm_password_label": "Neues Passwort bestätigen",
+			"description": "Gib dein neues Passwort ein",
+			"new_password_label": "Neues Passwort",
+			"sign_in_link": "Anmelden",
+			"success": "Dein Passwort wurde zurückgesetzt.",
+			"title": "Passwort zurücksetzen"
+		},
+		"signin": {
+			"button_signin": "Anmelden",
+			"button_signin_loading": "Wird angemeldet...",
+			"button_signup": "Registrieren",
+			"button_signup_loading": "Konto wird erstellt...",
+			"cancel": "Abbrechen",
+			"description": "Melde dich bei deinem Konto an oder erstelle ein neues",
+			"email_label": "E-Mail",
+			"email_placeholder": "du@beispiel.de",
+			"forgot_password": "Passwort vergessen?",
+			"link_signup": "Registrieren",
+			"name_label": "Name",
+			"no_account": "Noch kein Konto?",
+			"oauth_github": "GitHub",
+			"oauth_google": "Google",
+			"oauth_last_used": "Zuletzt verwendet",
+			"or_continue_with": "Oder fortfahren mit",
+			"passkey_button": "Mit Passkey anmelden",
+			"password_label": "Passwort",
+			"password_placeholder": "••••••••",
+			"tab_signin": "Anmelden",
+			"tab_signup": "Registrieren",
+			"test_secret_button": "Mit Geheimnis anmelden",
+			"test_secret_label": "Nur Test: Mit Geheimnis anmelden",
+			"test_secret_placeholder": "Geheimnis-Wert",
+			"title": "Willkommen zurück"
+		},
+		"signup": "Registrieren",
+		"signup.description": "Gib deine Daten ein, um loszulegen",
+		"signup.has_account": "Bereits ein Konto?",
+		"signup.link_signin": "Anmelden",
+		"signup.password_hint": "Mindestens 10 Zeichen mit Groß-, Kleinbuchstaben und Zahl",
+		"signup.title": "Konto erstellen",
+		"terms": {
+			"agreement": "Mit dem Fortfahren akzeptierst du unsere",
+			"and": "und",
+			"privacy_policy": "Datenschutzrichtlinie",
+			"terms_of_service": "Nutzungsbedingungen"
+		},
+		"verification": {
+			"button_back": "Zurück zur Anmeldung",
+			"button_cancel": "Abbrechen",
+			"button_verify": "E-Mail verifizieren",
+			"button_verify_loading": "Wird verifiziert...",
+			"check_email": "Bitte überprüfe deine E-Mail und klicke auf den Verifizierungslink, um deine Registrierung abzuschließen.",
+			"code_label": "Verifizierungscode",
+			"code_placeholder": "12345678",
+			"description": "Wir haben dir einen Verifizierungslink gesendet",
+			"sent_to": "Wir haben eine Verifizierungs-E-Mail an",
+			"title": "E-Mail-Verifizierung",
+			"verified_description": "Deine E-Mail wurde verifiziert. Du wirst angemeldet...",
+			"verified_title": "E-Mail verifiziert"
+		}
+	},
+	"backend": {
+		"files": {
+			"fetch_failed": "Die hochgeladene Datei konnte nicht abgerufen werden. Bitte versuch es erneut.",
+			"type_not_allowed": "Dateityp nicht erlaubt. Unterstützt: PNG, JPEG, WebP, GIF, PDF"
+		},
+		"support": {
+			"handoff": {
+				"response": "Natürlich! Ich verbinde dich jetzt. Bitte gib unten deine E-Mail-Adresse ein und wir benachrichtigen dich, wenn unser Support-Team geantwortet hat. In der Zwischenzeit kannst du gerne weitere Details hinzufügen, die uns helfen könnten."
+			},
+			"rate_limit": {
+				"global": "Ich habe gerade eine hohe Auslastung. Bitte versuch es in einem Moment erneut.",
+				"user": "Zu viele Nachrichten. Bitte warte, bevor du eine weitere sendest."
+			},
+			"summary": {
+				"default": "Neues Support-Gespräch"
+			},
+			"title": {
+				"default": "Kundensupport"
+			}
+		}
+	},
+	"call": {
+		"call_me": "Ruf mich an",
+		"error": "Anruf fehlgeschlagen",
+		"in_progress": "Anruf läuft...",
+		"initiated": "Du wirst jetzt angerufen!"
+	},
+	"chat": {
+		"action": {
+			"talk_to_human": "Mit Experte sprechen"
+		},
+		"alerts": {
+			"limit_reached": {
+				"description": "Du hast alle {total} kostenlosen Nachrichten für diesen Monat verbraucht.",
+				"title": "Nachrichtenlimit erreicht"
+			},
+			"low_messages": {
+				"description": "Du hast noch {remaining} von {total} Nachricht für diesen Monat.",
+				"description_plural": "Du hast noch {remaining} von {total} Nachrichten für diesen Monat.",
+				"title": "Wenig Nachrichten übrig"
+			}
+		},
+		"aria": {
+			"remove_attachment": "{filename} entfernen",
+			"send": "Senden"
+		},
+		"attachment": {
+			"dialog_title": "Anhang",
+			"file_fallback": "Datei",
+			"generic_fallback": "Anhang",
+			"image_fallback": "Bild"
+		},
+		"avatar": {
+			"team_member": "Teammitglied"
+		},
+		"buttons": {
+			"processing": "Wird verarbeitet...",
+			"upgrade": "Auf Pro upgraden"
+		},
+		"description": "Öffne diese App in mehreren Browser-Fenstern, um die Echtzeit-Datenbank in Aktion zu sehen",
+		"email": {
+			"placeholder": "Email",
+			"save_failed": "E-Mail konnte nicht gespeichert werden. Bitte versuch es erneut.",
+			"saved_success": "E-Mail gespeichert! Wir benachrichtigen dich, wenn wir antworten.",
+			"subscribe_button": "Abonnieren",
+			"unsubscribe_failed": "Abmeldung fehlgeschlagen. Bitte versuch es erneut.",
+			"unsubscribe_tooltip": "Abbestellen",
+			"unsubscribed": "E-Mail-Benachrichtigungen abbestellt."
+		},
+		"error": {
+			"file_max_size": "Maximale Größe ist {maxSize}",
+			"file_too_large": "Datei zu groß: \"{filename}\"",
+			"max_attachments": "Maximal {max} Anhänge erlaubt",
+			"pasted_file_too_large": "Eingefügte Datei zu groß"
+		},
+		"greeting": "Wie können wir helfen?",
+		"greeting_hi": "Hallo",
+		"header": {
+			"messages_left": "({remaining}/{total} Nachricht übrig)",
+			"messages_left_plural": "({remaining}/{total} Nachrichten übrig)",
+			"pro_unlimited": "(Pro - Unbegrenzt)",
+			"subtitle": "Echtzeit-Chat",
+			"title": "Chat"
+		},
+		"input": {
+			"placeholder": "Nachricht eingeben...",
+			"placeholder_disabled": "Nachrichtenlimit erreicht",
+			"send_tooltip": "Nachricht senden",
+			"upgrade_tooltip": "Auf Pro upgraden für unbegrenzte Nachrichten"
+		},
+		"messages": {
+			"send_failed": "Nachricht konnte nicht gesendet werden",
+			"sent_success": "Nachricht gesendet!"
+		},
+		"reasoning": {
+			"connecting": "Verbinde...",
+			"thinking": "Denke nach...",
+			"thought_for_few_seconds": "Nachgedacht für einige Sekunden",
+			"thought_for_seconds": "Nachgedacht für {duration} Sekunde",
+			"thought_for_seconds_plural": "Nachgedacht für {duration} Sekunden"
+		},
+		"suggestion": {
+			"help_label": "Hilfe erhalten",
+			"help_text": "Kannst du mir helfen mit...",
+			"issue_label": "Problem melden",
+			"issue_text": "Ich habe ein Problem gefunden mit...",
+			"question_label": "Frage stellen",
+			"question_text": "Ich habe eine Frage zu..."
+		},
+		"title": "Community Chat",
+		"tooltip": {
+			"attach_files": "Dateien anhängen",
+			"mark_bug": "Fehler markieren"
+		}
+	},
+	"common": {
+		"adding": "Wird hinzugefügt...",
+		"cancel": "Abbrechen",
+		"confirm": "Bestätigen"
+	},
+	"email": {
+		"body": {
+			"no_messages": "Keine Nachrichten",
+			"ticket_message": "{userName} hat eine neue Nachricht zu einem zuvor geschlossenen Ticket gesendet",
+			"ticket_new": "Neues Support-Ticket",
+			"ticket_reopened": "Support-Ticket wiedereröffnet",
+			"ticket_started": "{userName} hat ein neues Support-Gespräch gestartet"
+		},
+		"subject": {
+			"reset_password": "Passwort zurücksetzen",
+			"support_reply": "Neue Antwort auf deine Support-Anfrage",
+			"ticket_new": "Neues Support-Ticket von {userName}",
+			"ticket_reopened": "Support-Ticket wiedereröffnet von {userName}",
+			"verify": "E-Mail-Adresse bestätigen"
+		}
+	},
+	"error_page": {
+		"back_home": "Zurück zur Startseite",
+		"generic_description": "Beim Laden dieser Seite ist ein unerwarteter Fehler aufgetreten.",
+		"generic_title": "Etwas ist schiefgelaufen",
+		"need_help": "Brauchst du Hilfe?",
+		"not_found_description": "Die gesuchte Seite existiert nicht. Versuch unten nach dem zu suchen, was du brauchst.",
+		"not_found_title": "404 - Seite nicht gefunden",
+		"search_placeholder": "Versuch nach Seiten zu suchen..."
+	},
+	"hero": {
+		"companies_text": "Möglich gemacht durch",
+		"cta": "Jetzt starten",
+		"cta_demo": "Demo anfordern",
+		"cta_sourcecode": "Quellcode ansehen",
+		"description": "Coda erledigt deine Todos. Verbunden mit all deinen professionellen Tools.",
+		"section_label": "Start",
+		"tagline": "Deine Todo-Liste hat gerade 8 Arme bekommen.",
+		"title": "Promus"
+	},
+	"integrations": {
+		"cards": {
+			"autumn_stripe": {
+				"button": "Zu Autumn",
+				"description": "Autumn übernimmt Abrechnung, Feature-Gates und Nutzungsverfolgung - ohne Webhook-Komplexität. Stripe für die Zahlungsabwicklung.",
+				"secondary_button": "Zu Stripe",
+				"secondary_title": "Stripe",
+				"title": "Autumn + Stripe"
+			},
+			"better_auth": {
+				"button": "Zu Better Auth",
+				"description": "Die umfassendste Authentifizierungsbibliothek für TypeScript. Sessions, OAuth, Passkeys und Multi-Tenancy sofort einsatzbereit.",
+				"title": "Better Auth"
+			},
+			"convex": {
+				"button": "Zu Convex",
+				"description": "Die Open-Source-Alternative zu Firebase. Basierend auf PostgreSQL - der weltweit fortschrittlichsten relationalen Datenbank.",
+				"title": "Convex"
+			},
+			"posthog": {
+				"button": "Zu PostHog",
+				"description": "PostHog ist eine Open-Source-Produktanalyseplattform zur Verfolgung von Nutzerverhalten und Messung von Conversions.",
+				"title": "PostHog"
+			},
+			"resend": {
+				"button": "Zu Resend",
+				"description": "Die E-Mail-API für Entwickler. Erstelle und versende transaktionale E-Mails mit einer modernen, zuverlässigen API für Skalierung.",
+				"title": "Resend"
+			},
+			"sentry": {
+				"button": "Zu Sentry",
+				"description": "Anwendungsüberwachung und Fehlerverfolgung. Erkenne Probleme bevor deine Nutzer es tun mit Echtzeit-Alerts und detaillierten Stack-Traces.",
+				"title": "Sentry"
+			},
+			"shadcn_svblocks": {
+				"button": "Zu Shadcn Svelte",
+				"description": "Eine Sammlung wunderschön gestalteter, barrierefreier Komponenten, gebaut mit Tailwind CSS v4 und Bits UI.",
+				"secondary_button": "SVBlocks",
+				"secondary_title": "SVBlocks",
+				"title": "Shadcn Svelte + SVBlocks"
+			},
+			"svelte": {
+				"button": "Zu Svelte 5",
+				"description": "Das beliebteste Frontend-Framework. Eine einfache, leistungsstarke und zukunftssichere Art, deine Web-App zu erstellen.",
+				"title": "Svelte 5"
+			},
+			"tolgee": {
+				"button": "Zu Tolgee",
+				"description": "Internationalisierung richtig gemacht. In-Context-Editing und ML-gestützte Übersetzung für einen nahtlosen Lokalisierungs-Workflow.",
+				"title": "Tolgee"
+			}
+		},
+		"description": "Promus arbeitet mit den Tools, die du bereits nutzt",
+		"title": "Verbunden mit deinen Tools"
+	},
+	"meta": {
+		"about": {
+			"description": "Lerne das talentierte Team hinter unserem Produkt kennen",
+			"title": "Über uns - Lerne unser Team kennen"
+		},
+		"admin": {
+			"dashboard": {
+				"description": "Überwache Plattformmetriken und externe Dienste.",
+				"title": "Admin-Dashboard"
+			},
+			"home": {
+				"description": "Weiterleitung zum Admin-Dashboard.",
+				"title": "Admin"
+			},
+			"settings": {
+				"description": "Konfiguriere Admin-Benachrichtigungen und Einstellungen.",
+				"title": "Admin-Einstellungen"
+			},
+			"support": {
+				"description": "Prüfe und beantworte Support-Anfragen von Nutzern.",
+				"title": "Support-Postfach"
+			},
+			"users": {
+				"description": "Verwalte Nutzer, Rollen und Kontostatus.",
+				"title": "Nutzerverwaltung"
+			}
+		},
+		"app": {
+			"community_chat": {
+				"description": "Chatte in Echtzeit mit der Community.",
+				"title": "Community-Chat"
+			},
+			"dashboard": {
+				"description": "Sieh dir wichtige Kennzahlen und aktuelle Aktivitäten an.",
+				"title": "Dashboard"
+			},
+			"home": {
+				"description": "Weiterleitung zu deinem Workspace-Dashboard.",
+				"title": "App-Start"
+			},
+			"sandbox": {
+				"description": "KI-gestützter Programmierassistent in einer Cloud-Sandbox",
+				"title": "Vibe Sandbox"
+			},
+			"settings": {
+				"description": "Verwalte deine Kontoeinstellungen und Präferenzen.",
+				"title": "Einstellungen"
+			}
+		},
+		"auth": {
+			"email_verified": {
+				"description": "Deine E-Mail-Adresse wurde bestätigt. Du kannst nun mit deinem Konto fortfahren.",
+				"title": "E-Mail bestätigt"
+			},
+			"forgot_password": {
+				"description": "Fordere einen Link zum Zurücksetzen des Passworts an.",
+				"title": "Passwort vergessen"
+			},
+			"reset_password": {
+				"description": "Lege ein neues Passwort für dein Konto fest.",
+				"title": "Passwort zurücksetzen"
+			},
+			"signin": {
+				"description": "Melde dich an oder erstelle ein neues Konto.",
+				"title": "Anmelden"
+			}
+		},
+		"emails": {
+			"preview": {
+				"description": "Vorschau von E-Mail-Templates und gerendertem Inhalt.",
+				"title": "E-Mail-Vorschau"
+			}
+		},
+		"home": {
+			"description": "Füge eine Aufgabe hinzu. Promus recherchiert, formuliert und erledigt — verbunden mit deiner E-Mail, deinem Kalender und deinen Nachrichten.",
+			"title": "Coda erledigt deine Todos"
+		},
+		"pricing": {
+			"description": "Wähle einen Plan und teste den integrierten Abrechnungsablauf.",
+			"title": "Preise"
+		},
+		"shadcn_demo": {
+			"description": "Vorschau der in diesem Projekt verwendeten UI-Komponenten.",
+			"title": "Shadcn-Demo"
+		}
+	},
+	"my_tasks": {
+		"connections": {
+			"connect": "Verbinden",
+			"no_accounts": "Noch keine Konten verbunden"
+		}
+	},
+	"nav": {
+		"about": "Über uns",
+		"dashboard": "Dashboard",
+		"features": "Funktionen",
+		"get_started": "Jetzt starten",
+		"home": "Start",
+		"login": "Anmelden",
+		"my_tasks": "Meine Aufgaben",
+		"open_app": "App öffnen",
+		"pricing": "Pläne",
+		"signup": "Registrieren",
+		"solution": "So funktioniert's"
+	},
+	"pricing": {
+		"buttons": {
+			"loading": "Lädt...",
+			"manage_subscription": "Abonnement verwalten"
+		},
+		"current_plan": "Aktueller Plan",
+		"current_plan_badge": "(Aktueller Plan)",
+		"description": "Einfache Preise für eine smartere Todo-Liste. Teste Coda kostenlos, upgrade wenn du mehr brauchst.",
+		"description_autumn": "Einfache Preise für eine smartere Todo-Liste. Teste Coda kostenlos, upgrade wenn du mehr brauchst.",
+		"features": {
+			"enterprise": {
+				"0": "Individuelle Nachrichtenlimits",
+				"1": "Dedizierter Account Manager",
+				"2": "SLA-Garantien",
+				"3": "Erweiterte Sicherheitsfunktionen"
+			},
+			"enterprise[0]": "Individuelle Nachrichtenlimits",
+			"enterprise[1]": "Dedizierter Account Manager",
+			"enterprise[2]": "SLA-Garantien",
+			"enterprise[3]": "Erweiterte Sicherheitsfunktionen",
+			"enterprise[4]": "Benutzerdefinierte Integrationen",
+			"enterprise[5]": "White-Label-Optionen",
+			"free": {
+				"0": "10 Nachrichten pro Monat",
+				"1": "Vollständiger Quellcode-Zugriff",
+				"2": "Alle Funktionen enthalten",
+				"3": "MIT-Lizenz"
+			},
+			"free[0]": "10 Nachrichten pro Monat",
+			"free[1]": "Vollständiger Quellcode-Zugriff",
+			"free[2]": "Alle Funktionen enthalten",
+			"free[3]": "MIT-Lizenz",
+			"pro": {
+				"0": "Unbegrenzte Nachrichten",
+				"1": "Vollständiger Quellcode-Zugriff",
+				"2": "Alle Funktionen enthalten",
+				"3": "Priority-Support"
+			},
+			"pro[0]": "Unbegrenzte Nachrichten",
+			"pro[1]": "Vollständiger Quellcode-Zugriff",
+			"pro[2]": "Alle Funktionen enthalten",
+			"pro[3]": "Priority-Support"
+		},
+		"popular_badge": "Beliebt",
+		"section_label": "Preise",
+		"tiers": {
+			"enterprise": {
+				"button": "Vertrieb kontaktieren",
+				"description": "Für Organisationen mit speziellen Anforderungen",
+				"name": "Enterprise",
+				"price": "Individuell"
+			},
+			"free": {
+				"button": "Für immer kostenlos",
+				"button_manage": "Abonnement verwalten",
+				"description": "Perfekt für den Einstieg",
+				"name": "Kostenlos",
+				"price": "0€ / Monat"
+			},
+			"pro": {
+				"button": "Auf Pro upgraden",
+				"button_loading": "Wird verarbeitet...",
+				"button_manage": "Abonnement verwalten",
+				"description": "Unbegrenzte Nachrichten und Priority-Support",
+				"name": "Pro",
+				"price": "10€ / Monat"
+			}
+		},
+		"title": "Einfache Preise"
+	},
+	"sandbox": {
+		"delete_sandbox": "Löschen",
+		"description": "KI-gestützter Programmierassistent in einer Cloud-Sandbox",
+		"empty_state": "Starte eine Sandbox, um mit Vibe zu programmieren",
+		"input_placeholder": "Beschreibe, was du erstellen möchtest...",
+		"send": "Senden",
+		"start_sandbox": "Sandbox starten",
+		"status": {
+			"creating": "Wird erstellt...",
+			"error": "Fehler",
+			"ready": "Bereit",
+			"stopped": "Gestoppt"
+		},
+		"stop_sandbox": "Stoppen",
+		"title": "Vibe Sandbox"
+	},
+	"search": {
+		"command": {
+			"dialog_description": "Suche nach einer Seite, zu der du navigieren möchtest.",
+			"dialog_title": "Seiten suchen",
+			"footer": {
+				"go_to_page": "Zur Seite wechseln"
+			},
+			"groups": {
+				"admin": "Admin",
+				"app": "App",
+				"authentication": "Authentifizierung",
+				"public": "Öffentlich"
+			},
+			"input_placeholder": "Seiten suchen...",
+			"no_results": "Keine Ergebnisse gefunden.",
+			"trigger_aria_label": "Suche öffnen",
+			"trigger_desktop": "Seiten suchen...",
+			"trigger_mobile": "Suchen..."
+		}
+	},
+	"settings": {
+		"account": {
+			"avatar": {
+				"alt": "Profilvorschau",
+				"ready": "Bild bereit zum Speichern",
+				"removed": "Bild entfernt - klicke auf Speichern zur Bestätigung",
+				"select_error": "Bitte wähle eine Bilddatei aus",
+				"size_error": "Bild muss kleiner als {size} sein",
+				"upload_failed": "Bild konnte nicht hochgeladen werden"
+			},
+			"description": "Aktualisiere hier deine Kontoinformationen.",
+			"error": "Profil konnte nicht aktualisiert werden",
+			"file_helper": "PNG, JPG oder GIF bis zu 2MB.",
+			"link_from_url": "Link von URL",
+			"name": {
+				"placeholder": "Dein Name"
+			},
+			"name_helper": "Dies ist dein öffentlich angezeigter Name.",
+			"name_label": "Name",
+			"no_image": "Kein Bild",
+			"or": "oder",
+			"phone_helper": "Für Briefing-Anrufe. Mit Ländervorwahl.",
+			"phone_label": "Telefonnummer",
+			"phone_placeholder": "+49 123 456789",
+			"profile_picture": "Profilbild",
+			"profile_picture_helper": "Lade ein Bild hoch oder füge einen Link ein. Wir empfehlen ein quadratisches Bild unter 2MB.",
+			"remove_button": "Entfernen",
+			"save_button": "Änderungen speichern",
+			"saving": "Speichern...",
+			"success": "Profil erfolgreich aktualisiert",
+			"title": "Kontoinformationen",
+			"upload_file": "Datei hochladen",
+			"url_helper": "Füge einen Bildlink ein, anstatt hochzuladen.",
+			"url_placeholder": "https://example.com/avatar.jpg"
+		},
+		"connections": {
+			"connect_button": "Konto verbinden",
+			"connect_failed": "Verbindungslink konnte nicht abgerufen werden",
+			"connecting": "Verbindung wird hergestellt...",
+			"description": "Verbinde und verwalte deine externen Konten.",
+			"disconnect_button_label": "Konto trennen",
+			"disconnect_confirm": "Trennen",
+			"disconnect_description": "Möchtest du {name} ({type}) wirklich trennen? Dies kann nicht rückgängig gemacht werden.",
+			"disconnect_failed": "Konto konnte nicht getrennt werden",
+			"disconnect_title": "Konto trennen",
+			"disconnected": "Konto getrennt",
+			"error_title": "Fehler",
+			"info_description": "Verbinde deine Messaging- und E-Mail-Konten, um einheitliche Kommunikationsfunktionen zu ermöglichen.",
+			"info_title": "Verbundene Konten",
+			"load_failed": "Konten konnten nicht geladen werden",
+			"loading": "Konten werden geladen...",
+			"no_accounts": "Noch keine Konten verbunden.",
+			"openai_connect": "ChatGPT verbinden",
+			"openai_connect_failed": "ChatGPT-Autorisierung konnte nicht gestartet werden",
+			"openai_connected": "Verbunden",
+			"openai_connected_as": "Verbunden als {email}",
+			"openai_connected_date": "Verbunden am {date}",
+			"openai_copy_code": "Code kopieren",
+			"openai_description": "Verbinde dein ChatGPT Plus- oder Pro-Konto, um KI-Funktionen ohne zusätzliche Kosten zu nutzen.",
+			"openai_device_code_description": "Nutze dein ChatGPT Plus oder Pro Abo, um die KI in dieser App zu verwenden. Wir haben keinen Zugriff auf deine Chats.",
+			"openai_device_code_title": "ChatGPT-Konto verbinden",
+			"openai_disconnect": "ChatGPT trennen",
+			"openai_disconnect_confirm": "ChatGPT-Konto trennen? Du kannst es jederzeit wieder verbinden.",
+			"openai_disconnect_failed": "ChatGPT-Konto konnte nicht getrennt werden",
+			"openai_disconnected": "ChatGPT-Konto getrennt",
+			"openai_expired": "Abgelaufen",
+			"openai_open_openai": "OpenAI öffnen",
+			"openai_step1_label": "Öffne die OpenAI-Autorisierungsseite",
+			"openai_step2_label": "Gib diesen Code ein",
+			"openai_timeout": "Autorisierung abgelaufen. Bitte versuche es erneut.",
+			"openai_title": "ChatGPT / OpenAI",
+			"openai_waiting": "Warte auf Autorisierung...",
+			"status_connecting": "Verbindung wird hergestellt",
+			"status_error": "Fehler",
+			"status_ok": "Verbunden",
+			"title": "Verbindungen",
+			"your_accounts_title": "Deine Konten"
+		},
+		"description": "Verwalte deine Kontoeinstellungen und Präferenzen.",
+		"email": {
+			"current_email_label": "Aktuelle E-Mail",
+			"description": "Aktualisiere deine E-Mail-Adresse für Kontobenachrichtigungen und Anmeldung.",
+			"error_title": "Fehler",
+			"new_email_label": "Neue E-Mail-Adresse",
+			"not_verified_description": "Deine aktuelle E-Mail ist nicht verifiziert. Die neue E-Mail wird sofort ohne Verifizierung aktualisiert.",
+			"not_verified_title": "E-Mail nicht verifiziert",
+			"placeholder": "Neue E-Mail-Adresse eingeben",
+			"title": "E-Mail-Adresse",
+			"unverified_badge": "Nicht verifiziert",
+			"update_button": "E-Mail aktualisieren",
+			"updating": "Aktualisieren...",
+			"verification_required_description": "Eine Bestätigungs-E-Mail wird an deine aktuelle E-Mail-Adresse gesendet. Du musst die Änderung genehmigen, bevor deine neue E-Mail aktiv wird.",
+			"verification_required_title": "Verifizierung erforderlich",
+			"verified_badge": "Verifiziert"
+		},
+		"password": {
+			"confirm_password_label": "Neues Passwort bestätigen",
+			"current_password_label": "Aktuelles Passwort",
+			"description": "Aktualisiere dein Passwort, um dein Konto sicher zu halten.",
+			"error_title": "Fehler",
+			"new_password_label": "Neues Passwort",
+			"password_helper": "Muss mindestens 8 Zeichen lang sein.",
+			"placeholder": {
+				"confirm": "Neues Passwort bestätigen",
+				"current": "Aktuelles Passwort eingeben",
+				"new": "Neues Passwort eingeben"
+			},
+			"revoke_sessions_label": "Von allen anderen Geräten abmelden",
+			"security_notice_description": "Wenn aktiviert, wirst du durch das Ändern deines Passworts auf allen anderen Geräten abgemeldet.",
+			"security_notice_title": "Sicherheitshinweis",
+			"title": "Passwort ändern",
+			"update_button": "Passwort aktualisieren",
+			"updating": "Aktualisieren..."
+		},
+		"security": {
+			"add_button": "Passkey hinzufügen",
+			"add_passkey_helper": "Gib deinem Passkey einen Namen, um zu identifizieren, auf welchem Gerät er registriert ist.",
+			"add_passkey_title": "Passkey hinzufügen",
+			"adding": "Wird hinzugefügt...",
+			"created_at": "Erstellt am ",
+			"description": "Verwalte deine Passkeys und Sicherheitseinstellungen.",
+			"error_title": "Fehler",
+			"loading": "Passkeys werden geladen...",
+			"no_passkeys": "Du hast noch keine Passkeys registriert.",
+			"passkey": {
+				"placeholder": "Passkey-Name",
+				"unnamed": "Unbenannter Passkey"
+			},
+			"passkey_info_description": "Passkeys sind eine sichere, passwortlose Anmeldemethode. Sie verwenden Biometrie oder Geräte-PIN und werden sicher auf deinen Geräten gespeichert.",
+			"passkey_info_title": "Was sind Passkeys?",
+			"passkey_name_label": "Passkey-Name",
+			"title": "Sicherheit",
+			"your_passkeys_title": "Deine Passkeys"
+		},
+		"tabs": {
+			"account": "Konto",
+			"connections": "Verbindungen",
+			"email": "E-Mail",
+			"password": "Passwort",
+			"security": "Sicherheit"
+		},
+		"title": "Einstellungen"
+	},
+	"sidebar": {
+		"connections": {
+			"connect": "Verbinden",
+			"connected": "Verbunden",
+			"connected_since": "Verbunden seit {date}",
+			"connections": "Verbindungen",
+			"google": "Google",
+			"imap": "IMAP",
+			"instagram": "Instagram",
+			"linkedin": "LinkedIn",
+			"llm_providers": "KI-Anbieter",
+			"messenger": "Messenger",
+			"outlook": "Outlook",
+			"remove": "Verbindung entfernen",
+			"telegram": "Telegram",
+			"twitter": "X (Twitter)",
+			"whatsapp": "WhatsApp"
+		}
+	},
+	"support": {
+		"avatar": {
+			"team_member": "Teammitglied"
+		},
+		"button": {
+			"start_new_conversation": "Neue Unterhaltung starten"
+		},
+		"chatbar": {
+			"placeholder": "Frag mich alles..."
+		},
+		"greeting": {
+			"hi": "Hey",
+			"how_can_we_help": "Wie können wir dir heute helfen?"
+		},
+		"header": {
+			"support_team": "Support-Team"
+		},
+		"message": {
+			"role_kai": "Coda",
+			"role_support": "Support",
+			"role_you": "Du"
+		},
+		"screenshot": {
+			"action": {
+				"cancel": "Abbrechen (Esc)",
+				"redo": "Wiederholen (Strg+Umschalt+Z)",
+				"undo": "Rückgängig (Strg+Z)"
+			},
+			"aria_label": "Screenshot-Editor",
+			"capture_failed": "Screenshot fehlgeschlagen. Überprüfe die Konsole für Details.",
+			"capturing": "Wird aufgenommen...",
+			"next": "Bug Markiert",
+			"tool": {
+				"arrow": "Pfeil (A)",
+				"circle": "Kreis (C)",
+				"color": "Farbe ändern",
+				"pen": "Stift (P)",
+				"rectangle": "Rechteck (R)"
+			}
+		},
+		"suggestion": {
+			"bug_report_label": "Problem melden",
+			"bug_report_text": "Ich habe einen Fehler gefunden!",
+			"feature_request_label": "Feature anfragen",
+			"feature_request_text": "Ich würde mir wünschen",
+			"help_label": "Hilfe bei...",
+			"help_text": "Hilf mir bei der Einrichtung.",
+			"question_label": "Frage stellen",
+			"question_text": "Warum Promus?"
+		},
+		"thread": {
+			"new_conversation": "Neue Unterhaltung"
+		},
+		"time": {
+			"days_ago": "vor {days} Tagen",
+			"few_seconds_ago": "vor wenigen Sekunden",
+			"hours_ago": "vor {hours} Stunden",
+			"just_now": "gerade eben",
+			"minutes_ago": "vor {minutes} Minuten",
+			"one_hour_ago": "vor 1 Stunde",
+			"one_minute_ago": "vor 1 Minute",
+			"yesterday": "gestern"
+		},
+		"widget": {
+			"error": {
+				"rate_limit": "Langsamer! Bitte warte {seconds}s, bevor du eine weitere Nachricht sendest.",
+				"send_failed": "Nachricht konnte nicht gesendet werden. Bitte versuch es erneut."
+			},
+			"header": {
+				"bot_response": "Unser Bot antwortet sofort",
+				"messages": "Nachrichten",
+				"with_team": "Deine Anfrage ist bei unserem Team"
+			},
+			"input": {
+				"placeholder": "Nachricht eingeben oder Vorschlag anklicken..."
+			}
+		}
+	},
+	"team": {
+		"description": "Während des Arbeitsprozesses führen wir regelmäßige Anpassungen mit dem Kunden durch, denn er ist die einzige Person, die spüren kann, ob ein neuer Anzug passt oder nicht.",
+		"linktree": "Linktree",
+		"roles": {
+			"cofounder_cto": "Mitgründer - CTO",
+			"founder_ceo": "Gründer - CEO",
+			"interaction_designer": "Interaction Designer",
+			"sales_manager": "Vertriebsleiter",
+			"ux_engineer": "UX Engineer",
+			"visual_designer": "Visual Designer"
+		},
+		"section_label": "Team",
+		"title": "Unser Traumteam"
+	},
+	"todo_demo": {
+		"add_card": "Karte hinzufügen",
+		"add_placeholder": "Aufgabe hinzufügen...",
+		"aria": {
+			"delete_task": "Aufgabe löschen",
+			"drag_handle": "Ziehen zum Neuordnen",
+			"toggle_task": "Aufgabe als erledigt markieren"
+		},
+		"chat": {
+			"empty_state": "Frag mich alles über diese Aufgabe",
+			"placeholder": "Frag etwas zu dieser Aufgabe...",
+			"title": "Aufgaben-KI"
+		},
+		"chatgpt_connect_description": "Verbinden Sie Ihr ChatGPT-Konto, damit Coda an Ihren Aufgaben arbeiten kann. Ohne Verbindung funktioniert Ihr Board als normale To-Do-Liste.",
+		"column": {
+			"done": "Erledigt",
+			"in-progress": "In Bearbeitung",
+			"prepared": "Vorbereitet",
+			"todo": "Zu erledigen",
+			"working-on": "In Bearbeitung"
+		},
+		"column_edit": {
+			"aria_edit": "Spalteneinstellungen bearbeiten",
+			"description": "Passe den Namen dieser Liste an und setze Anweisungen für Coda.",
+			"instructions_description": "Coda wird diesen Anweisungen für Aufgaben in dieser Spalte folgen.",
+			"instructions_label": "Coda-Anweisungen",
+			"instructions_placeholder": "z.B. Gründlich recherchieren, bevor zur nächsten Spalte verschoben wird...",
+			"name_description": "Leer lassen, um den Standardnamen zu verwenden.",
+			"name_label": "Listenname",
+			"title": "Spalte bearbeiten"
+		},
+		"cta": "Kostenlos starten",
+		"detail": {
+			"agent_draft_title": "Coda-Entwurf",
+			"agent_feedback_placeholder": "Sag Coda, was geändert werden soll...",
+			"agent_logs": "Coda-Protokolle",
+			"agent_reject": "Ablehnen",
+			"agent_send": "Senden",
+			"agent_status_awaiting": "Wartet auf deine Freigabe",
+			"agent_status_done": "Coda abgeschlossen",
+			"agent_status_working": "Coda arbeitet...",
+			"agent_submit_feedback": "Feedback senden",
+			"cancel": "Abbrechen",
+			"delete": "Löschen",
+			"description": "Aufgabendetails bearbeiten oder vom Board entfernen.",
+			"notes": "Notizen",
+			"notes_placeholder": "Notizen oder Kontext hinzufügen...",
+			"save": "Speichern",
+			"task_name": "Aufgabenname",
+			"title": "Aufgabendetails"
+		},
+		"drag_hint": "Aufgaben per Drag-and-Drop neu anordnen",
+		"heading": "Deine Todo-Liste hat gerade 8 Arme bekommen",
+		"priority": {
+			"high": "Hoch",
+			"low": "Niedrig",
+			"medium": "Mittel"
+		},
+		"sample": {
+			"task_1": "Restaurant für Samstag finden",
+			"task_2": "Bei Marc wegen dem Angebot nachfassen",
+			"task_3": "Fitnessstudio-Abo kündigen",
+			"task_4": "Flüge nach Berlin buchen",
+			"task_5": "Meeting mit Sarah vorbereiten",
+			"task_6": "Mit Konferenz-Speakern auf LinkedIn connecten"
+		},
+		"save_failed": "Änderungen am Board konnten nicht gespeichert werden. Bitte versuch es erneut.",
+		"subheading": "Füge eine Aufgabe hinzu. Promus recherchiert, formuliert und erledigt im Hintergrund — verbunden mit all deinen professionellen Tools."
+	},
+	"validation": {
+		"confirm_password": {
+			"mismatch": "Passwörter stimmen nicht überein.",
+			"required": "Bitte bestätige dein Passwort."
+		},
+		"email": {
+			"invalid": "Bitte gib eine gültige E-Mail-Adresse ein.",
+			"required": "Bitte gib deine E-Mail-Adresse ein."
+		},
+		"name": {
+			"required": "Bitte gib deinen Namen ein."
+		},
+		"password": {
+			"lowercase": "Passwort muss mindestens einen Kleinbuchstaben enthalten.",
+			"min_length": "Passwort muss mindestens {count, number} Zeichen lang sein.",
+			"number": "Passwort muss mindestens eine Zahl enthalten.",
+			"required": "Bitte gib dein Passwort ein.",
+			"uppercase": "Passwort muss mindestens einen Großbuchstaben enthalten."
+		}
+	}
+}

@@ -1,0 +1,121 @@
+<script lang="ts">
+	import LightSwitch from '$lib/components/ui/light-switch/light-switch.svelte';
+	import LanguageSwitcher from '$lib/components/LanguageSwitcher.svelte';
+	import Button from '$lib/components/ui/button/button.svelte';
+	import { cn } from '$lib/utils';
+	import { localizedHref } from '$lib/utils/i18n';
+	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
+	import Menu from '@lucide/svelte/icons/menu';
+	import X from '@lucide/svelte/icons/x';
+	import LogOut from '@lucide/svelte/icons/log-out';
+	import Logo from '$lib/components/icons/logo.svelte';
+	import { authClient } from '$lib/auth-client';
+	import { T, getTranslate } from '@tolgee/svelte';
+
+	const { t } = getTranslate();
+
+	const isAuthenticated = $derived(page.data.authState?.isAuthenticated ?? false);
+
+	// Scroll detection for button swap
+	let scrollY = $state(0);
+	const isAtTop = $derived(scrollY < 10);
+
+	let menuState = $state(false);
+</script>
+
+<svelte:window bind:scrollY />
+
+<header>
+	<nav class="fixed z-40 w-full pt-4">
+		<div class="mx-auto max-w-6xl px-6 lg:px-12">
+			<div
+				class="-mx-2 flex w-[calc(100%+1rem)] items-center justify-between rounded-full border border-black/[0.06] px-6 py-4 [box-shadow:inset_0_1px_1px_0_rgba(255,255,255,0.5)] backdrop-blur-[5px] transition-[height,transform] duration-300 [background:linear-gradient(137deg,rgba(252,252,255,0.9)_4.87%,rgba(240,240,248,0.95)_75.88%)] lg:-mx-8 lg:w-[calc(100%+4rem)] lg:px-5 dark:border-white/[0.06] dark:[box-shadow:inset_0_1px_1px_0_rgba(255,255,255,0.15)] dark:[background:linear-gradient(137deg,rgba(17,18,20,0.75)_4.87%,rgba(12,13,15,0.9)_75.88%)]"
+			>
+				<!-- Logo -->
+				<a href={resolve(localizedHref('/'))} class="ml-2 flex items-center space-x-2">
+					<Logo class="size-5" />
+					<span class="font-semibold">Promus</span>
+				</a>
+
+				<!-- Desktop Actions -->
+				<div class="hidden items-center gap-3 lg:flex">
+					<LightSwitch variant="ghost" />
+					<LanguageSwitcher variant="ghost" />
+					{#if isAuthenticated}
+						<Button size="sm" href={localizedHref('/app')}>
+							<T keyName="nav.my_tasks" defaultValue="My tasks" />
+						</Button>
+						<Button
+							variant="outline"
+							size="icon"
+							class="size-8"
+							onclick={() => authClient.signOut()}
+							aria-label={$t('aria.logout')}
+						>
+							<LogOut class="size-4" />
+						</Button>
+					{:else if isAtTop}
+						<Button variant="ghost" size="sm" href={localizedHref('/signin')}>
+							<T keyName="nav.login" />
+						</Button>
+						<Button size="sm" href={localizedHref('/signin?tab=signup')}>
+							<T keyName="nav.signup" />
+						</Button>
+					{:else}
+						<Button size="sm" href={localizedHref('/signin?tab=signup')}>
+							<T keyName="nav.get_started" />
+						</Button>
+					{/if}
+				</div>
+
+				<!-- Mobile Menu Button -->
+				<div class="flex items-center gap-1 lg:hidden">
+					<LightSwitch variant="ghost" />
+					<LanguageSwitcher variant="ghost" />
+					<button
+						onclick={() => (menuState = !menuState)}
+						aria-label={menuState ? $t('aria.menu_close') : $t('aria.menu_open')}
+						class="relative z-20 -m-2.5 -mr-4 block cursor-pointer p-2.5 pl-4"
+					>
+						<Menu
+							class={cn('m-auto size-6 duration-200', menuState && 'scale-0 rotate-180 opacity-0')}
+						/>
+						<X
+							class={cn(
+								'absolute inset-0 m-auto size-6 scale-0 -rotate-180 opacity-0 duration-200',
+								menuState && 'scale-100 rotate-0 opacity-100'
+							)}
+						/>
+					</button>
+				</div>
+			</div>
+		</div>
+	</nav>
+
+	<!-- Mobile Menu Dropdown -->
+	{#if menuState}
+		<div
+			class="fixed top-24 right-4 left-4 z-30 rounded-2xl border border-white/[0.06] bg-background/95 p-6 backdrop-blur-xl lg:hidden"
+		>
+			<div class="flex flex-col gap-3">
+				{#if isAuthenticated}
+					<Button size="sm" href={localizedHref('/app')} class="w-full">
+						<T keyName="nav.my_tasks" defaultValue="My tasks" />
+					</Button>
+				{:else if isAtTop}
+					<Button variant="ghost" size="sm" href={localizedHref('/signin')} class="w-full">
+						<T keyName="nav.login" />
+					</Button>
+					<Button size="sm" href={localizedHref('/signin?tab=signup')} class="w-full">
+						<T keyName="nav.signup" />
+					</Button>
+				{:else}
+					<Button size="sm" href={localizedHref('/signin?tab=signup')} class="w-full">
+						<T keyName="nav.get_started" />
+					</Button>
+				{/if}
+			</div>
+		</div>
+	{/if}
+</header>

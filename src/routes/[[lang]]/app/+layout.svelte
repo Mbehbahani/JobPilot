@@ -1,0 +1,45 @@
+<script lang="ts">
+	import { AuthenticatedLayout, getAppSidebarConfig } from '$lib/components/authenticated';
+	import SidebarConnections from '$lib/components/authenticated/sidebar-connections.svelte';
+	import PostHogIdentify from '$lib/components/analytics/PostHogIdentify.svelte';
+	import SupportTicketMigrationBootstrap from '$lib/components/customer-support/support-ticket-migration-bootstrap.svelte';
+	import { page } from '$app/state';
+	import type { LayoutData } from './$types';
+	import type { Snippet } from 'svelte';
+
+	interface Props {
+		children?: Snippet;
+		data: LayoutData;
+	}
+
+	let { children, data }: Props = $props();
+
+	// Cast viewer to include role field from BetterAuth admin plugin
+	const viewer = $derived(data.viewer as typeof data.viewer & { role?: string });
+
+	// Generate sidebar config based on current page state
+	const sidebarConfig = $derived(
+		getAppSidebarConfig({ pathname: page.url.pathname, lang: page.params.lang }, viewer?.role, viewer?._id)
+	);
+</script>
+
+<PostHogIdentify />
+<SupportTicketMigrationBootstrap />
+<AuthenticatedLayout
+	{sidebarConfig}
+	user={viewer
+		? {
+				name: viewer.name ?? 'User',
+				email: viewer.email ?? '',
+				image: viewer.image ?? undefined,
+				role: viewer.role ?? 'user'
+			}
+		: undefined}
+	routePrefix="app"
+	rootLabel="App"
+>
+	{#snippet connectionSlot()}
+		<SidebarConnections />
+	{/snippet}
+	{@render children?.()}
+</AuthenticatedLayout>

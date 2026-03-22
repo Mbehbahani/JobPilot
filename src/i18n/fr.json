@@ -1,0 +1,1208 @@
+{
+	"admin": {
+		"actions": {
+			"ban": "Bannir l'Utilisateur",
+			"impersonate": "Usurper",
+			"revoke_sessions": "Révoquer les Sessions",
+			"set_role": "Changer le Rôle",
+			"unban": "Débannir l'Utilisateur"
+		},
+		"dashboard": {
+			"database_backend": "Base de données & backend",
+			"email_service": "Service d'envoi d'e-mails",
+			"external_services": "Services Externes",
+			"hosting_deployment": "Hébergement & déploiement",
+			"title": "Tableau de bord Admin"
+		},
+		"dialog": {
+			"ban_description": "Tu es sûr de vouloir bannir {email} ? L'accès à l'app sera bloqué.",
+			"ban_reason_placeholder": "Motif du bannissement (optionnel)",
+			"ban_title": "Bannir l'Utilisateur",
+			"impersonation_active_description": "Recharge la page pour te connecter en tant qu'utilisateur usurpé.",
+			"impersonation_active_title": "Usurpation active",
+			"reload_page": "Recharger la page",
+			"revoke_description": "Tu es sûr de vouloir révoquer toutes les sessions de {email} ? La déconnexion sera effectuée partout.",
+			"revoke_title": "Révoquer les Sessions",
+			"set_role_description": "Tu es sûr de vouloir changer le rôle de {email} en {role} ?",
+			"set_role_title": "Changer le Rôle de l'Utilisateur",
+			"unban_description": "Tu es sûr de vouloir débannir {email} ? L'accès à l'app sera rétabli.",
+			"unban_title": "Débannir l'Utilisateur"
+		},
+		"metrics": {
+			"active_sessions": "Actifs (24h)",
+			"active_sessions_desc": "Actifs au cours des 24 dernières heures",
+			"admin_users": "Gestion de la plateforme",
+			"admins": "Admins",
+			"admins_desc": "Utilisateurs avec privilèges admin",
+			"banned_users": "Utilisateurs Bannis",
+			"banned_users_desc": "Accès restreint",
+			"currently_active": "Activité quotidienne",
+			"last_7_days": "7 derniers jours",
+			"recent_signups": "Inscriptions Récentes",
+			"recent_signups_desc": "Croissance des utilisateurs",
+			"registered_users": "Base d'utilisateurs",
+			"total_users": "Utilisateurs Totaux",
+			"total_users_desc": "Tous les comptes enregistrés",
+			"users_banned": "Comptes à vérifier"
+		},
+		"navigation": {
+			"app": "App",
+			"home": "Accueil",
+			"website": "Site Web"
+		},
+		"settings": {
+			"add_email": "Ajouter un Email",
+			"add_email_dialog_desc": "Ajouter une adresse email pour recevoir les notifications admin",
+			"add_email_dialog_title": "Ajouter un Email Personnalisé",
+			"add_email_placeholder": "email@example.com",
+			"column_email": "Email",
+			"column_name": "Nom",
+			"column_new_signups": "Nouvelles Inscriptions",
+			"column_new_tickets": "Nouveaux Tickets",
+			"column_type": "Type",
+			"column_user_replies": "Réponses Utilisateur",
+			"default_support_email": "Email de Support par Défaut",
+			"default_support_email_help": "Laisser vide pour envoyer les notifications à tous les administrateurs.",
+			"default_support_email_placeholder": "support@example.com",
+			"delete_email": "Supprimer",
+			"delete_email_confirm": "Supprimer {email} des destinataires de notifications ?",
+			"delete_email_description": "Supprimer {email} des destinataires de notifications ?",
+			"delete_email_title": "Supprimer l'Email",
+			"description": "Configure les paramètres du panneau d'administration et les notifications.",
+			"email_add_failed": "Impossible d'ajouter l'email",
+			"email_added": "Email ajouté",
+			"email_exists": "Cet email existe déjà",
+			"email_removed": "Email supprimé",
+			"field_new_signups": "Notifications de nouvelles inscriptions",
+			"field_new_tickets": "Notifications de nouveaux tickets",
+			"field_user_replies": "Notifications de réponses utilisateur",
+			"filter": {
+				"admin_only": "Admins Uniquement",
+				"all_types": "Tous les Types",
+				"clear": "Effacer",
+				"custom_only": "Personnalisés Uniquement"
+			},
+			"invalid_email": "Adresse email invalide",
+			"no_recipients": "Aucun destinataire de notifications configuré",
+			"notification_recipients": "Destinataires des Notifications",
+			"notification_recipients_desc": "Définis qui reçoit les notifications admin. Les utilisateurs admin sont automatiquement inclus.",
+			"preference_disabled": "{field} désactivées",
+			"preference_disabling": "Désactivation de {field}...",
+			"preference_enabled": "{field} activées",
+			"preference_enabling": "Activation de {field}...",
+			"preference_update_failed": "Échec de la mise à jour de la préférence",
+			"recipient_count": "{count, plural, one {# destinataire} other {# destinataires}}",
+			"save": "Enregistrer les Paramètres",
+			"saved": "Paramètres enregistrés",
+			"saving": "Enregistrement...",
+			"selected": "{selected} sur {total} sélectionnés",
+			"support_notifications": "Notifications de Support",
+			"support_notifications_desc": "Configure les notifications par email pour les tickets de support nouveaux et rouverts non assignés.",
+			"tabs": {
+				"notifications": "Notifications",
+				"recipients": "Destinataires"
+			},
+			"title": "Paramètres Admin",
+			"type_admin": "Admin",
+			"type_custom": "Personnalisé"
+		},
+		"sidebar": {
+			"back_to_app": "Retour à l'App",
+			"dashboard": "Tableau de bord",
+			"settings": "Paramètres",
+			"support": "Support",
+			"users": "Utilisateurs"
+		},
+		"support": {
+			"all_statuses": "Tous les statuts",
+			"assignee": {
+				"not_assigned": "Non assigné",
+				"unassigned": "Non assigné"
+			},
+			"chat": {
+				"placeholder": "Répondre au client...",
+				"send_error": "Échec de l'envoi de la réponse. Réessaie."
+			},
+			"details": {
+				"assignee": "Assigné à",
+				"close_panel": "Fermer le panneau des détails",
+				"notes": "Notes Internes",
+				"open_panel": "Ouvrir le panneau des détails",
+				"page_url": "URL de la page",
+				"priority": "Priorité",
+				"status": "Statut",
+				"title": "Détails",
+				"user_notes": "Notes Utilisateur",
+				"user_notes_description": "Les notes sont enregistrées au niveau de l'utilisateur et apparaissent dans tous leurs fils de support"
+			},
+			"email": {
+				"label": "Email de notification"
+			},
+			"fallback": {
+				"admin": "Admin",
+				"no_user": "Aucun utilisateur associé à ce fil"
+			},
+			"filter": {
+				"all": "Tous",
+				"my_inbox": "Ma boîte de réception",
+				"unassigned": "Non assigné"
+			},
+			"no_chats": "Aucun chat trouvé",
+			"no_done_chats": "Aucun chat terminé",
+			"no_open_chats": "Aucun chat ouvert",
+			"note": {
+				"add": "Ajouter une note",
+				"adding": "Ajout en cours...",
+				"placeholder": "Ajouter une note interne..."
+			},
+			"priority": {
+				"high": "Haute",
+				"low": "Basse",
+				"medium": "Moyenne",
+				"none": "Aucune"
+			},
+			"search": {
+				"placeholder": "Rechercher des chats..."
+			},
+			"select_chat": "Sélectionne un chat pour voir la conversation",
+			"select_chat_for_details": "Sélectionne un chat pour voir les détails",
+			"status": {
+				"done": "Terminé",
+				"in_progress": "En cours",
+				"open": "Ouvert",
+				"resolved": "Résolu"
+			},
+			"thread": {
+				"badge": {
+					"new": "Nouveau"
+				},
+				"load_failed": "Échec du chargement",
+				"loading": "Chargement...",
+				"no_messages": "Aucun message",
+				"retry": "Réessayer"
+			},
+			"title": "Chats de Support"
+		},
+		"title": "Panneau Admin",
+		"users": {
+			"actions_column": "Actions",
+			"ban_reason": {
+				"default": "Violation des conditions d'utilisation"
+			},
+			"banned": "Banni",
+			"created": "Créé",
+			"email": "E-mail",
+			"filter": {
+				"all_roles": "Tous les rôles",
+				"all_status": "Tous les statuts",
+				"clear": "Effacer",
+				"role_admin": "Admin",
+				"role_user": "Utilisateur",
+				"status_banned": "Banni",
+				"status_unverified": "Non vérifié",
+				"status_verified": "Vérifié"
+			},
+			"loading": "Chargement des utilisateurs...",
+			"menu_open": "Ouvrir le menu",
+			"name": "Nom",
+			"no_results": "Aucun résultat.",
+			"page_indicator": "Page {current} sur {total}",
+			"pagination": {
+				"first": "Aller à la première page",
+				"last": "Aller à la dernière page",
+				"next": "Aller à la page suivante",
+				"previous": "Aller à la page précédente"
+			},
+			"role": "Rôle",
+			"rows_per_page": "Lignes par page",
+			"search_placeholder": "Rechercher des utilisateurs...",
+			"select_all": "Tout sélectionner",
+			"select_row": "Sélectionner la ligne",
+			"selected": "{selected} sur {total} utilisateurs sélectionnés",
+			"status": "Statut",
+			"title": "Gestion des Utilisateurs",
+			"toast": {
+				"assignment_failed": "Échec de la mise à jour de l'assignation : {message}",
+				"assignment_updated": "Assignation mise à jour",
+				"ban_failed": "Échec du bannissement : {message}",
+				"banned": "Utilisateur banni",
+				"impersonate_failed": "Échec de l'usurpation : {message}",
+				"note_added": "Note ajoutée",
+				"note_failed": "Échec de l'ajout de la note : {message}",
+				"priority_failed": "Échec de la mise à jour de la priorité : {message}",
+				"priority_updated": "Priorité mise à jour",
+				"revoke_failed": "Échec de la révocation des sessions : {message}",
+				"revoked": "Toutes les sessions ont été révoquées",
+				"role_failed": "Échec du changement de rôle : {message}",
+				"role_updated": "Rôle de l'utilisateur changé en {role}",
+				"status_failed": "Échec de la mise à jour du statut : {message}",
+				"status_updated": "Statut mis à jour",
+				"unban_failed": "Échec du débannissement : {message}",
+				"unbanned": "Utilisateur débanni"
+			},
+			"total": "utilisateurs",
+			"unnamed": "Sans nom",
+			"unverified": "Non vérifié",
+			"verified": "Vérifié"
+		}
+	},
+	"app": {
+		"name": "Promus",
+		"sidebar": {
+			"admin_panel": "Panneau Admin",
+			"browse_jobs": "Parcourir les offres",
+			"community_chat": "Chat communautaire",
+			"connect_accounts": "Connecter des comptes",
+			"connect_accounts_error": "Impossible d'obtenir le lien de connexion. Réessaie.",
+			"dashboard": "Tableau de bord",
+			"docs": "Documentation",
+			"home": "Accueil",
+			"my_tasks": "Mes tâches",
+			"sandbox": "Sandbox"
+		},
+		"user_menu": {
+			"account": "Compte",
+			"billing": "Facturation",
+			"impersonating_banner": "Tu usurpes l'identité de cet utilisateur",
+			"impersonation_stop_failed": "Échec de l'arrêt de l'usurpation",
+			"impersonation_stopped": "Usurpation arrêtée",
+			"logout": "Se déconnecter",
+			"notifications": "Notifications",
+			"settings": "Paramètres",
+			"stop_impersonating": "Arrêter l'usurpation",
+			"upgrade_pro": "Passer à Pro"
+		}
+	},
+	"aria": {
+		"actions": "Actions",
+		"breadcrumb": "fil d'Ariane",
+		"change_language": "Changer la langue",
+		"close": "Fermer",
+		"confirmation": "Confirmation",
+		"copied": "Copié",
+		"copy": "Copier",
+		"copy_failed": "Échec de la copie",
+		"drag_to_reorder": "Glisser pour réorganiser",
+		"feedback_close": "Fermer les commentaires",
+		"feedback_open": "Ouvrir les commentaires",
+		"github_repository": "Dépôt GitHub",
+		"go_back": "Retour",
+		"hide_password": "Masquer le mot de passe",
+		"home": "accueil",
+		"interactive_pointer_tracking_area": "Zone interactive de suivi du pointeur",
+		"limit": "Limite",
+		"loading": "Chargement",
+		"login_with_apple": "Se connecter avec Apple",
+		"login_with_google": "Se connecter avec Google",
+		"login_with_meta": "Se connecter avec Meta",
+		"logout": "Se déconnecter",
+		"menu_close": "Fermer le menu",
+		"menu_open": "Ouvrir le menu",
+		"more": "Plus",
+		"notification_toggle_for_email": "{field} pour {email}",
+		"pagination_first": "Première page",
+		"pagination_last": "Dernière page",
+		"pagination_next": "Page suivante",
+		"pagination_previous": "Page précédente",
+		"remove_attachment": "Supprimer la pièce jointe",
+		"reviewer": "Réviseur",
+		"scroll_to_bottom": "Faire défiler vers le bas",
+		"select_all": "Tout sélectionner",
+		"select_row": "Sélectionner la ligne",
+		"select_value": "Sélectionner une valeur",
+		"show_password": "Afficher le mot de passe",
+		"target": "Cible",
+		"toggle_sidebar": "Basculer la barre latérale",
+		"toggle_theme": "Changer le thème",
+		"view": "Voir"
+	},
+	"auth": {
+		"back_to_home": "Retour à l'accueil",
+		"errors": {
+			"confirm_password_required": "Confirme ton mot de passe",
+			"current_password_required": "Le mot de passe actuel est requis",
+			"invalid_credentials": "E-mail ou mot de passe invalide",
+			"invalid_email": "Entre une adresse e-mail valide",
+			"invalid_secret": "Secret invalide",
+			"name_required": "Le nom est requis",
+			"oauth_failed": "La connexion sociale a échoué. Réessaie.",
+			"passkey_failed": "L'authentification par passkey a échoué",
+			"password_lowercase": "Le mot de passe doit contenir au moins une lettre minuscule",
+			"password_min_length": "Le mot de passe doit contenir au moins {minLength} caractères",
+			"password_number": "Le mot de passe doit contenir au moins un chiffre",
+			"password_required": "Le mot de passe est requis",
+			"password_uppercase": "Le mot de passe doit contenir au moins une lettre majuscule",
+			"passwords_do_not_match": "Les mots de passe ne correspondent pas",
+			"signup_failed": "Impossible de créer le compte. L'e-mail est peut-être déjà utilisé.",
+			"verification_invalid": "Code de vérification invalide ou expiré. Réessaie."
+		},
+		"forgot_password": {
+			"back_to_signin": "Retour à la connexion",
+			"button_loading": "Envoi en cours...",
+			"button_submit": "Envoyer le lien",
+			"description": "On t'envoie un lien de réinitialisation",
+			"title": "Mot de passe oublié"
+		},
+		"login": "Connexion",
+		"logout": "Déconnexion",
+		"messages": {
+			"auth_cancelled": "L'authentification a été annulée",
+			"email_change_failed": "Impossible de modifier l'e-mail",
+			"email_not_verified": "Vérifie ton adresse e-mail",
+			"email_same_as_current": "Le nouvel e-mail doit être différent de l'actuel",
+			"email_updated": "E-mail mis à jour avec succès",
+			"email_verification_sent": "Un e-mail de vérification a été envoyé à ton adresse actuelle. Vérifie ta boîte de réception pour approuver le changement.",
+			"generic_error": "Une erreur est survenue. Réessaie.",
+			"invalid_credentials": "E-mail ou mot de passe invalide",
+			"invalid_token": "Jeton invalide ou expiré",
+			"missing_reset_token": "Jeton de réinitialisation manquant ou invalide",
+			"oauth_failed": "La connexion sociale a échoué. Réessaie.",
+			"passkey_add_failed": "Impossible d'ajouter la passkey",
+			"passkey_added": "Passkey ajoutée avec succès",
+			"passkey_delete_failed": "Impossible de supprimer la passkey",
+			"passkey_deleted": "Passkey supprimée",
+			"passkey_failed": "L'authentification par passkey a échoué",
+			"passkey_load_failed": "Impossible de charger les passkeys",
+			"password_change_failed": "Impossible de changer le mot de passe",
+			"password_changed": "Mot de passe modifié avec succès",
+			"password_compromised": "Ce mot de passe est compromis",
+			"password_reset_success": "Ton mot de passe a été réinitialisé avec succès.",
+			"rate_limited": "Trop de requêtes. Réessaie plus tard.",
+			"request_reset_failed": "Impossible de demander la réinitialisation du mot de passe",
+			"reset_failed": "Impossible de réinitialiser le mot de passe",
+			"reset_link_sent": "Vérifie ton e-mail pour le lien de réinitialisation.",
+			"signup_disabled": "L'inscription est désactivée",
+			"signup_failed": "Impossible de créer le compte",
+			"too_many_attempts": "Trop de tentatives. Réessaie plus tard.",
+			"user_already_exists": "Un compte avec cet e-mail existe déjà"
+		},
+		"reset_password": {
+			"back_to_signin": "Retour à la connexion",
+			"button_loading": "Réinitialisation...",
+			"button_submit": "Réinitialiser le mot de passe",
+			"confirm_password_label": "Confirmer le nouveau mot de passe",
+			"description": "Entre ton nouveau mot de passe",
+			"new_password_label": "Nouveau mot de passe",
+			"sign_in_link": "Se connecter",
+			"success": "Ton mot de passe a été réinitialisé.",
+			"title": "Réinitialiser le mot de passe"
+		},
+		"signin": {
+			"button_signin": "Se connecter",
+			"button_signin_loading": "Connexion en cours...",
+			"button_signup": "S'inscrire",
+			"button_signup_loading": "Création du compte...",
+			"cancel": "Annuler",
+			"description": "Connecte-toi à ton compte ou crées-en un nouveau",
+			"email_label": "E-mail",
+			"email_placeholder": "toi@exemple.fr",
+			"forgot_password": "Mot de passe oublié ?",
+			"link_signup": "S'inscrire",
+			"name_label": "Nom",
+			"no_account": "Pas encore de compte ?",
+			"oauth_github": "GitHub",
+			"oauth_google": "Google",
+			"oauth_last_used": "Dernière utilisation",
+			"or_continue_with": "Ou continuer avec",
+			"passkey_button": "Se connecter avec Passkey",
+			"password_label": "Mot de passe",
+			"password_placeholder": "••••••••",
+			"tab_signin": "Connexion",
+			"tab_signup": "S'inscrire",
+			"test_secret_button": "Se connecter avec un secret",
+			"test_secret_label": "Test uniquement : Se connecter avec un secret",
+			"test_secret_placeholder": "valeur secrète",
+			"title": "Bon retour"
+		},
+		"signup": "S'inscrire",
+		"signup.description": "Entre tes informations pour commencer",
+		"signup.has_account": "Déjà un compte ?",
+		"signup.link_signin": "Se connecter",
+		"signup.password_hint": "Minimum 10 caractères avec majuscules, minuscules et chiffre",
+		"signup.title": "Créer un compte",
+		"terms": {
+			"agreement": "En continuant, tu acceptes nos",
+			"and": "et notre",
+			"privacy_policy": "Politique de confidentialité",
+			"terms_of_service": "Conditions d'utilisation"
+		},
+		"verification": {
+			"button_back": "Retour à la connexion",
+			"button_cancel": "Annuler",
+			"button_verify": "Vérifier l'e-mail",
+			"button_verify_loading": "Vérification en cours...",
+			"check_email": "Vérifie ton e-mail et clique sur le lien de vérification pour finaliser ton inscription.",
+			"code_label": "Code de vérification",
+			"code_placeholder": "12345678",
+			"description": "On t'a envoyé un lien de vérification",
+			"sent_to": "On a envoyé un e-mail de vérification à",
+			"title": "Vérification de l'e-mail",
+			"verified_description": "Ton e-mail a été vérifié. Connexion en cours...",
+			"verified_title": "E-mail vérifié"
+		}
+	},
+	"backend": {
+		"files": {
+			"fetch_failed": "Impossible de récupérer le fichier téléchargé. Réessaie.",
+			"type_not_allowed": "Type de fichier non autorisé. Formats supportés : PNG, JPEG, WebP, GIF, PDF"
+		},
+		"support": {
+			"handoff": {
+				"response": "Bien sûr ! Je te connecte maintenant. Entre ton email ci-dessous et on te notifiera quand notre équipe de support aura répondu. En attendant, n'hésite pas à ajouter des détails supplémentaires qui pourraient nous aider."
+			},
+			"rate_limit": {
+				"global": "Je suis actuellement très sollicité. Réessaie d'envoyer ton message dans un instant.",
+				"user": "Trop de messages. Attends avant d'en envoyer un autre."
+			},
+			"summary": {
+				"default": "Nouvelle conversation de support"
+			},
+			"title": {
+				"default": "Support Client"
+			}
+		}
+	},
+	"call": {
+		"call_me": "Appelle-moi",
+		"error": "Échec de l'appel",
+		"in_progress": "Appel en cours...",
+		"initiated": "On vous appelle !"
+	},
+	"chat": {
+		"action": {
+			"talk_to_human": "Parler à un humain"
+		},
+		"alerts": {
+			"limit_reached": {
+				"description": "Tu as utilisé tous tes {total} messages gratuits de ce mois.",
+				"title": "Limite de Messages Atteinte"
+			},
+			"low_messages": {
+				"description": "Il te reste {remaining} message sur {total} pour ce mois.",
+				"description_plural": "Il te reste {remaining} messages sur {total} pour ce mois.",
+				"title": "Peu de Messages"
+			}
+		},
+		"aria": {
+			"remove_attachment": "Supprimer {filename}",
+			"send": "Envoyer"
+		},
+		"attachment": {
+			"dialog_title": "Pièce jointe",
+			"file_fallback": "Fichier",
+			"generic_fallback": "Pièce jointe",
+			"image_fallback": "Image"
+		},
+		"avatar": {
+			"team_member": "Membre de l'équipe"
+		},
+		"buttons": {
+			"processing": "Traitement...",
+			"upgrade": "Passer à Pro"
+		},
+		"description": "Ouvre cette application dans plusieurs fenêtres de navigateur pour voir la base de données en temps réel en action",
+		"email": {
+			"placeholder": "Email",
+			"save_failed": "Échec de l'enregistrement de l'email. Réessaie.",
+			"saved_success": "Email enregistré ! On te notifiera lorsqu'on répondra.",
+			"subscribe_button": "S'abonner",
+			"unsubscribe_failed": "Échec du désabonnement. Réessaie.",
+			"unsubscribe_tooltip": "Se désabonner",
+			"unsubscribed": "Désabonné des notifications par email."
+		},
+		"error": {
+			"file_max_size": "Taille maximale : {maxSize}",
+			"file_too_large": "Fichier trop volumineux : \"{filename}\"",
+			"max_attachments": "Maximum {max} pièces jointes autorisées",
+			"pasted_file_too_large": "Fichier collé trop volumineux"
+		},
+		"greeting": "Comment peut-on t'aider ?",
+		"greeting_hi": "Salut",
+		"header": {
+			"messages_left": "({remaining}/{total} message restant)",
+			"messages_left_plural": "({remaining}/{total} messages restants)",
+			"pro_unlimited": "(Pro - Illimité)",
+			"subtitle": "Chat en temps réel",
+			"title": "Chat"
+		},
+		"input": {
+			"placeholder": "Tape un message...",
+			"placeholder_disabled": "Limite de messages atteinte",
+			"send_tooltip": "Envoyer le message",
+			"upgrade_tooltip": "Passe à Pro pour des messages illimités"
+		},
+		"messages": {
+			"send_failed": "Échec de l'envoi du message",
+			"sent_success": "Message envoyé !"
+		},
+		"reasoning": {
+			"connecting": "Connexion...",
+			"thinking": "Réflexion...",
+			"thought_for_few_seconds": "A réfléchi pendant quelques secondes",
+			"thought_for_seconds": "A réfléchi pendant {duration} seconde",
+			"thought_for_seconds_plural": "A réfléchi pendant {duration} secondes"
+		},
+		"suggestion": {
+			"help_label": "Obtenir de l'aide",
+			"help_text": "Tu peux m'aider avec...",
+			"issue_label": "Signaler un problème",
+			"issue_text": "J'ai trouvé un problème avec...",
+			"question_label": "Poser une question",
+			"question_text": "J'ai une question sur..."
+		},
+		"title": "Chat Communautaire",
+		"tooltip": {
+			"attach_files": "Joindre des fichiers",
+			"mark_bug": "Marquer le bug"
+		}
+	},
+	"common": {
+		"adding": "Ajout en cours...",
+		"cancel": "Annuler",
+		"confirm": "Confirmer"
+	},
+	"email": {
+		"body": {
+			"no_messages": "Aucun message",
+			"ticket_message": "{userName} a envoyé un nouveau message sur un ticket précédemment fermé",
+			"ticket_new": "Nouveau ticket de support",
+			"ticket_reopened": "Ticket de support rouvert",
+			"ticket_started": "{userName} a démarré une nouvelle conversation de support"
+		},
+		"subject": {
+			"reset_password": "Réinitialise ton mot de passe",
+			"support_reply": "Nouvelle réponse à ta demande de support",
+			"ticket_new": "Nouveau ticket de support de {userName}",
+			"ticket_reopened": "Ticket de support rouvert par {userName}",
+			"verify": "Vérifie ton email"
+		}
+	},
+	"error_page": {
+		"back_home": "Retour à l'accueil",
+		"generic_description": "Une erreur inattendue s'est produite lors du chargement de cette page.",
+		"generic_title": "Un problème est survenu",
+		"need_help": "Besoin d'aide ?",
+		"not_found_description": "La page que tu cherches n'existe pas. Essaie de rechercher ce dont tu as besoin ci-dessous.",
+		"not_found_title": "404 - Page introuvable",
+		"search_placeholder": "Essaie de rechercher des pages..."
+	},
+	"hero": {
+		"companies_text": "Rendu possible par",
+		"cta": "Commencer",
+		"cta_demo": "Demander une démo",
+		"cta_sourcecode": "Voir le code source",
+		"description": "Coda complète tes tâches. Connecté à tous tes outils professionnels.",
+		"section_label": "Accueil",
+		"tagline": "Ta liste de tâches vient de pousser 8 bras.",
+		"title": "Promus"
+	},
+	"integrations": {
+		"cards": {
+			"autumn_stripe": {
+				"button": "Visiter Autumn",
+				"description": "Autumn gère la facturation, les limites de fonctionnalités et le suivi d'utilisation—sans complexité de webhooks. Stripe pour le traitement des paiements.",
+				"secondary_button": "Visiter Stripe",
+				"secondary_title": "Stripe",
+				"title": "Autumn + Stripe"
+			},
+			"better_auth": {
+				"button": "Visiter Better Auth",
+				"description": "La bibliothèque d'authentification la plus complète pour TypeScript. Sessions, OAuth, passkeys et multi-tenancy prêts à l'emploi.",
+				"title": "Better Auth"
+			},
+			"convex": {
+				"button": "Visiter Convex",
+				"description": "L'alternative open source à Firebase. Basé sur PostgreSQL - la base de données relationnelle la plus avancée au monde.",
+				"title": "Convex"
+			},
+			"posthog": {
+				"button": "Visiter PostHog",
+				"description": "PostHog est une plateforme d'analyse produit open source pour suivre le comportement des utilisateurs et mesurer les conversions.",
+				"title": "PostHog"
+			},
+			"resend": {
+				"button": "Visiter Resend",
+				"description": "L'API email pour les développeurs. Crée et envoie des emails transactionnels avec une API moderne et fiable conçue pour l'échelle.",
+				"title": "Resend"
+			},
+			"sentry": {
+				"button": "Visiter Sentry",
+				"description": "Surveillance d'applications et suivi des erreurs. Identifie les problèmes avant tes utilisateurs avec des alertes en temps réel et des stack traces détaillées.",
+				"title": "Sentry"
+			},
+			"shadcn_svblocks": {
+				"button": "Visiter Shadcn Svelte",
+				"description": "Un ensemble de composants magnifiquement conçus et accessibles construits avec Tailwind CSS v4 et Bits UI.",
+				"secondary_button": "SVBlocks",
+				"secondary_title": "SVBlocks",
+				"title": "Shadcn Svelte + SVBlocks"
+			},
+			"svelte": {
+				"button": "Visiter Svelte 5",
+				"description": "Le framework frontend le plus aimé. Une façon simple, performante et pérenne de construire ton application web.",
+				"title": "Svelte 5"
+			},
+			"tolgee": {
+				"button": "Visiter Tolgee",
+				"description": "L'internationalisation bien faite. Édition en contexte et traduction assistée par ML pour un flux de localisation fluide.",
+				"title": "Tolgee"
+			}
+		},
+		"description": "Promus fonctionne avec les outils que tu utilises déjà",
+		"title": "Connecté à tes outils"
+	},
+	"meta": {
+		"about": {
+			"description": "Découvre l'équipe talentueuse derrière notre produit",
+			"title": "À propos de nous - Découvre notre équipe"
+		},
+		"admin": {
+			"dashboard": {
+				"description": "Surveille les métriques de la plateforme et les services externes.",
+				"title": "Tableau de bord Admin"
+			},
+			"home": {
+				"description": "Redirection vers le tableau de bord administrateur.",
+				"title": "Admin"
+			},
+			"settings": {
+				"description": "Configure les destinataires et préférences de notifications admin.",
+				"title": "Paramètres Admin"
+			},
+			"support": {
+				"description": "Consulte et réponds aux conversations de support client.",
+				"title": "Boîte de support"
+			},
+			"users": {
+				"description": "Gère les utilisateurs, les rôles et l'état des comptes.",
+				"title": "Gestion des utilisateurs"
+			}
+		},
+		"app": {
+			"community_chat": {
+				"description": "Discute avec la communauté en temps réel.",
+				"title": "Chat communautaire"
+			},
+			"dashboard": {
+				"description": "Consulte les métriques clés et l'activité récente.",
+				"title": "Tableau de bord"
+			},
+			"home": {
+				"description": "Redirection vers le tableau de bord de ton espace de travail.",
+				"title": "Accueil App"
+			},
+			"sandbox": {
+				"description": "Assistant de programmation IA dans un sandbox cloud",
+				"title": "Vibe Sandbox"
+			},
+			"settings": {
+				"description": "Gère les paramètres et préférences de ton compte.",
+				"title": "Paramètres"
+			}
+		},
+		"auth": {
+			"email_verified": {
+				"description": "Ton adresse e-mail a été vérifiée. Tu peux continuer vers ton compte.",
+				"title": "E-mail vérifié"
+			},
+			"forgot_password": {
+				"description": "Demande un lien de réinitialisation de mot de passe.",
+				"title": "Mot de passe oublié"
+			},
+			"reset_password": {
+				"description": "Définis un nouveau mot de passe pour ton compte.",
+				"title": "Réinitialiser le mot de passe"
+			},
+			"signin": {
+				"description": "Connecte-toi à ton compte ou crées-en un nouveau.",
+				"title": "Connexion"
+			}
+		},
+		"emails": {
+			"preview": {
+				"description": "Prévisualise les modèles d'e-mails et leur rendu.",
+				"title": "Aperçu des e-mails"
+			}
+		},
+		"home": {
+			"description": "Ajoute une tâche. Promus recherche, rédige et exécute — connecté à ton email, calendrier et messages.",
+			"title": "Coda fait tes tâches"
+		},
+		"pricing": {
+			"description": "Choisis une offre et teste le flux de facturation intégré.",
+			"title": "Tarifs"
+		},
+		"shadcn_demo": {
+			"description": "Prévisualise les composants UI utilisés dans ce projet.",
+			"title": "Démo Shadcn"
+		}
+	},
+	"my_tasks": {
+		"connections": {
+			"connect": "Connecter",
+			"no_accounts": "Aucun compte connecté"
+		}
+	},
+	"nav": {
+		"about": "À propos",
+		"dashboard": "Tableau de bord",
+		"features": "Fonctionnalités",
+		"get_started": "Commencer",
+		"home": "Accueil",
+		"login": "Connexion",
+		"my_tasks": "Mes tâches",
+		"open_app": "Ouvrir l'app",
+		"pricing": "Tarifs",
+		"signup": "S'inscrire",
+		"solution": "Comment ça marche"
+	},
+	"pricing": {
+		"buttons": {
+			"loading": "Chargement...",
+			"manage_subscription": "Gérer l'Abonnement"
+		},
+		"current_plan": "Plan Actuel",
+		"current_plan_badge": "(Plan Actuel)",
+		"description": "Des tarifs simples pour une liste de tâches plus intelligente. Teste Coda gratuitement, passe au niveau supérieur quand tu en as besoin.",
+		"description_autumn": "Des tarifs simples pour une liste de tâches plus intelligente. Teste Coda gratuitement, passe au niveau supérieur quand tu en as besoin.",
+		"features": {
+			"enterprise": {
+				"0": "Limites de messages personnalisées",
+				"1": "Gestionnaire de compte dédié",
+				"2": "Garanties SLA",
+				"3": "Fonctionnalités de sécurité avancées"
+			},
+			"enterprise[0]": "Limites de messages personnalisées",
+			"enterprise[1]": "Gestionnaire de compte dédié",
+			"enterprise[2]": "Garanties SLA",
+			"enterprise[3]": "Fonctionnalités de sécurité avancées",
+			"enterprise[4]": "Intégrations personnalisées",
+			"enterprise[5]": "Options de marque blanche",
+			"free": {
+				"0": "10 messages par mois",
+				"1": "Accès complet au code source",
+				"2": "Toutes les fonctionnalités incluses",
+				"3": "Licence MIT"
+			},
+			"free[0]": "10 messages par mois",
+			"free[1]": "Accès complet au code source",
+			"free[2]": "Toutes les fonctionnalités incluses",
+			"free[3]": "Licence MIT",
+			"pro": {
+				"0": "Messages illimités",
+				"1": "Accès complet au code source",
+				"2": "Toutes les fonctionnalités incluses",
+				"3": "Support prioritaire"
+			},
+			"pro[0]": "Messages illimités",
+			"pro[1]": "Accès complet au code source",
+			"pro[2]": "Toutes les fonctionnalités incluses",
+			"pro[3]": "Support prioritaire"
+		},
+		"popular_badge": "Populaire",
+		"section_label": "Tarifs",
+		"tiers": {
+			"enterprise": {
+				"button": "Contacter les Ventes",
+				"description": "Pour les organisations avec des besoins spécifiques",
+				"name": "Enterprise",
+				"price": "Personnalisé"
+			},
+			"free": {
+				"button": "Gratuit à vie",
+				"button_manage": "Gérer l'Abonnement",
+				"description": "Parfait pour commencer",
+				"name": "Gratuit",
+				"price": "0€ / mois"
+			},
+			"pro": {
+				"button": "Passer à Pro",
+				"button_loading": "Traitement...",
+				"button_manage": "Gérer l'Abonnement",
+				"description": "Messages illimités et support prioritaire",
+				"name": "Pro",
+				"price": "10€ / mois"
+			}
+		},
+		"title": "Tarifs simples"
+	},
+	"sandbox": {
+		"delete_sandbox": "Supprimer",
+		"description": "Assistant de programmation IA dans un sandbox cloud",
+		"empty_state": "Démarrez un sandbox pour commencer à coder avec Vibe",
+		"input_placeholder": "Décrivez ce que vous souhaitez construire...",
+		"send": "Envoyer",
+		"start_sandbox": "Démarrer le Sandbox",
+		"status": {
+			"creating": "Création...",
+			"error": "Erreur",
+			"ready": "Prêt",
+			"stopped": "Arrêté"
+		},
+		"stop_sandbox": "Arrêter",
+		"title": "Vibe Sandbox"
+	},
+	"search": {
+		"command": {
+			"dialog_description": "Recherche une page vers laquelle naviguer.",
+			"dialog_title": "Rechercher des pages",
+			"footer": {
+				"go_to_page": "Aller à la page"
+			},
+			"groups": {
+				"admin": "Admin",
+				"app": "App",
+				"authentication": "Authentification",
+				"public": "Public"
+			},
+			"input_placeholder": "Rechercher des pages...",
+			"no_results": "Aucun résultat trouvé.",
+			"trigger_aria_label": "Ouvrir la recherche",
+			"trigger_desktop": "Rechercher des pages...",
+			"trigger_mobile": "Rechercher..."
+		}
+	},
+	"settings": {
+		"account": {
+			"avatar": {
+				"alt": "Aperçu du profil",
+				"ready": "Image prête à enregistrer",
+				"removed": "Image supprimée - clique sur Enregistrer pour confirmer",
+				"select_error": "Sélectionne un fichier image",
+				"size_error": "L'image doit être inférieure à {size}",
+				"upload_failed": "Échec du téléchargement de l'image"
+			},
+			"description": "Mets à jour les informations de ton compte ici.",
+			"error": "Échec de la mise à jour du profil",
+			"file_helper": "PNG, JPG ou GIF jusqu'à 2 Mo.",
+			"link_from_url": "Lien depuis URL",
+			"name": {
+				"placeholder": "Ton nom"
+			},
+			"name_helper": "C'est ton nom d'affichage public.",
+			"name_label": "Nom",
+			"no_image": "Pas d'image",
+			"or": "ou",
+			"phone_helper": "Pour appels de briefing. Inclure l'indicatif.",
+			"phone_label": "Numéro de téléphone",
+			"phone_placeholder": "+33 6 12 34 56 78",
+			"profile_picture": "Photo de profil",
+			"profile_picture_helper": "Télécharge une image ou colle un lien. On recommande une image carrée de moins de 2 Mo.",
+			"remove_button": "Supprimer",
+			"save_button": "Enregistrer",
+			"saving": "Enregistrement...",
+			"success": "Profil mis à jour avec succès",
+			"title": "Informations du compte",
+			"upload_file": "Télécharger un fichier",
+			"url_helper": "Colle un lien d'image au lieu de télécharger.",
+			"url_placeholder": "https://example.com/avatar.jpg"
+		},
+		"connections": {
+			"connect_button": "Connecter un compte",
+			"connect_failed": "Impossible d'obtenir le lien de connexion",
+			"connecting": "Connexion en cours...",
+			"description": "Connecte et gère tes comptes externes.",
+			"disconnect_button_label": "Déconnecter le compte",
+			"disconnect_confirm": "Déconnecter",
+			"disconnect_description": "Tu es sûr de vouloir déconnecter {name} ({type}) ? Cette action est irréversible.",
+			"disconnect_failed": "Impossible de déconnecter le compte",
+			"disconnect_title": "Déconnecter le compte",
+			"disconnected": "Compte déconnecté",
+			"error_title": "Erreur",
+			"info_description": "Connecte tes comptes de messagerie et d'e-mail pour activer les fonctionnalités de communication unifiée.",
+			"info_title": "Comptes connectés",
+			"load_failed": "Impossible de charger les comptes",
+			"loading": "Chargement des comptes...",
+			"no_accounts": "Aucun compte connecté pour le moment.",
+			"openai_connect": "Connecter ChatGPT",
+			"openai_connect_failed": "Impossible de démarrer l'autorisation ChatGPT",
+			"openai_connected": "Connecté",
+			"openai_connected_as": "Connecté en tant que {email}",
+			"openai_connected_date": "Connecté le {date}",
+			"openai_copy_code": "Copier le code",
+			"openai_description": "Connecte ton compte ChatGPT Plus ou Pro pour utiliser les fonctionnalités IA sans frais supplémentaires.",
+			"openai_device_code_description": "Utilise ton abonnement ChatGPT Plus ou Pro pour alimenter l'IA dans cette app. Nous n'accédons jamais à tes discussions.",
+			"openai_device_code_title": "Connecter ton compte ChatGPT",
+			"openai_disconnect": "Déconnecter ChatGPT",
+			"openai_disconnect_confirm": "Déconnecter ton compte ChatGPT ? Tu peux te reconnecter à tout moment.",
+			"openai_disconnect_failed": "Impossible de déconnecter le compte ChatGPT",
+			"openai_disconnected": "Compte ChatGPT déconnecté",
+			"openai_expired": "Expiré",
+			"openai_open_openai": "Ouvrir OpenAI",
+			"openai_step1_label": "Ouvrez la page d'autorisation OpenAI",
+			"openai_step2_label": "Entrez ce code",
+			"openai_timeout": "L'autorisation a expiré. Veuillez réessayer.",
+			"openai_title": "ChatGPT / OpenAI",
+			"openai_waiting": "En attente d'autorisation...",
+			"status_connecting": "Connexion en cours",
+			"status_error": "Erreur",
+			"status_ok": "Connecté",
+			"title": "Connexions",
+			"your_accounts_title": "Tes comptes"
+		},
+		"description": "Gère les paramètres et préférences de ton compte.",
+		"email": {
+			"current_email_label": "E-mail actuel",
+			"description": "Mets à jour ton adresse e-mail pour les notifications et la connexion.",
+			"error_title": "Erreur",
+			"new_email_label": "Nouvelle adresse e-mail",
+			"not_verified_description": "Ton e-mail actuel n'est pas vérifié. Le nouvel e-mail sera mis à jour immédiatement sans vérification.",
+			"not_verified_title": "E-mail non vérifié",
+			"placeholder": "Entre la nouvelle adresse email",
+			"title": "Adresse e-mail",
+			"unverified_badge": "Non vérifié",
+			"update_button": "Mettre à jour l'e-mail",
+			"updating": "Mise à jour...",
+			"verification_required_description": "Un e-mail de vérification sera envoyé à ton adresse actuelle. Tu dois approuver le changement avant que ton nouvel e-mail soit actif.",
+			"verification_required_title": "Vérification requise",
+			"verified_badge": "Vérifié"
+		},
+		"password": {
+			"confirm_password_label": "Confirmer le nouveau mot de passe",
+			"current_password_label": "Mot de passe actuel",
+			"description": "Mets à jour ton mot de passe pour sécuriser ton compte.",
+			"error_title": "Erreur",
+			"new_password_label": "Nouveau mot de passe",
+			"password_helper": "Doit contenir au moins 8 caractères.",
+			"placeholder": {
+				"confirm": "Confirme le nouveau mot de passe",
+				"current": "Entre le mot de passe actuel",
+				"new": "Entre le nouveau mot de passe"
+			},
+			"revoke_sessions_label": "Se déconnecter de tous les autres appareils",
+			"security_notice_description": "Si cette option est activée, changer ton mot de passe te déconnectera de tous les autres appareils.",
+			"security_notice_title": "Avis de sécurité",
+			"title": "Changer le mot de passe",
+			"update_button": "Mettre à jour le mot de passe",
+			"updating": "Mise à jour..."
+		},
+		"security": {
+			"add_button": "Ajouter un Passkey",
+			"add_passkey_helper": "Donne un nom à ton passkey pour identifier sur quel appareil il est enregistré.",
+			"add_passkey_title": "Ajouter un Passkey",
+			"adding": "Ajout en cours...",
+			"created_at": "Créé le ",
+			"description": "Gère tes passkeys et paramètres de sécurité.",
+			"error_title": "Erreur",
+			"loading": "Chargement des passkeys...",
+			"no_passkeys": "Tu n'as pas encore enregistré de passkey.",
+			"passkey": {
+				"placeholder": "Nom du passkey",
+				"unnamed": "Passkey sans nom"
+			},
+			"passkey_info_description": "Les passkeys sont un moyen sécurisé de se connecter sans mot de passe. Ils utilisent la biométrie ou le code PIN de l'appareil et sont stockés en toute sécurité sur tes appareils.",
+			"passkey_info_title": "Que sont les Passkeys ?",
+			"passkey_name_label": "Nom du passkey",
+			"title": "Sécurité",
+			"your_passkeys_title": "Tes Passkeys"
+		},
+		"tabs": {
+			"account": "Compte",
+			"connections": "Connexions",
+			"email": "E-mail",
+			"password": "Mot de passe",
+			"security": "Sécurité"
+		},
+		"title": "Paramètres"
+	},
+	"sidebar": {
+		"connections": {
+			"connect": "Connecter",
+			"connected": "Connecté",
+			"connected_since": "Connecté depuis {date}",
+			"connections": "Connexions",
+			"google": "Google",
+			"imap": "IMAP",
+			"instagram": "Instagram",
+			"linkedin": "LinkedIn",
+			"llm_providers": "Fournisseurs IA",
+			"messenger": "Messenger",
+			"outlook": "Outlook",
+			"remove": "Supprimer la connexion",
+			"telegram": "Telegram",
+			"twitter": "X (Twitter)",
+			"whatsapp": "WhatsApp"
+		}
+	},
+	"support": {
+		"avatar": {
+			"team_member": "Membre de l'équipe"
+		},
+		"button": {
+			"start_new_conversation": "Démarrer une nouvelle conversation"
+		},
+		"chatbar": {
+			"placeholder": "Pose-moi une question…"
+		},
+		"greeting": {
+			"hi": "Salut",
+			"how_can_we_help": "Comment peut-on t'aider aujourd'hui ?"
+		},
+		"header": {
+			"support_team": "Équipe de Support"
+		},
+		"message": {
+			"role_kai": "Coda",
+			"role_support": "Support",
+			"role_you": "Toi"
+		},
+		"screenshot": {
+			"action": {
+				"cancel": "Annuler (Échap)",
+				"redo": "Rétablir (Ctrl+Maj+Z)",
+				"undo": "Annuler (Ctrl+Z)"
+			},
+			"aria_label": "Éditeur de capture d'écran",
+			"capture_failed": "Échec de la capture d'écran. Consulte la console pour plus de détails.",
+			"capturing": "Capture en cours...",
+			"next": "Bug Marqué",
+			"tool": {
+				"arrow": "Flèche (A)",
+				"circle": "Cercle (C)",
+				"color": "Changer la couleur",
+				"pen": "Stylo (P)",
+				"rectangle": "Rectangle (R)"
+			}
+		},
+		"suggestion": {
+			"bug_report_label": "Signaler un problème",
+			"bug_report_text": "J'ai trouvé un bug !",
+			"feature_request_label": "Demander une fonctionnalité",
+			"feature_request_text": "J'aimerais voir",
+			"help_label": "Aide-moi avec...",
+			"help_text": "Aide-moi à configurer le projet.",
+			"question_label": "Poser une question",
+			"question_text": "Pourquoi Promus ?"
+		},
+		"thread": {
+			"new_conversation": "Nouvelle conversation"
+		},
+		"time": {
+			"days_ago": "il y a {days} jours",
+			"few_seconds_ago": "il y a quelques secondes",
+			"hours_ago": "il y a {hours} heures",
+			"just_now": "à l'instant",
+			"minutes_ago": "il y a {minutes} minutes",
+			"one_hour_ago": "il y a 1 heure",
+			"one_minute_ago": "il y a 1 minute",
+			"yesterday": "hier"
+		},
+		"widget": {
+			"error": {
+				"rate_limit": "Doucement ! Attends {seconds}s avant d'envoyer un autre message.",
+				"send_failed": "Échec de l'envoi du message. Réessaie."
+			},
+			"header": {
+				"bot_response": "Notre bot répondra instantanément",
+				"messages": "Messages",
+				"with_team": "Ta demande est auprès de notre équipe"
+			},
+			"input": {
+				"placeholder": "Tape un message ou clique sur une suggestion..."
+			}
+		}
+	},
+	"team": {
+		"description": "Pendant le processus de travail, nous effectuons des ajustements réguliers avec le client car il est la seule personne qui peut sentir si un nouveau costume lui va bien ou non.",
+		"linktree": "Linktree",
+		"roles": {
+			"cofounder_cto": "Co-fondateur - CTO",
+			"founder_ceo": "Fondateur - PDG",
+			"interaction_designer": "Designer d'Interaction",
+			"sales_manager": "Responsable des Ventes",
+			"ux_engineer": "Ingénieur UX",
+			"visual_designer": "Designer Visuel"
+		},
+		"section_label": "Équipe",
+		"title": "Notre équipe de rêve"
+	},
+	"todo_demo": {
+		"add_card": "Ajouter une carte",
+		"add_placeholder": "Ajouter une tâche...",
+		"aria": {
+			"delete_task": "Supprimer la tâche",
+			"drag_handle": "Glisser pour réorganiser",
+			"toggle_task": "Marquer la tâche comme terminée"
+		},
+		"chat": {
+			"empty_state": "Demande-moi ce que tu veux sur cette tâche",
+			"placeholder": "Pose une question sur cette tâche...",
+			"title": "IA de tâches"
+		},
+		"chatgpt_connect_description": "Connectez votre compte ChatGPT pour permettre a Coda de travailler sur vos taches. Sans lui, votre tableau fonctionne comme une liste de taches classique.",
+		"column": {
+			"done": "Terminé",
+			"in-progress": "En cours",
+			"prepared": "Préparé",
+			"todo": "À faire",
+			"working-on": "En cours"
+		},
+		"column_edit": {
+			"aria_edit": "Modifier les paramètres de la colonne",
+			"description": "Personnalise le nom de cette liste et définis des instructions pour Coda.",
+			"instructions_description": "Coda suivra ces instructions pour les tâches dans cette colonne.",
+			"instructions_label": "Instructions pour Coda",
+			"instructions_placeholder": "ex. Rechercher en profondeur avant de passer à la colonne suivante...",
+			"name_description": "Laisser vide pour utiliser le nom par défaut.",
+			"name_label": "Nom de la liste",
+			"title": "Modifier la colonne"
+		},
+		"cta": "Commencer gratuitement",
+		"detail": {
+			"agent_draft_title": "Brouillon de Coda",
+			"agent_feedback_placeholder": "Dis à Coda quoi changer...",
+			"agent_logs": "Journaux de Coda",
+			"agent_reject": "Rejeter",
+			"agent_send": "Envoyer",
+			"agent_status_awaiting": "En attente de ton approbation",
+			"agent_status_done": "Coda terminé",
+			"agent_status_working": "Coda travaille...",
+			"agent_submit_feedback": "Envoyer le retour",
+			"cancel": "Annuler",
+			"delete": "Supprimer",
+			"description": "Modifier les détails de la tâche ou la retirer du tableau.",
+			"notes": "Notes",
+			"notes_placeholder": "Ajouter des notes ou du contexte...",
+			"save": "Enregistrer",
+			"task_name": "Nom de la tâche",
+			"title": "Détails de la tâche"
+		},
+		"drag_hint": "Glisse et dépose pour réorganiser les tâches",
+		"heading": "Ta liste de tâches vient de pousser 8 bras",
+		"priority": {
+			"high": "Haute",
+			"low": "Basse",
+			"medium": "Moyenne"
+		},
+		"sample": {
+			"task_1": "Trouver un restaurant pour samedi",
+			"task_2": "Relancer Marc pour la proposition",
+			"task_3": "Résilier l'abonnement salle de sport",
+			"task_4": "Réserver des vols pour Berlin",
+			"task_5": "Préparer la réunion avec Sarah",
+			"task_6": "Se connecter avec les intervenants sur LinkedIn"
+		},
+		"save_failed": "Impossible d'enregistrer les modifications du tableau. Réessaie.",
+		"subheading": "Ajoute une tâche. Promus recherche, rédige et exécute en arrière-plan — connecté à tous tes outils professionnels."
+	},
+	"validation": {
+		"confirm_password": {
+			"mismatch": "Les mots de passe ne correspondent pas.",
+			"required": "Confirme ton mot de passe."
+		},
+		"email": {
+			"invalid": "Entre une adresse e-mail valide.",
+			"required": "Entre ton adresse e-mail."
+		},
+		"name": {
+			"required": "Entre ton nom."
+		},
+		"password": {
+			"lowercase": "Le mot de passe doit contenir au moins une lettre minuscule.",
+			"min_length": "Le mot de passe doit contenir au moins {count, number} caractères.",
+			"number": "Le mot de passe doit contenir au moins un chiffre.",
+			"required": "Entre ton mot de passe.",
+			"uppercase": "Le mot de passe doit contenir au moins une lettre majuscule."
+		}
+	}
+}

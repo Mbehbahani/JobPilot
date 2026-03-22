@@ -1,0 +1,19 @@
+{
+	"mcpServers": {
+		"svelte": {
+			"type": "http",
+			"url": "https://mcp.svelte.dev/mcp"
+		},
+		"convex": {
+			"command": "bunx",
+			"args": ["-y", "convex@latest", "mcp", "start"]
+		},
+		"unipile": {
+			"url": "https://developer.unipile.com/mcp"
+		},
+		"playwright": {
+			"command": "bunx",
+			"args": ["@playwright/mcp@latest"]
+		}
+	}
+}

@@ -1,0 +1,436 @@
+<script lang="ts">
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import { Button } from '$lib/components/ui/button/index.js';
+	import Input from '$lib/components/ui/input/input.svelte';
+	import { Textarea } from '$lib/components/ui/textarea/index.js';
+	import Trash2Icon from '@lucide/svelte/icons/trash-2';
+	import CheckIcon from '@lucide/svelte/icons/check';
+	import XIcon from '@lucide/svelte/icons/x';
+	import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
+	import RotateCcwIcon from '@lucide/svelte/icons/rotate-ccw';
+	import Markdown from '$lib/components/prompt-kit/markdown/Markdown.svelte';
+	import Logo from '$lib/components/icons/logo.svelte';
+	import { Separator } from '$lib/components/ui/separator/index.js';
+	import { cmdOrCtrl } from '$lib/hooks/is-mac.svelte.js';
+	import type { TodoItem } from './types.js';
+	import TaskSpecRenderer from './render/TaskSpecRenderer.svelte';
+	import type { Spec } from '@json-render/core';
+
+	let {
+		task,
+		open = $bindable(false),
+		onSave,
+		onDelete,
+		onApprove,
+		onReject,
+		onBlockAction,
+		onRetry
+	}: {
+		task: TodoItem;
+		open: boolean;
+		onSave: (id: string, updates: Partial<TodoItem>) => void;
+		onDelete: (id: string) => void;
+		onApprove?: (id: string) => void;
+		onReject?: (id: string, feedback: string) => void;
+		onBlockAction?: (taskId: string, threadId: string, action: string) => void;
+		onRetry?: (id: string) => void;
+	} = $props();
+
+	let parsedSpec: Spec | null = $derived.by(() => {
+		if (!task.agentSpec) return null;
+		try {
+			return JSON.parse(task.agentSpec) as Spec;
+		} catch {
+			return null;
+		}
+	});
+
+	let editTitle = $state('');
+	let editNotes = $state('');
+	let notesDirty = $state(false);
+	let rejectFeedback = $state('');
+	let initialTaskId = $state('');
+
+	/** Truncate to at most 10 words */
+	function truncateWords(text: string, max = 10): string {
+		const words = text.split(/\s+/).filter(Boolean);
+		return words.length <= max ? text : words.slice(0, max).join(' ');
+	}
+
+	function fmtDate(ts: number): string {
+		return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+	}
+
+	// Job fields
+	let editCompanyName = $state('');
+	let editPosition = $state('');
+	let editJobUrl = $state('');
+	let editJobDescription = $state('');
+	let editSkills = $state('');
+	let editCountry = $state('');
+	let editPlatform = $state('');
+	let editJobLevel = $state('');
+	let editJobType = $state('');
+	let editMotivationLetter = $state('');
+	let editInterviewDate = $state('');
+	let editInterviewLink = $state('');
+	let editInterviewEmail = $state('');
+
+	$effect(() => {
+		if (open && task.id !== initialTaskId) {
+			initialTaskId = task.id;
+			editTitle = truncateWords(task.title);
+			editNotes = task.notes ?? '';
+			notesDirty = false;
+			rejectFeedback = '';
+			// Job fields
+			editCompanyName = task.companyName ?? '';
+			editPosition = task.position ?? '';
+			editJobUrl = task.jobUrl ?? '';
+			editJobDescription = task.jobDescription ?? '';
+			editSkills = task.skills ?? '';
+			editCountry = task.country ?? '';
+			editPlatform = task.platform ?? '';
+			editJobLevel = task.jobLevel ?? '';
+			editJobType = task.jobType ?? '';
+			editMotivationLetter = task.motivationLetter ?? '';
+			editInterviewDate = task.interviewDate ?? '';
+			editInterviewLink = task.interviewLink ?? '';
+			editInterviewEmail = task.interviewEmail ?? '';
+		}
+		if (!open) {
+			initialTaskId = '';
+		}
+	});
+
+	$effect(() => {
+		if (open && !notesDirty) {
+			const liveNotes = task.notes ?? '';
+			if (liveNotes !== editNotes) {
+				editNotes = liveNotes;
+			}
+		}
+	});
+
+	function handleSave() {
+		const trimmedTitle = editTitle.trim();
+		if (!trimmedTitle) return;
+		onSave(task.id, {
+			title: trimmedTitle,
+			notes: editNotes.trim() || undefined,
+			companyName: editCompanyName.trim() || undefined,
+			position: editPosition.trim() || undefined,
+			jobUrl: editJobUrl.trim() || undefined,
+			jobDescription: editJobDescription.trim() || undefined,
+			skills: editSkills.trim() || undefined,
+			country: editCountry.trim() || undefined,
+			platform: editPlatform.trim() || undefined,
+			jobLevel: editJobLevel.trim() || undefined,
+			jobType: editJobType.trim() || undefined,
+			motivationLetter: editMotivationLetter.trim() || undefined,
+			interviewDate: editInterviewDate.trim() || undefined,
+			interviewLink: editInterviewLink.trim() || undefined,
+			interviewEmail: editInterviewEmail.trim() || undefined
+		});
+		open = false;
+	}
+
+	function handleDelete() {
+		onDelete(task.id);
+		open = false;
+	}
+
+	function handleDialogKeydown(e: KeyboardEvent) {
+		const mod = e.metaKey || e.ctrlKey;
+		if (!mod) return;
+
+		if (e.key === 's') {
+			e.preventDefault();
+			handleSave();
+		} else if (e.key === 'Enter') {
+			e.preventDefault();
+			handleSave();
+		}
+	}
+
+	function handleTitleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Enter' && !e.shiftKey) {
+			e.preventDefault();
+			handleSave();
+		}
+	}
+</script>
+
+<Dialog.Root bind:open>
+	<Dialog.Content
+		class="flex max-h-[85vh] flex-col {parsedSpec ? 'sm:max-w-3xl' : 'sm:max-w-2xl'}"
+		onkeydown={handleDialogKeydown}
+	>
+		<Dialog.Header>
+			<Dialog.Title>Job Application Details</Dialog.Title>
+			<Dialog.Description>Edit job application information</Dialog.Description>
+		</Dialog.Header>
+		<div
+			class="grid min-h-0 flex-1 gap-4 overflow-x-hidden overflow-y-auto py-4 pr-6 [scrollbar-gutter:stable]"
+		>
+			<!-- Title (max 10 words shown, full value kept) -->
+			<div class="grid gap-2">
+				<label for="todo-title" class="text-sm font-medium">Job Title</label>
+				<Input
+					id="todo-title"
+					bind:value={editTitle}
+					onkeydown={handleTitleKeydown}
+					placeholder="e.g. Senior Frontend Developer at Google"
+					class="truncate"
+				/>
+			</div>
+
+			<!-- Company & Position row -->
+			<div class="grid grid-cols-2 gap-3">
+				<div class="grid gap-2">
+					<label for="company-name" class="text-sm font-medium">Company</label>
+					<Input id="company-name" bind:value={editCompanyName} placeholder="Company name" />
+				</div>
+				<div class="grid gap-2">
+					<label for="position" class="text-sm font-medium">Position</label>
+					<Input id="position" bind:value={editPosition} placeholder="Role / Position" />
+				</div>
+			</div>
+
+			<!-- URL & Platform row -->
+			<div class="grid grid-cols-2 gap-3">
+				<div class="grid gap-2">
+					<label for="job-url" class="text-sm font-medium">Job URL</label>
+					<Input id="job-url" bind:value={editJobUrl} placeholder="https://..." />
+				</div>
+				<div class="grid gap-2">
+					<label for="platform" class="text-sm font-medium">Platform</label>
+					<Input id="platform" bind:value={editPlatform} placeholder="LinkedIn, Indeed, etc." />
+				</div>
+			</div>
+
+			<!-- Country, Level, Type row -->
+			<div class="grid grid-cols-3 gap-3">
+				<div class="grid gap-2">
+					<label for="country" class="text-sm font-medium">Country</label>
+					<Input id="country" bind:value={editCountry} placeholder="Country" />
+				</div>
+				<div class="grid gap-2">
+					<label for="job-level" class="text-sm font-medium">Level</label>
+					<Input id="job-level" bind:value={editJobLevel} placeholder="Junior, Senior, etc." />
+				</div>
+				<div class="grid gap-2">
+					<label for="job-type" class="text-sm font-medium">Type</label>
+					<Input id="job-type" bind:value={editJobType} placeholder="Full-time, Remote, etc." />
+				</div>
+			</div>
+
+			<!-- Skills -->
+			<div class="grid gap-2">
+				<label for="skills" class="text-sm font-medium">Skills</label>
+				<Textarea
+					id="skills"
+					bind:value={editSkills}
+					placeholder="React, TypeScript, Node.js..."
+					rows={2}
+					class="break-words"
+				/>
+			</div>
+
+			<!-- Job Description -->
+			<div class="grid gap-2">
+				<label for="job-description" class="text-sm font-medium">Job Description</label>
+				<Textarea
+					id="job-description"
+					bind:value={editJobDescription}
+					placeholder="Paste the job description here..."
+					rows={4}
+					class="break-words"
+				/>
+			</div>
+
+			<!-- Notes -->
+			<div class="grid gap-2">
+				<label for="todo-notes" class="text-sm font-medium"
+					>Notes <span class="font-normal text-muted-foreground">(add your own notes here)</span
+					></label
+				>
+				<Textarea
+					id="todo-notes"
+					bind:value={editNotes}
+					placeholder="Add your personal notes here..."
+					rows={4}
+					oninput={() => {
+						notesDirty = true;
+					}}
+				/>
+			</div>
+
+			<!-- Motivation Letter -->
+			<div class="grid gap-2">
+				<label for="motivation-letter" class="text-sm font-medium">Motivation Letter</label>
+				<Textarea
+					id="motivation-letter"
+					bind:value={editMotivationLetter}
+					placeholder="Your motivation letter for this position..."
+					rows={5}
+				/>
+			</div>
+
+			<!-- Interview Details -->
+			<div class="grid gap-3 rounded-lg border bg-muted/20 p-3">
+				<p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Interview</p>
+				<div class="grid grid-cols-2 gap-3">
+					<div class="grid gap-2">
+						<label for="interview-date" class="text-sm font-medium">Date / Time</label>
+						<Input
+							id="interview-date"
+							bind:value={editInterviewDate}
+							placeholder="e.g. Apr 5, 10:00 AM"
+						/>
+					</div>
+					<div class="grid gap-2">
+						<label for="interview-link" class="text-sm font-medium">Call Link</label>
+						<Input
+							id="interview-link"
+							bind:value={editInterviewLink}
+							placeholder="https://meet.google.com/..."
+							class="truncate"
+						/>
+					</div>
+				</div>
+				<div class="grid gap-2">
+					<label for="interview-email" class="text-sm font-medium"
+						>Interview Email <span class="font-normal text-muted-foreground"
+							>(paste invitation here)</span
+						></label
+					>
+					<Textarea
+						id="interview-email"
+						bind:value={editInterviewEmail}
+						placeholder="Paste the interview invitation email here..."
+						rows={5}
+						class="break-words"
+					/>
+				</div>
+			</div>
+
+			<!-- Stage History Timeline -->
+			<div class="grid gap-1.5">
+				<p class="text-xs font-medium tracking-wide text-muted-foreground uppercase">
+					Stage history
+				</p>
+				<div class="grid grid-cols-4 gap-1">
+					{#each [{ label: 'Preparing', ts: task.preparingAt }, { label: 'Applied', ts: task.appliedAt }, { label: 'Interview', ts: task.interviewingAt }, { label: 'Done', ts: task.doneAt }] as stage (stage.label)}
+						<div
+							class="flex flex-col items-center gap-1 rounded border bg-muted/30 px-1 py-1.5 text-center"
+						>
+							<span class="text-[10px] leading-none font-medium">{stage.label}</span>
+							<span class="text-[10px] text-muted-foreground tabular-nums">
+								{stage.ts ? fmtDate(stage.ts) : '—'}
+							</span>
+						</div>
+					{/each}
+				</div>
+			</div>
+
+			{#if parsedSpec}
+				<div class="rounded-md border bg-muted/30 p-3">
+					<TaskSpecRenderer
+						spec={parsedSpec}
+						onStateChange={(changes) => {
+							if (task.threadId && onBlockAction) {
+								const actionChange = changes.find((c) => c.path.includes('pendingAction'));
+								if (actionChange) {
+									onBlockAction(task.id, task.threadId, String(actionChange.value));
+								}
+							}
+						}}
+					/>
+				</div>
+			{/if}
+
+			{#if task.agentStatus === 'working'}
+				<div class="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2">
+					<Logo class="size-4 agent-working text-primary" />
+					<span class="text-sm text-muted-foreground">Coda is working...</span>
+				</div>
+			{:else if task.agentStatus === 'done' && task.agentSummary}
+				<div class="flex items-start gap-2 rounded-md border bg-muted/30 px-3 py-2">
+					<Logo class="mt-0.5 size-4 shrink-0 text-primary" />
+					<Markdown
+						content={task.agentSummary}
+						class="prose-sm text-sm break-words text-muted-foreground"
+					/>
+				</div>
+			{:else if task.agentStatus === 'error'}
+				<div
+					class="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2"
+				>
+					<TriangleAlertIcon class="mt-0.5 size-4 shrink-0 text-destructive" />
+					<div class="flex flex-1 items-start justify-between gap-2">
+						<span class="text-sm text-destructive"
+							>{task.agentSummary || 'Coda encountered an error.'}</span
+						>
+						{#if onRetry}
+							<Button variant="outline" size="sm" class="shrink-0" onclick={() => onRetry(task.id)}>
+								<RotateCcwIcon class="mr-1.5 size-3.5" />
+								Retry
+							</Button>
+						{/if}
+					</div>
+				</div>
+			{:else if task.agentStatus === 'awaiting_approval'}
+				<div class="grid gap-3">
+					<Separator />
+					<div class="flex items-center gap-2">
+						<Logo class="size-4 text-primary" />
+						<span class="text-sm font-medium">Coda needs approval</span>
+					</div>
+					{#if task.agentDraft}
+						<div class="max-h-40 overflow-y-auto rounded-md border bg-muted/30 p-3 text-sm">
+							<Markdown content={task.agentDraft} class="prose-sm break-words" />
+						</div>
+					{/if}
+					<Textarea
+						bind:value={rejectFeedback}
+						placeholder="Feedback (required to reject)"
+						rows={2}
+					/>
+					<div class="flex gap-2">
+						<Button variant="default" size="sm" onclick={() => onApprove?.(task.id)}>
+							<CheckIcon class="mr-1.5 size-3.5" />
+							Approve
+						</Button>
+						<Button
+							variant="outline"
+							size="sm"
+							disabled={!rejectFeedback.trim()}
+							onclick={() => onReject?.(task.id, rejectFeedback.trim())}
+						>
+							<XIcon class="mr-1.5 size-3.5" />
+							Reject
+						</Button>
+					</div>
+				</div>
+			{/if}
+		</div>
+
+		<Dialog.Footer class="!flex-row items-center !justify-between">
+			<Button variant="destructive" size="sm" onclick={handleDelete}>
+				<Trash2Icon class="mr-1.5 size-3.5" />
+				Delete
+			</Button>
+			<div class="flex gap-2">
+				<Button variant="outline" onclick={() => (open = false)}>
+					Cancel
+					<kbd class="ml-1.5 text-[10px] opacity-60">Esc</kbd>
+				</Button>
+				<Button onclick={handleSave} disabled={!editTitle.trim()}>
+					Save
+					<kbd class="ml-1.5 text-[10px] opacity-60">{cmdOrCtrl}S</kbd>
+				</Button>
+			</div>
+		</Dialog.Footer>
+	</Dialog.Content>
+</Dialog.Root>
