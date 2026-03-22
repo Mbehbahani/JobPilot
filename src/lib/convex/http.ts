@@ -64,19 +64,16 @@ http.route({
 			});
 		}
 
-		// Resolve user ID: env var > request body > first board owner
-		let userId =
+		// Resolve user ID: env var > request body
+		const userId =
 			process.env.INTEGRATION_USER_ID ?? (typeof body.userId === 'string' ? body.userId : null);
 
 		if (!userId) {
-			userId = await ctx.runQuery(internal.todos.getFirstBoardUserId);
-		}
-		if (!userId) {
 			return new Response(
 				JSON.stringify({
-					error: 'No user found. Set INTEGRATION_USER_ID env var or create a board first.'
+					error: 'No account linked. Please sign in to job-promus and browse jobs from there.'
 				}),
-				{ status: 400, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } }
+				{ status: 401, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } }
 			);
 		}
 
@@ -155,10 +152,7 @@ http.route({
 		let userId =
 			process.env.INTEGRATION_USER_ID ?? (typeof body.userId === 'string' ? body.userId : null);
 		if (!userId) {
-			userId = await ctx.runQuery(internal.todos.getFirstBoardUserId);
-		}
-		if (!userId) {
-			return new Response(JSON.stringify({ exists: false }), {
+			return new Response(JSON.stringify({ exists: false, error: 'No account linked' }), {
 				status: 200,
 				headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
 			});
