@@ -78,7 +78,11 @@ http.route({
 		}
 
 		const title =
-			typeof body.title === 'string' ? body.title : typeof body.position === 'string' ? body.position : 'Untitled Job';
+			typeof body.title === 'string'
+				? body.title
+				: typeof body.position === 'string'
+					? body.position
+					: 'Untitled Job';
 
 		const taskId = await ctx.runMutation(internal.todos.addJobFromExternalInternal, {
 			userId,
@@ -89,13 +93,8 @@ http.route({
 			jobDescription: typeof body.jobDescription === 'string' ? body.jobDescription : undefined,
 			skills: typeof body.skills === 'string' ? body.skills : undefined,
 			country: typeof body.country === 'string' ? body.country : undefined,
-			searchTerm: typeof body.searchTerm === 'string' ? body.searchTerm : undefined,
-			postedDate: typeof body.postedDate === 'string' ? body.postedDate : undefined,
 			jobLevel: typeof body.jobLevel === 'string' ? body.jobLevel : undefined,
-			jobFunction: typeof body.jobFunction === 'string' ? body.jobFunction : undefined,
 			jobType: typeof body.jobType === 'string' ? body.jobType : undefined,
-			companyIndustry: typeof body.companyIndustry === 'string' ? body.companyIndustry : undefined,
-			companyUrl: typeof body.companyUrl === 'string' ? body.companyUrl : undefined,
 			platform: typeof body.platform === 'string' ? body.platform : undefined
 		});
 
@@ -149,7 +148,7 @@ http.route({
 			});
 		}
 
-		let userId =
+		const userId =
 			process.env.INTEGRATION_USER_ID ?? (typeof body.userId === 'string' ? body.userId : null);
 		if (!userId) {
 			return new Response(JSON.stringify({ exists: false, error: 'No account linked' }), {

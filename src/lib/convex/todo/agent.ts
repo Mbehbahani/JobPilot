@@ -97,7 +97,7 @@ export const updateJobFields = createTool({
 
 export const getUserProfile = createTool({
 	description:
-		'Read the user profile settings including resume, motivation letter format, and custom prompt. Use this before generating a motivation letter to personalize it.',
+		"Read the user's CV/resume and motivation letter instructions. Use this before generating a motivation letter to personalize it.",
 	inputSchema: z.object({}),
 	execute: async (ctx: ToolCtx): Promise<Record<string, unknown>> => {
 		if (!ctx.userId) return { success: false, error: 'No userId' };
@@ -114,10 +114,7 @@ export const createTask = createTool({
 	inputSchema: z.object({
 		title: z.string().describe('Title for the new job application task'),
 		notes: z.string().optional().describe('Optional notes or context'),
-		notificationMessage: z
-			.string()
-			.optional()
-			.describe('Optional message to the new task agent')
+		notificationMessage: z.string().optional().describe('Optional message to the new task agent')
 	}),
 	execute: async (ctx: ToolCtx, input) => {
 		if (!ctx.userId) return { success: false as const, error: 'No userId' };
@@ -187,14 +184,11 @@ export const setMyTaskUI = createTool({
 
 export const notifyTask = createTool({
 	description:
-		'Send a notification to another task\'s agent. Use this when your work affects or is relevant to another task.',
+		"Send a notification to another task's agent. Use this when your work affects or is relevant to another task.",
 	inputSchema: z.object({
 		taskId: z.string().describe('The ID of the task to notify'),
 		message: z.string().describe('The notification message'),
-		priority: z
-			.enum(['low', 'normal', 'high'])
-			.default('normal')
-			.describe('Notification priority')
+		priority: z.enum(['low', 'normal', 'high']).default('normal').describe('Notification priority')
 	}),
 	execute: async (ctx: ToolCtx, input) => {
 		if (!ctx.userId || !ctx.threadId) return { success: false, error: 'Missing context' };
@@ -276,8 +270,7 @@ export const notifyTask = createTool({
 });
 
 export const readTaskNotes = createTool({
-	description:
-		'Read the full notes of any task on the board by its ID.',
+	description: 'Read the full notes of any task on the board by its ID.',
 	inputSchema: z.object({
 		taskId: z.string().describe('The ID of the task whose notes you want to read')
 	}),
@@ -361,7 +354,7 @@ Your primary capabilities:
 
 - updateMyNotes: Record findings as 2-4 short bullet points
 - updateJobFields: Fill in structured job data (company, position, skills, etc.)
-- getUserProfile: Read user's resume, motivation letter format, and custom prompt
+- getUserProfile: Read user's CV/resume and motivation letter instructions
 - moveMyTask: Move your task between board columns
 - setMyTaskUI: Present structured content (motivation letter drafts, job analysis, etc.)
 - createTask: Create follow-up tasks
@@ -375,32 +368,39 @@ You can ONLY modify YOUR OWN task. To affect another task, use notifyTask.
 
 targeted -> preparing -> applied -> interviewing -> done
 
-- "targeted": Jobs the user wants to apply to
-- "preparing": Coda is working on the application (parsing, writing motivation letter)
-- "applied": Application has been submitted
-- "interviewing": User is in the interview process
-- "done": Process complete (hired, rejected, or withdrawn)
+- "targeted": Jobs the user wants to apply to. ANALYSIS MODE — review, consult, and extract job fields. Do NOT generate motivation letters or move the task.
+- "preparing": Coda is working on the application (parsing, writing motivation letter). This is the ONLY column where motivation letters are generated.
+- "applied": Application has been submitted. Do not regenerate motivation letter or overwrite job fields.
+- "interviewing": User is in the interview process. Do not regenerate motivation letter or overwrite job fields.
+- "done": Process complete (hired, rejected, or withdrawn). Do not regenerate motivation letter or overwrite job fields.
 
-## Workflow
+## Field Protection Rules
 
-1. Read the task title, notes, job description, and board context
-2. Move to "preparing"
-3. If the task has a job URL or description, parse it to extract: company name, position, required skills, job level, job type, country
-4. Use updateJobFields to save the extracted data
-5. Use getUserProfile to read the user's resume and motivation letter preferences
-6. Generate a personalized motivation letter tailored to the job and the user's profile
-7. Use updateJobFields to save the motivation letter
+CRITICAL: Never overwrite a field that already has a value. The updateJobFields tool will only set fields that are currently empty. This protects user-entered and previously extracted data.
+
+Before calling updateJobFields, check which fields are already filled in the task. Only provide values for MISSING fields.
+
+## Workflow (when task is in Preparing)
+
+1. Read the task title, notes, URL, and any existing job fields
+2. If the task has notes from the Targeted stage (consultation notes), read them carefully — they contain analysis and context gathered earlier. Use readTaskNotes if notes are truncated.
+3. If the task has a job URL, use webSearch to fetch the posting and extract details
+4. Use updateJobFields to fill ONLY the missing structured fields (company name, position, skills, job level, job type, country)
+5. Use getUserProfile to read the user's CV/resume and motivation letter instructions
+6. Generate a personalized motivation letter ONLY if the motivationLetter field is currently empty
+7. Use updateJobFields to save the motivation letter (only if it was empty)
 8. Use setMyTaskUI to present the motivation letter draft for review
-9. Update notes with a summary of what was done
-10. Move to "preparing" (ready for user to review and submit)
+9. Update notes with a summary of what was done using updateMyNotes
+10. Stay in "preparing" (ready for user to review and submit)
 
 ## Motivation Letter Generation
+
+A motivation letter is generated ONCE, in the Preparing column only. If a motivation letter already exists on the task, do NOT regenerate or overwrite it.
 
 When generating a motivation letter:
 - Always read the user's profile first (getUserProfile)
 - Match the user's skills and experience to the job requirements
-- Follow the user's preferred format if specified
-- Follow the user's custom prompt instructions if provided
+- Follow the user's motivation letter instructions if provided (format preferences and custom guidance)
 - Keep the tone professional but personable
 - Highlight relevant experience and skills
 - Be specific about why the user is a good fit for THIS role at THIS company
@@ -467,5 +467,3 @@ Available components:
 
 	maxSteps: 40
 });
-
-

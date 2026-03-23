@@ -1129,6 +1129,9 @@
 			"placeholder": "Frag etwas zu dieser Aufgabe...",
 			"title": "Aufgaben-KI"
 		},
+		"chatgpt_warning_body": "Verbinde dein ChatGPT-Konto, damit Coda Jobs analysieren, Bewerbungsfelder ausfüllen und Motivationsschreiben erstellen kann.",
+		"chatgpt_warning_cta": "ChatGPT verbinden",
+		"chatgpt_warning_title": "ChatGPT-Verbindung erforderlich",
 		"chatgpt_connect_description": "Verbinden Sie Ihr ChatGPT-Konto, damit Coda an Ihren Aufgaben arbeiten kann. Ohne Verbindung funktioniert Ihr Board als normale To-Do-Liste.",
 		"column": {
 			"done": "Erledigt",

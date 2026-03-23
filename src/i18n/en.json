@@ -1129,6 +1129,9 @@
 			"placeholder": "Ask about this task...",
 			"title": "Task AI"
 		},
+		"chatgpt_warning_body": "Connect your ChatGPT account to let Coda analyze jobs, fill application fields, and draft motivation letters.",
+		"chatgpt_warning_cta": "Connect ChatGPT",
+		"chatgpt_warning_title": "ChatGPT connection required",
 		"chatgpt_connect_description": "Connect your ChatGPT account to let Coda work on your tasks. Without it, your board works as a regular todo list.",
 		"column": {
 			"done": "Done",

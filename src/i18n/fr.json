@@ -1129,6 +1129,9 @@
 			"placeholder": "Pose une question sur cette tâche...",
 			"title": "IA de tâches"
 		},
+		"chatgpt_warning_body": "Connecte ton compte ChatGPT pour que Coda puisse analyser les offres, remplir les champs de candidature et rédiger des lettres de motivation.",
+		"chatgpt_warning_cta": "Connecter ChatGPT",
+		"chatgpt_warning_title": "Connexion ChatGPT requise",
 		"chatgpt_connect_description": "Connectez votre compte ChatGPT pour permettre a Coda de travailler sur vos taches. Sans lui, votre tableau fonctionne comme une liste de taches classique.",
 		"column": {
 			"done": "Terminé",

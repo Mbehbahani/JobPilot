@@ -4,6 +4,7 @@
 	import Input from '$lib/components/ui/input/input.svelte';
 	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
+	import CopyIcon from '@lucide/svelte/icons/copy';
 	import CheckIcon from '@lucide/svelte/icons/check';
 	import XIcon from '@lucide/svelte/icons/x';
 	import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
@@ -51,10 +52,35 @@
 	let rejectFeedback = $state('');
 	let initialTaskId = $state('');
 
-	/** Truncate to at most 10 words */
-	function truncateWords(text: string, max = 10): string {
-		const words = text.split(/\s+/).filter(Boolean);
-		return words.length <= max ? text : words.slice(0, max).join(' ');
+	function countWords(value: string): number {
+		return value.trim().split(/\s+/).filter(Boolean).length;
+	}
+
+	function isLikelyPastedDescription(value: string): boolean {
+		const text = value.trim();
+		if (!text) return false;
+		if (text.includes('\n')) return true;
+		if (text.length > 90) return true;
+		if (countWords(text) > 14) return true;
+		return /what to expect|about the role|responsibilities|requirements|job description/i.test(
+			text
+		);
+	}
+
+	function buildNiceTitle(args: {
+		title?: string;
+		position?: string;
+		companyName?: string;
+	}): string {
+		const title = args.title?.trim() ?? '';
+		const position = args.position?.trim() ?? '';
+		const companyName = args.companyName?.trim() ?? '';
+
+		if (position && companyName) return `${position} at ${companyName}`;
+		if (position) return position;
+		if (companyName && title && isLikelyPastedDescription(title)) return `Role at ${companyName}`;
+		if (!title) return position || companyName || '';
+		return title;
 	}
 
 	function fmtDate(ts: number): string {
@@ -75,11 +101,24 @@
 	let editInterviewDate = $state('');
 	let editInterviewLink = $state('');
 	let editInterviewEmail = $state('');
+	let letterCopied = $state(false);
+
+	async function copyMotivationLetter() {
+		if (!editMotivationLetter.trim()) return;
+		await navigator.clipboard.writeText(editMotivationLetter.trim());
+		letterCopied = true;
+		setTimeout(() => (letterCopied = false), 2000);
+	}
 
 	$effect(() => {
 		if (open && task.id !== initialTaskId) {
 			initialTaskId = task.id;
-			editTitle = truncateWords(task.title);
+			const suggestedTitle = buildNiceTitle({
+				title: task.title,
+				position: task.position,
+				companyName: task.companyName
+			});
+			editTitle = isLikelyPastedDescription(task.title) ? suggestedTitle || task.title : task.title;
 			editNotes = task.notes ?? '';
 			notesDirty = false;
 			rejectFeedback = '';
@@ -181,7 +220,6 @@
 					bind:value={editTitle}
 					onkeydown={handleTitleKeydown}
 					placeholder="e.g. Senior Frontend Developer at Google"
-					class="truncate"
 				/>
 			</div>
 
@@ -237,18 +275,6 @@
 				/>
 			</div>
 
-			<!-- Job Description -->
-			<div class="grid gap-2">
-				<label for="job-description" class="text-sm font-medium">Job Description</label>
-				<Textarea
-					id="job-description"
-					bind:value={editJobDescription}
-					placeholder="Paste the job description here..."
-					rows={4}
-					class="break-words"
-				/>
-			</div>
-
 			<!-- Notes -->
 			<div class="grid gap-2">
 				<label for="todo-notes" class="text-sm font-medium"
@@ -263,17 +289,7 @@
 					oninput={() => {
 						notesDirty = true;
 					}}
-				/>
-			</div>
-
-			<!-- Motivation Letter -->
-			<div class="grid gap-2">
-				<label for="motivation-letter" class="text-sm font-medium">Motivation Letter</label>
-				<Textarea
-					id="motivation-letter"
-					bind:value={editMotivationLetter}
-					placeholder="Your motivation letter for this position..."
-					rows={5}
+					style="field-sizing: content; overflow: hidden; min-height: 6rem;"
 				/>
 			</div>
 
@@ -334,8 +350,26 @@
 				</div>
 			</div>
 
-			{#if parsedSpec}
-				<div class="rounded-md border bg-muted/30 p-3">
+			<!-- Application Review Panel -->
+			<div class="grid gap-3 rounded-md border bg-muted/30 p-3">
+				<div class="grid gap-2">
+					<label
+						for="job-description"
+						class="text-xs font-semibold tracking-wide text-muted-foreground uppercase"
+						>Job Description</label
+					>
+					<Textarea
+						id="job-description"
+						bind:value={editJobDescription}
+						placeholder="Paste the job description here..."
+						rows={3}
+						class="break-words"
+						style="field-sizing: content;"
+					/>
+				</div>
+
+				{#if parsedSpec}
+					<Separator />
 					<TaskSpecRenderer
 						spec={parsedSpec}
 						onStateChange={(changes) => {
@@ -347,8 +381,43 @@
 							}
 						}}
 					/>
+				{/if}
+
+				<Separator />
+				<div class="grid gap-2">
+					<div class="flex items-center justify-between">
+						<label
+							for="motivation-letter"
+							class="text-xs font-semibold tracking-wide text-muted-foreground uppercase"
+							>Motivation Letter</label
+						>
+						{#if editMotivationLetter.trim()}
+							<Button
+								variant="ghost"
+								size="sm"
+								class="h-7 gap-1.5 text-xs"
+								onclick={copyMotivationLetter}
+							>
+								{#if letterCopied}
+									<CheckIcon class="size-3.5" />
+									Copied
+								{:else}
+									<CopyIcon class="size-3.5" />
+									Copy
+								{/if}
+							</Button>
+						{/if}
+					</div>
+					<Textarea
+						id="motivation-letter"
+						bind:value={editMotivationLetter}
+						placeholder="Motivation letter will be generated by Coda..."
+						rows={4}
+						class="text-[13px] break-words"
+						style="field-sizing: content; min-height: 5rem;"
+					/>
 				</div>
-			{/if}
+			</div>
 
 			{#if task.agentStatus === 'working'}
 				<div class="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2">

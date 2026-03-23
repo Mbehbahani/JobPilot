@@ -1129,6 +1129,9 @@
 			"placeholder": "Pregunta sobre esta tarea...",
 			"title": "IA de tareas"
 		},
+		"chatgpt_warning_body": "Conecta tu cuenta de ChatGPT para que Coda pueda analizar empleos, completar campos de solicitud y redactar cartas de motivación.",
+		"chatgpt_warning_cta": "Conectar ChatGPT",
+		"chatgpt_warning_title": "Se requiere conexión con ChatGPT",
 		"chatgpt_connect_description": "Conecta tu cuenta de ChatGPT para que Coda trabaje en tus tareas. Sin conexión, tu tablero funciona como una lista de tareas normal.",
 		"column": {
 			"done": "Hecho",
