@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { T } from '@tolgee/svelte';
 	import {
 		DragDropProvider,
 		DragOverlay,
@@ -580,6 +581,24 @@
 <svelte:window onkeydown={handleBoardKeydown} />
 
 <div>
+	{#if !openaiConnection.data}
+		<div
+			class="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-950 dark:text-amber-100"
+		>
+			<p class="font-medium">
+				<T keyName="todo_demo.chatgpt_warning_title" />
+			</p>
+			<p class="mt-1 text-amber-900/90 dark:text-amber-100/90">
+				<T keyName="todo_demo.chatgpt_warning_body" />
+			</p>
+			<div class="mt-3">
+				<Button size="sm" onclick={() => (connectDialogOpen = true)}>
+					<T keyName="todo_demo.chatgpt_warning_cta" />
+				</Button>
+			</div>
+		</div>
+	{/if}
+
 	<DragDropProvider
 		{sensors}
 		modifiers={[RestrictToWindowEdges]}

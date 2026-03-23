@@ -10,3 +10,6 @@ bun run dev
 # C:\Users\Mohammad\.bun\bin\bun.exe run build
 # C:\Users\Mohammad\.bun\bin\bun.exe run check
 # C:\Users\Mohammad\.bun\bin\bun.exe x convex deploy
+
+# C:\Users\Mohammad\.bun\bin\bunx convex env set SITE_URL http://localhost:5173
+# C:\Users\Mohammad\.bun\bin\bunx convex env set SITE_URL https://jobflow-wine-gamma.vercel.app/
