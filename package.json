@@ -78,6 +78,7 @@
 		"mode-watcher": "^1.1.0",
 		"motion-sv": "^0.1.2",
 		"paneforge": "^1.0.2",
+		"pdfjs-dist": "^5.5.207",
 		"posthog-js": "^1.290.0",
 		"resend": "^6.5.2",
 		"runed": "^0.37.0",

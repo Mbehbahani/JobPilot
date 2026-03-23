@@ -51,13 +51,8 @@ const taskValidator = v.object({
 	jobDescription: v.optional(v.string()),
 	skills: v.optional(v.string()),
 	country: v.optional(v.string()),
-	searchTerm: v.optional(v.string()),
-	postedDate: v.optional(v.string()),
 	jobLevel: v.optional(v.string()),
-	jobFunction: v.optional(v.string()),
 	jobType: v.optional(v.string()),
-	companyIndustry: v.optional(v.string()),
-	companyUrl: v.optional(v.string()),
 	platform: v.optional(v.string()),
 	motivationLetter: v.optional(v.string()),
 	interviewDate: v.optional(v.string()),
@@ -95,13 +90,8 @@ type BoardTask = {
 	jobDescription?: string;
 	skills?: string;
 	country?: string;
-	searchTerm?: string;
-	postedDate?: string;
 	jobLevel?: string;
-	jobFunction?: string;
 	jobType?: string;
-	companyIndustry?: string;
-	companyUrl?: string;
 	platform?: string;
 	motivationLetter?: string;
 	interviewDate?: string;
@@ -129,13 +119,8 @@ type StoredTask = {
 	jobDescription?: string;
 	skills?: string;
 	country?: string;
-	searchTerm?: string;
-	postedDate?: string;
 	jobLevel?: string;
-	jobFunction?: string;
 	jobType?: string;
-	companyIndustry?: string;
-	companyUrl?: string;
 	platform?: string;
 	motivationLetter?: string;
 	interviewDate?: string;
@@ -215,13 +200,8 @@ function toBoard(tasks: StoredTask[]): Board {
 				...(task.jobDescription ? { jobDescription: task.jobDescription } : {}),
 				...(task.skills ? { skills: task.skills } : {}),
 				...(task.country ? { country: task.country } : {}),
-				...(task.searchTerm ? { searchTerm: task.searchTerm } : {}),
-				...(task.postedDate ? { postedDate: task.postedDate } : {}),
 				...(task.jobLevel ? { jobLevel: task.jobLevel } : {}),
-				...(task.jobFunction ? { jobFunction: task.jobFunction } : {}),
 				...(task.jobType ? { jobType: task.jobType } : {}),
-				...(task.companyIndustry ? { companyIndustry: task.companyIndustry } : {}),
-				...(task.companyUrl ? { companyUrl: task.companyUrl } : {}),
 				...(task.platform ? { platform: task.platform } : {}),
 				...(task.motivationLetter ? { motivationLetter: task.motivationLetter } : {}),
 				...(task.interviewDate ? { interviewDate: task.interviewDate } : {}),
@@ -279,14 +259,8 @@ function sanitizeAndFlattenBoard(
 				rawTask.jobDescription?.trim() || existing?.jobDescription || undefined;
 			const skills = rawTask.skills?.trim() || existing?.skills || undefined;
 			const country = rawTask.country?.trim() || existing?.country || undefined;
-			const searchTerm = rawTask.searchTerm?.trim() || existing?.searchTerm || undefined;
-			const postedDate = rawTask.postedDate?.trim() || existing?.postedDate || undefined;
 			const jobLevel = rawTask.jobLevel?.trim() || existing?.jobLevel || undefined;
-			const jobFunction = rawTask.jobFunction?.trim() || existing?.jobFunction || undefined;
 			const jobType = rawTask.jobType?.trim() || existing?.jobType || undefined;
-			const companyIndustry =
-				rawTask.companyIndustry?.trim() || existing?.companyIndustry || undefined;
-			const companyUrl = rawTask.companyUrl?.trim() || existing?.companyUrl || undefined;
 			const platform = rawTask.platform?.trim() || existing?.platform || undefined;
 			const motivationLetter =
 				rawTask.motivationLetter?.trim() || existing?.motivationLetter || undefined;
@@ -318,13 +292,8 @@ function sanitizeAndFlattenBoard(
 				...(jobDescription ? { jobDescription } : {}),
 				...(skills ? { skills } : {}),
 				...(country ? { country } : {}),
-				...(searchTerm ? { searchTerm } : {}),
-				...(postedDate ? { postedDate } : {}),
 				...(jobLevel ? { jobLevel } : {}),
-				...(jobFunction ? { jobFunction } : {}),
 				...(jobType ? { jobType } : {}),
-				...(companyIndustry ? { companyIndustry } : {}),
-				...(companyUrl ? { companyUrl } : {}),
 				...(platform ? { platform } : {}),
 				...(motivationLetter ? { motivationLetter } : {}),
 				...(interviewDate ? { interviewDate } : {}),
@@ -406,6 +375,7 @@ export const saveBoard = authedMutation({
 			if (!hasOpenai) continue; // No ChatGPT connection — skip agent triggers
 
 			if (!existingTasksById.has(task.id)) {
+				if (task.columnId === 'done') continue;
 				// New task — create thread and trigger agent
 				await ctx.scheduler.runAfter(0, internal.todo.messages.triggerAgentForNewTask, {
 					userId: ctx.user._id,
@@ -419,6 +389,11 @@ export const saveBoard = authedMutation({
 
 				const columnChanged = task.columnId !== oldTask.columnId;
 				const notesChanged = (task.notes ?? '') !== (oldTask.notes ?? '');
+
+				if (task.columnId === 'done') {
+					task.agentStatus = 'idle';
+					continue;
+				}
 
 				if (!oldTask.threadId) {
 					// No thread yet — create one on any meaningful change
@@ -447,11 +422,17 @@ export const saveBoard = authedMutation({
 						const columnMovePrompt = (() => {
 							const base = `User moved your task "${task.title}" from "${oldTask.columnId}" to "${task.columnId}".`;
 							if (task.columnId === 'preparing') {
-								return `${base} The user is now ready to prepare this application. Do the following: use getUserProfile to read the user's resume, parse the full job description, fill in all available fields using updateJobFields (company, location, description, required skills, etc.), and generate a personalised motivation letter. Save everything to notes using updateMyNotes.`;
+								return `${base} The user is now ready to prepare this application. Do the following:
+1. First, check if there are existing notes from the Targeted stage — read them with readTaskNotes and use that context.
+2. Use getUserProfile to read the user's resume.
+3. Parse the full job description (use webSearch if a URL is available and jobDescription is empty).
+4. Fill in ONLY MISSING fields using updateJobFields — do NOT overwrite any field that already has a value.
+5. Generate a personalised motivation letter ONLY if the motivationLetter field is currently empty. If it already exists, do NOT regenerate it.
+6. Save a summary to notes using updateMyNotes.`;
 							} else if (task.columnId === 'targeted') {
-								return `${base} You are back in ANALYSIS MODE. Review what you know about this job, update your consultation notes with any new observations, and remind the user what still needs to be filled in before preparing the application. Do NOT move this task, do NOT fill fields.`;
+								return `${base} You are back in ANALYSIS MODE. Review what you know about this job, update your consultation notes with any new observations, and fill any MISSING fields using updateJobFields. Do NOT move this task, do NOT generate a motivation letter.`;
 							} else {
-								return `${base} React accordingly and update your notes.`;
+								return `${base} React accordingly and update your notes. Do NOT regenerate the motivation letter. Do NOT overwrite existing job fields.`;
 							}
 						})();
 						await ctx.scheduler.runAfter(0, internal.todo.messages.triggerAgentForTaskUpdate, {
@@ -564,9 +545,24 @@ export const updateTaskFieldsInternal = internalMutation({
 	},
 	handler: async (ctx, args) => {
 		const { userId, taskId, ...fields } = args;
+
+		// Read current task to protect existing values
+		const board = await ctx.db
+			.query('todoBoards')
+			.withIndex('by_user', (q: any) => q.eq('userId', userId))
+			.first();
+		if (!board) throw new Error('Board not found');
+		const currentTask = (board.tasks as StoredTask[]).find((t) => t.id === taskId);
+		if (!currentTask) throw new Error('Task not found');
+
 		const patch: Record<string, string> = {};
 		for (const [k, val] of Object.entries(fields)) {
-			if (val !== undefined) patch[k] = val;
+			if (val === undefined) continue;
+			const key = k as keyof typeof currentTask;
+			// Only set if current value is empty/undefined
+			if (!currentTask[key]) {
+				patch[k] = val;
+			}
 		}
 		if (Object.keys(patch).length > 0) {
 			await patchTask(ctx, { userId, taskId }, patch);
@@ -830,13 +826,8 @@ export const addJobFromExternalInternal = internalMutation({
 		jobDescription: v.optional(v.string()),
 		skills: v.optional(v.string()),
 		country: v.optional(v.string()),
-		searchTerm: v.optional(v.string()),
-		postedDate: v.optional(v.string()),
 		jobLevel: v.optional(v.string()),
-		jobFunction: v.optional(v.string()),
 		jobType: v.optional(v.string()),
-		companyIndustry: v.optional(v.string()),
-		companyUrl: v.optional(v.string()),
 		platform: v.optional(v.string())
 	},
 	returns: v.string(),
@@ -865,13 +856,8 @@ export const addJobFromExternalInternal = internalMutation({
 			...(jobFields.jobDescription ? { jobDescription: jobFields.jobDescription } : {}),
 			...(jobFields.skills ? { skills: jobFields.skills } : {}),
 			...(jobFields.country ? { country: jobFields.country } : {}),
-			...(jobFields.searchTerm ? { searchTerm: jobFields.searchTerm } : {}),
-			...(jobFields.postedDate ? { postedDate: jobFields.postedDate } : {}),
 			...(jobFields.jobLevel ? { jobLevel: jobFields.jobLevel } : {}),
-			...(jobFields.jobFunction ? { jobFunction: jobFields.jobFunction } : {}),
 			...(jobFields.jobType ? { jobType: jobFields.jobType } : {}),
-			...(jobFields.companyIndustry ? { companyIndustry: jobFields.companyIndustry } : {}),
-			...(jobFields.companyUrl ? { companyUrl: jobFields.companyUrl } : {}),
 			...(jobFields.platform ? { platform: jobFields.platform } : {})
 		};
 
@@ -973,5 +959,40 @@ export const getTasksForCascade = internalQuery({
 			agentStatus: t.agentStatus,
 			threadId: t.threadId
 		}));
+	}
+});
+
+// ── One-time migration: strip legacy fields from existing tasks ─────────────
+
+const LEGACY_TASK_FIELDS = [
+	'searchTerm',
+	'postedDate',
+	'jobFunction',
+	'companyIndustry',
+	'companyUrl'
+] as const;
+
+export const stripLegacyTaskFields = internalMutation({
+	args: {},
+	handler: async (ctx) => {
+		const boards = await ctx.db.query('todoBoards').collect();
+		let patched = 0;
+		for (const board of boards) {
+			const tasks = board.tasks as Record<string, unknown>[];
+			let changed = false;
+			for (const task of tasks) {
+				for (const field of LEGACY_TASK_FIELDS) {
+					if (field in task) {
+						delete task[field];
+						changed = true;
+					}
+				}
+			}
+			if (changed) {
+				await ctx.db.patch(board._id, { tasks: tasks as any, updatedAt: Date.now() });
+				patched++;
+			}
+		}
+		return { patched, total: boards.length };
 	}
 });

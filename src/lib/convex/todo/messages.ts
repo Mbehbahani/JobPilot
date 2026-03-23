@@ -626,8 +626,11 @@ export const triggerAgentForNewTask = internalAction({
 		});
 
 		// 3. Build board context
-		const { otherTasks, columnInfo, currentDateTime } =
-			await buildBoardContext(ctx, args.userId, args.taskId);
+		const { otherTasks, columnInfo, currentDateTime } = await buildBoardContext(
+			ctx,
+			args.userId,
+			args.taskId
+		);
 
 		// 4. Build prompt
 		const truncatedNotes =
@@ -677,22 +680,29 @@ export const triggerAgentForNewTask = internalAction({
 				'',
 				'Your task:',
 				'1. Review the task title and any notes/URL provided.',
-				'2. Identify which key fields are missing or incomplete for this job (e.g. company name, job posting URL, location, job description, required skills, salary range, application deadline, contact email).',
-				'3. If a job URL is present, use webSearch to retrieve the job posting and extract available details.',
+				'2. If a job URL is present, use webSearch to retrieve the job posting and extract available details.',
+				'3. Use updateJobFields to fill ONLY MISSING fields (company name, position, skills, job level, job type, country, job description, etc.) — do NOT overwrite fields that already have a value.',
 				'4. Write a structured consultation summary to the task notes using updateMyNotes. Include:',
-				'   - What information you found',
+				'   - What information you found and extracted',
 				'   - What fields are still missing and what the user should add',
 				'   - A brief assessment of the opportunity (role, company fit, any notable requirements)',
 				'   - A recommendation on whether to proceed to the Preparing stage',
 				'',
-				'Do NOT fill in fields using updateJobFields.',
 				'Do NOT write a motivation letter.',
 				'Do NOT move this task to any other column.',
-				'Stay in the Targeted column — this is a consultation only.'
+				'Stay in the Targeted column — this is analysis and field extraction only.'
 			);
 		} else {
 			promptParts.push(
-				'Analyze this task and take action immediately. Do NOT ask questions or create clarifying sub-tasks — make reasonable assumptions and proceed. Use getUserProfile to read the user resume, then parse the job description and generate a motivation letter. Update your task notes with your findings using updateMyNotes.'
+				'Analyze this task and take action immediately. Do NOT ask questions or create clarifying sub-tasks — make reasonable assumptions and proceed.',
+				'',
+				'Steps:',
+				'1. If the task has existing notes (e.g. from the Targeted stage), read them first with readTaskNotes for full context.',
+				'2. Use getUserProfile to read the user resume.',
+				'3. Parse the job description (use webSearch if a URL is available and jobDescription is empty).',
+				'4. Use updateJobFields to fill ONLY MISSING fields — do NOT overwrite fields that already have a value.',
+				'5. Generate a motivation letter ONLY if the motivationLetter field is currently empty.',
+				'6. Update your task notes with findings using updateMyNotes.'
 			);
 		}
 
@@ -738,8 +748,11 @@ export const triggerAgentForTaskUpdate = internalAction({
 		});
 
 		// 1. Build board context
-		const { otherTasks, columnInfo, currentDateTime } =
-			await buildBoardContext(ctx, args.userId, args.taskId);
+		const { otherTasks, columnInfo, currentDateTime } = await buildBoardContext(
+			ctx,
+			args.userId,
+			args.taskId
+		);
 
 		const fullPrompt = [
 			`Current date/time: ${currentDateTime}`,
@@ -837,8 +850,11 @@ export const triggerAgentForNotification = internalAction({
 		);
 
 		// 4. Build board context
-		const { otherTasks, columnInfo, currentDateTime } =
-			await buildBoardContext(ctx, args.userId, args.taskId);
+		const { otherTasks, columnInfo, currentDateTime } = await buildBoardContext(
+			ctx,
+			args.userId,
+			args.taskId
+		);
 
 		const prompt = [
 			`Current date/time: ${currentDateTime}`,

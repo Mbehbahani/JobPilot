@@ -75,13 +75,16 @@
 
 	let connectDialogWasOpen = $state(false);
 	$effect(() => {
-		if (connectDialogWasOpen && !connectDialogOpen && !openaiConnection.data) {
+		if (connectDialogWasOpen && !connectDialogOpen && openaiConnection.data === null) {
 			// Dismissed without connecting — don't show again
 			connectPopupDismissed = true;
 			if (browser) localStorage.setItem(CONNECT_DISMISSED_KEY, '1');
 		}
 		connectDialogWasOpen = connectDialogOpen;
 	});
+
+	let hasResolvedOpenaiConnection = $derived(openaiConnection.data !== undefined);
+	let needsOpenaiConnection = $derived(openaiConnection.data === null);
 
 	let isLoading = $derived(columnMetaQuery.data === undefined);
 
@@ -251,7 +254,7 @@
 		await persistBoard(nextBoard, rollbackBoard);
 
 		// Prompt to connect ChatGPT if not connected and not already dismissed
-		if (!openaiConnection.data && !connectPopupDismissed) {
+		if (openaiConnection.data === null && !connectPopupDismissed) {
 			connectDialogOpen = true;
 		}
 	}
@@ -581,7 +584,7 @@
 <svelte:window onkeydown={handleBoardKeydown} />
 
 <div>
-	{#if !openaiConnection.data}
+	{#if hasResolvedOpenaiConnection && needsOpenaiConnection}
 		<div
 			class="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-950 dark:text-amber-100"
 		>

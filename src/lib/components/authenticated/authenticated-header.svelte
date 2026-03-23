@@ -77,6 +77,7 @@
 		</Breadcrumb.Root>
 		<div class="ml-auto flex items-center gap-2">
 			<CommandTrigger class="hidden md:inline-flex" />
+			<LightSwitch variant="ghost" />
 		</div>
 	</div>
 </header>

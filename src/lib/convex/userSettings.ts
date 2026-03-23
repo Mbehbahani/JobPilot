@@ -12,12 +12,10 @@ export const getUserSettings = authedQuery({
 
 		return settings
 			? {
-					motivationLetterFormat: settings.motivationLetterFormat ?? '',
 					motivationLetterPrompt: settings.motivationLetterPrompt ?? '',
 					profileResume: settings.profileResume ?? ''
 				}
 			: {
-					motivationLetterFormat: '',
 					motivationLetterPrompt: '',
 					profileResume: ''
 				};
@@ -26,7 +24,6 @@ export const getUserSettings = authedQuery({
 
 export const saveUserSettings = authedMutation({
 	args: {
-		motivationLetterFormat: v.optional(v.string()),
 		motivationLetterPrompt: v.optional(v.string()),
 		profileResume: v.optional(v.string())
 	},
@@ -40,9 +37,6 @@ export const saveUserSettings = authedMutation({
 
 		if (existing) {
 			await ctx.db.patch(existing._id, {
-				...(args.motivationLetterFormat !== undefined
-					? { motivationLetterFormat: args.motivationLetterFormat }
-					: {}),
 				...(args.motivationLetterPrompt !== undefined
 					? { motivationLetterPrompt: args.motivationLetterPrompt }
 					: {}),
@@ -52,7 +46,6 @@ export const saveUserSettings = authedMutation({
 		} else {
 			await ctx.db.insert('userSettings', {
 				userId: ctx.user._id,
-				motivationLetterFormat: args.motivationLetterFormat ?? '',
 				motivationLetterPrompt: args.motivationLetterPrompt ?? '',
 				profileResume: args.profileResume ?? '',
 				updatedAt: now
@@ -70,7 +63,6 @@ export const getUserSettingsInternal = internalQuery({
 			.first();
 
 		return {
-			motivationLetterFormat: settings?.motivationLetterFormat ?? '',
 			motivationLetterPrompt: settings?.motivationLetterPrompt ?? '',
 			profileResume: settings?.profileResume ?? ''
 		};

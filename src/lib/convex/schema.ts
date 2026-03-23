@@ -53,13 +53,8 @@ export default defineSchema({
 				jobDescription: v.optional(v.string()),
 				skills: v.optional(v.string()),
 				country: v.optional(v.string()),
-				searchTerm: v.optional(v.string()),
-				postedDate: v.optional(v.string()),
 				jobLevel: v.optional(v.string()),
-				jobFunction: v.optional(v.string()),
 				jobType: v.optional(v.string()),
-				companyIndustry: v.optional(v.string()),
-				companyUrl: v.optional(v.string()),
 				platform: v.optional(v.string()),
 				motivationLetter: v.optional(v.string()),
 				interviewDate: v.optional(v.string()),
@@ -264,7 +259,6 @@ export default defineSchema({
 	// User settings — stores profile, resume, and motivation letter preferences
 	userSettings: defineTable({
 		userId: v.string(),
-		motivationLetterFormat: v.optional(v.string()),
 		motivationLetterPrompt: v.optional(v.string()),
 		profileResume: v.optional(v.string()),
 		updatedAt: v.number()

@@ -26,13 +26,8 @@ export type TodoItem = {
 	jobDescription?: string;
 	skills?: string;
 	country?: string;
-	searchTerm?: string;
-	postedDate?: string;
 	jobLevel?: string;
-	jobFunction?: string;
 	jobType?: string;
-	companyIndustry?: string;
-	companyUrl?: string;
 	platform?: string;
 	motivationLetter?: string;
 	interviewDate?: string;

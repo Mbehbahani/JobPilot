@@ -3,18 +3,17 @@
 	import { api } from '$lib/convex/_generated/api';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
-	import * as Collapsible from '$lib/components/ui/collapsible/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import { Textarea } from '$lib/components/ui/textarea/index.js';
 	import { ConfirmDeleteDialog, confirmDelete } from '$lib/components/ui/confirm-delete-dialog';
 	import { toast } from 'svelte-sonner';
 	import ProviderIcon from '$lib/components/icons/provider-icon.svelte';
 	import EllipsisVerticalIcon from '@lucide/svelte/icons/ellipsis-vertical';
-	import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
 	import UnplugIcon from '@lucide/svelte/icons/unplug';
-	import SaveIcon from '@lucide/svelte/icons/save';
-	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
+	import PenLineIcon from '@lucide/svelte/icons/pen-line';
+	import FileUserIcon from '@lucide/svelte/icons/file-user';
 	import ChatgptConnectDialog from '$lib/components/todo-demo/chatgpt-connect-dialog.svelte';
+	import LetterInstructionsSheet from './letter-instructions-sheet.svelte';
+	import CvProfileSheet from './cv-profile-sheet.svelte';
 	import { haptic } from '$lib/hooks/use-haptic.svelte';
 
 	const client = useConvexClient();
@@ -62,53 +61,23 @@
 	}
 
 	// =========================================================================
-	// Profile / Settings section
+	// Profile / Settings section — sheets
 	// =========================================================================
 
 	const userSettings = useQuery(api.userSettings.getUserSettings, {});
 
-	let editMotivationFormat = $state('');
-	let editMotivationPrompt = $state('');
-	let editResume = $state('');
-	let settingsInitialized = $state(false);
-	let savingSettings = $state(false);
+	let letterSheetOpen = $state(false);
+	let cvSheetOpen = $state(false);
 
-	let formatOpen = $state(false);
-	let promptOpen = $state(false);
-	let resumeOpen = $state(false);
-
-	function preview(text: string, maxLen = 40): string {
-		if (!text) return 'Empty';
+	function preview(text: string | undefined, maxLen = 36): string {
+		if (!text) return 'Not set';
 		const line = text.split('\n')[0].trim();
+		if (!line) return 'Not set';
 		return line.length > maxLen ? line.slice(0, maxLen) + '…' : line;
 	}
 
-	$effect(() => {
-		if (userSettings.data && !settingsInitialized) {
-			editMotivationFormat = userSettings.data.motivationLetterFormat;
-			editMotivationPrompt = userSettings.data.motivationLetterPrompt;
-			editResume = userSettings.data.profileResume;
-			settingsInitialized = true;
-		}
-	});
-
-	async function saveSettings() {
-		savingSettings = true;
-		try {
-			await client.mutation(api.userSettings.saveUserSettings, {
-				motivationLetterFormat: editMotivationFormat.trim(),
-				motivationLetterPrompt: editMotivationPrompt.trim(),
-				profileResume: editResume.trim()
-			});
-			haptic.trigger('success');
-			toast.success('Settings saved');
-		} catch {
-			haptic.trigger('error');
-			toast.error('Failed to save settings');
-		} finally {
-			savingSettings = false;
-		}
-	}
+	let letterPreview = $derived(preview(userSettings.data?.motivationLetterPrompt));
+	let cvPreview = $derived(preview(userSettings.data?.profileResume));
 </script>
 
 <!-- LLM Providers section -->
@@ -178,102 +147,35 @@
 	</Sidebar.GroupContent>
 </Sidebar.Group>
 
-<!-- Profile / Settings section -->
+<!-- Profile & Settings section -->
 <Sidebar.Group>
 	<Sidebar.GroupLabel>Profile & Settings</Sidebar.GroupLabel>
 	<Sidebar.GroupContent>
-		<div class="grid gap-2 px-2 group-data-[collapsible=icon]:hidden">
-			<!-- Motivation Letter Format -->
-			<Collapsible.Root bind:open={formatOpen}>
-				<Collapsible.Trigger
-					class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs hover:bg-muted/70"
-				>
-					<ChevronRightIcon
-						class="size-3.5 shrink-0 transition-transform {formatOpen ? 'rotate-90' : ''}"
-					/>
+		<Sidebar.Menu>
+			<Sidebar.MenuItem>
+				<Sidebar.MenuButton onclick={() => (letterSheetOpen = true)}>
+					<PenLineIcon class="size-4 shrink-0" />
 					<span class="min-w-0 flex-1">
-						<span class="block font-medium text-muted-foreground">Motivation Letter Format</span>
-						<span class="block truncate text-muted-foreground/60"
-							>{preview(editMotivationFormat)}</span
-						>
+						<span class="block text-sm">Letter Instructions</span>
+						<span class="block truncate text-xs text-muted-foreground">{letterPreview}</span>
 					</span>
-				</Collapsible.Trigger>
-				<Collapsible.Content>
-					<div class="px-2 pt-1.5 pb-1">
-						<Textarea
-							bind:value={editMotivationFormat}
-							placeholder="Describe your preferred letter format..."
-							rows={3}
-							class="text-xs"
-						/>
-					</div>
-				</Collapsible.Content>
-			</Collapsible.Root>
-
-			<!-- Custom Prompt -->
-			<Collapsible.Root bind:open={promptOpen}>
-				<Collapsible.Trigger
-					class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs hover:bg-muted/70"
-				>
-					<ChevronRightIcon
-						class="size-3.5 shrink-0 transition-transform {promptOpen ? 'rotate-90' : ''}"
-					/>
+				</Sidebar.MenuButton>
+			</Sidebar.MenuItem>
+			<Sidebar.MenuItem>
+				<Sidebar.MenuButton onclick={() => (cvSheetOpen = true)}>
+					<FileUserIcon class="size-4 shrink-0" />
 					<span class="min-w-0 flex-1">
-						<span class="block font-medium text-muted-foreground">Custom Prompt</span>
-						<span class="block truncate text-muted-foreground/60"
-							>{preview(editMotivationPrompt)}</span
-						>
+						<span class="block text-sm">CV / Profile</span>
+						<span class="block truncate text-xs text-muted-foreground">{cvPreview}</span>
 					</span>
-				</Collapsible.Trigger>
-				<Collapsible.Content>
-					<div class="px-2 pt-1.5 pb-1">
-						<Textarea
-							bind:value={editMotivationPrompt}
-							placeholder="Custom instructions for AI letter generation..."
-							rows={3}
-							class="text-xs"
-						/>
-					</div>
-				</Collapsible.Content>
-			</Collapsible.Root>
-
-			<!-- Resume / Profile -->
-			<Collapsible.Root bind:open={resumeOpen}>
-				<Collapsible.Trigger
-					class="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-xs hover:bg-muted/70"
-				>
-					<ChevronRightIcon
-						class="size-3.5 shrink-0 transition-transform {resumeOpen ? 'rotate-90' : ''}"
-					/>
-					<span class="min-w-0 flex-1">
-						<span class="block font-medium text-muted-foreground">Resume / Profile</span>
-						<span class="block truncate text-muted-foreground/60">{preview(editResume)}</span>
-					</span>
-				</Collapsible.Trigger>
-				<Collapsible.Content>
-					<div class="px-2 pt-1.5 pb-1">
-						<Textarea
-							bind:value={editResume}
-							placeholder="Paste your resume or key qualifications..."
-							rows={4}
-							class="text-xs"
-						/>
-					</div>
-				</Collapsible.Content>
-			</Collapsible.Root>
-
-			<Button size="sm" class="w-full" onclick={saveSettings} disabled={savingSettings}>
-				{#if savingSettings}
-					<LoaderCircleIcon class="mr-1.5 size-3.5 animate-spin" />
-				{:else}
-					<SaveIcon class="mr-1.5 size-3.5" />
-				{/if}
-				Save Settings
-			</Button>
-		</div>
+				</Sidebar.MenuButton>
+			</Sidebar.MenuItem>
+		</Sidebar.Menu>
 	</Sidebar.GroupContent>
 </Sidebar.Group>
 
 <ChatgptConnectDialog bind:open={openaiDialogOpen} />
+<LetterInstructionsSheet bind:open={letterSheetOpen} />
+<CvProfileSheet bind:open={cvSheetOpen} />
 
 <ConfirmDeleteDialog />
