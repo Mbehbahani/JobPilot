@@ -13,6 +13,34 @@ function truncate(str: string, max: number): string {
 	return str.slice(0, max) + '\n\n[truncated]';
 }
 
+function stripHtmlToText(html: string): string {
+	return html
+		.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ' ')
+		.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, ' ')
+		.replace(/<noscript\b[^<]*(?:(?!<\/noscript>)<[^<]*)*<\/noscript>/gi, ' ')
+		.replace(/<[^>]+>/g, ' ')
+		.replace(/&nbsp;/gi, ' ')
+		.replace(/&amp;/gi, '&')
+		.replace(/&lt;/gi, '<')
+		.replace(/&gt;/gi, '>')
+		.replace(/&quot;/gi, '"')
+		.replace(/&#39;/gi, "'")
+		.replace(/\s+/g, ' ')
+		.trim();
+}
+
+function getUrlFromInput(input: { query?: string; url?: string }): string | null {
+	const candidate = input.url?.trim() || input.query?.trim();
+	if (!candidate) return null;
+	try {
+		const parsed = new URL(candidate);
+		if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return null;
+		return parsed.toString();
+	} catch {
+		return null;
+	}
+}
+
 /** Resolve the task ID that this agent owns, using the threadId from context. */
 async function resolveOwnTaskId(ctx: ToolCtx): Promise<string | null> {
 	if (!ctx.userId || !ctx.threadId) return null;
@@ -272,41 +300,47 @@ export const readTaskNotes = createTool({
 
 export const webSearch = createTool({
 	description:
-		'Search the web using Brave Search. Returns titles, snippets, and URLs. Use for researching companies, job listings, or industry information.',
+		'Fetch a public webpage URL and extract readable text from it. Best for job posting links and other public job pages.',
 	inputSchema: z.object({
-		query: z.string().describe('Search query keywords'),
-		count: z.number().optional().describe('Number of results (default 5, max 20)')
+		query: z
+			.string()
+			.optional()
+			.describe('A public URL. Kept for backward compatibility with older prompts.'),
+		url: z.string().optional().describe('Public page URL to fetch and extract text from')
 	}),
 	execute: async (_ctx: ToolCtx, input): Promise<Record<string, unknown>> => {
-		const apiKey = process.env.BRAVE_SEARCH_API_KEY;
-		if (!apiKey) return { success: false, error: 'BRAVE_SEARCH_API_KEY not configured' };
+		const url = getUrlFromInput(input);
+		if (!url) {
+			return {
+				success: false,
+				error:
+					'Please provide a valid public http/https URL. General web search is no longer configured.'
+			};
+		}
 
-		const params = new URLSearchParams({
-			q: input.query,
-			count: String(input.count ?? 5)
-		});
-
-		const res = await fetch(`https://api.search.brave.com/res/v1/web/search?${params}`, {
+		const res = await fetch(url, {
 			headers: {
-				Accept: 'application/json',
-				'X-Subscription-Token': apiKey
+				'User-Agent':
+					'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+				Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
 			}
 		});
 
 		if (!res.ok) {
-			return { success: false, error: `Brave API ${res.status}: ${await res.text()}` };
+			return { success: false, error: `Failed to fetch page (${res.status})` };
 		}
 
-		const data = await res.json();
-		const results = (data.web?.results ?? []).map(
-			(r: { title: string; url: string; description: string }) => ({
-				title: r.title,
-				url: r.url,
-				snippet: r.description
-			})
-		);
+		const html = await res.text();
+		const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+		const title = titleMatch?.[1]?.trim() || url;
+		const text = stripHtmlToText(html);
 
-		return { success: true, results };
+		return {
+			success: true,
+			url,
+			title,
+			content: truncate(text, MAX_RESULT)
+		};
 	}
 });
 
@@ -320,7 +354,7 @@ export const todoAgent = new Agent(components.agent as any, {
 Your primary capabilities:
 - Parse job descriptions and extract structured information (company, role, skills, level, etc.)
 - Generate personalized motivation letters based on the user's resume/profile and the job description
-- Research companies and roles using web search
+	- Read public job posting pages directly from their URLs
 - Track application status across the Kanban board
 
 ## Tools
@@ -333,7 +367,7 @@ Your primary capabilities:
 - createTask: Create follow-up tasks
 - notifyTask: Message another task's agent
 - readTaskNotes: Read full notes of another task
-- webSearch: Search the web for company info, job details, etc.
+	- webSearch: Fetch a public webpage URL and extract readable page text
 
 You can ONLY modify YOUR OWN task. To affect another task, use notifyTask.
 
@@ -433,4 +467,5 @@ Available components:
 
 	maxSteps: 40
 });
+
 

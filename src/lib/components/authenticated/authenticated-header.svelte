@@ -3,7 +3,6 @@
 	import * as Breadcrumb from '$lib/components/ui/breadcrumb/index.js';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
-	import LanguageSwitcher from '$lib/components/LanguageSwitcher.svelte';
 	import LightSwitch from '$lib/components/ui/light-switch/light-switch.svelte';
 	import CommandTrigger from '$lib/components/global-search/command-trigger.svelte';
 	import { localizedHref } from '$lib/utils/i18n';
@@ -78,8 +77,6 @@
 		</Breadcrumb.Root>
 		<div class="ml-auto flex items-center gap-2">
 			<CommandTrigger class="hidden md:inline-flex" />
-			<LightSwitch variant="ghost" />
-			<LanguageSwitcher variant="ghost" />
 		</div>
 	</div>
 </header>
