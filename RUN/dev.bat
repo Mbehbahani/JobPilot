@@ -1,6 +1,6 @@
 @echo off
 :: ─────────────────────────────────────────────
-::  Promus – Start dev server (Vite + Convex)
+::  JobFlow – Start dev server (Vite + Convex)
 ::  Double-click this file or run it from CMD.
 :: ─────────────────────────────────────────────
 set "PATH=C:\Users\Mohammad\.bun\bin;%PATH%"

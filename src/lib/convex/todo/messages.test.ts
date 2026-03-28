@@ -97,7 +97,7 @@ describe('resolveTodoRunOutcome', () => {
 
 	it('uses defaultSummary for finishReason=stop with no text', () => {
 		const outcome = resolveTodoRunOutcome({
-			defaultSummary: 'Coda finished processing.',
+			defaultSummary: 'Nova finished processing.',
 			finishReason: 'stop',
 			steps: [{}, {}],
 			text: ''
@@ -106,7 +106,7 @@ describe('resolveTodoRunOutcome', () => {
 		expect(outcome).toEqual({
 			outcome: 'done',
 			status: 'done',
-			summary: 'Coda finished processing.'
+			summary: 'Nova finished processing.'
 		});
 	});
 

@@ -66,7 +66,7 @@
 		<Sheet.Header>
 			<Sheet.Title>Letter Writing Instructions</Sheet.Title>
 			<Sheet.Description>
-				These instructions guide Coda when generating motivation letters for your job applications.
+				These instructions guide Nova when generating motivation letters for your job applications.
 			</Sheet.Description>
 		</Sheet.Header>
 
@@ -80,7 +80,7 @@
 					</Button>
 				</div>
 				<p class="text-xs text-muted-foreground">
-					Tell Coda how to write your motivation letters — tone, structure, things to mention, and
+					Tell Nova how to write your motivation letters — tone, structure, things to mention, and
 					anything else you care about.
 				</p>
 				<Textarea

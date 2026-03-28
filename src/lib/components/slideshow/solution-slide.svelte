@@ -9,7 +9,7 @@
 				Add a task. Get it done.
 			</h2>
 			<p class="text-lg font-light text-muted-foreground">
-				Promus connects to your tools, gathers context, and delivers ready-to-send output.
+				JobFlow connects to your tools, gathers context, and delivers ready-to-send output.
 			</p>
 		</div>
 
@@ -49,7 +49,7 @@
 					<div class="h-6 w-px bg-border"></div>
 				</div>
 
-				<!-- Promus agent -->
+				<!-- JobFlow agent -->
 				<div
 					class="flex flex-1 flex-col gap-4 rounded-2xl border-2 border-primary/30 bg-primary/5 p-6"
 				>
@@ -58,7 +58,7 @@
 							<span class="text-lg font-bold text-primary-foreground">P</span>
 						</div>
 						<div>
-							<p class="font-semibold text-foreground">Coda</p>
+							<p class="font-semibold text-foreground">Nova</p>
 							<p class="text-xs text-muted-foreground">Powered by Devstral</p>
 						</div>
 					</div>

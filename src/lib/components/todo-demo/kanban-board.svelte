@@ -68,7 +68,7 @@
 
 	// ChatGPT connection check
 	const openaiConnection = useQuery(api.openai.getConnection, {});
-	const CONNECT_DISMISSED_KEY = 'promus:chatgpt-connect-dismissed';
+	const CONNECT_DISMISSED_KEY = 'JobFlow:chatgpt-connect-dismissed';
 	let connectPopupDismissed = $state(
 		browser ? localStorage.getItem(CONNECT_DISMISSED_KEY) === '1' : false
 	);
@@ -454,7 +454,7 @@
 				summary: {
 					type: 'Text',
 					props: {
-						content: 'Pick the one you prefer and Coda will handle the order.',
+						content: 'Pick the one you prefer and Nova will handle the order.',
 						muted: true
 					},
 					children: []
@@ -468,9 +468,9 @@
 			...nextBoard.targeted[0],
 			agentSpec: spec,
 			agentStatus: 'done' as AgentStatus,
-			agentSummary: 'Coda found 2 top robot vacuums. Pick your favorite.',
+			agentSummary: 'Nova found 2 top robot vacuums. Pick your favorite.',
 			notes:
-				'- Coda researched robot vacuums in your budget\n- Found 2 strong options\n- Pick your preferred model below'
+				'- Nova researched robot vacuums in your budget\n- Found 2 strong options\n- Pick your preferred model below'
 		};
 		items = nextBoard;
 		void persistBoard(nextBoard, rollbackBoard);

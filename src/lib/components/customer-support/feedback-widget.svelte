@@ -40,7 +40,7 @@
 	const threadContext = supportThreadContext.get();
 
 	// Derive agent name from context with fallback
-	let agentName = $derived(threadContext.currentAgentName || 'Coda');
+	let agentName = $derived(threadContext.currentAgentName || 'Nova');
 
 	// Derive chat panel open state
 	const isChatOpen = $derived(threadContext.currentView !== 'overview');

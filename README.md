@@ -1,10 +1,8 @@
-# Promus
+# JobFlow
 
 A Kanban board where each task gets an AI agent that can use your connected accounts (Gmail, LinkedIn, WhatsApp, etc.) to do the actual work.
 
 **[Try it](https://vercel.app)**
-
-
 
 ## How it works
 

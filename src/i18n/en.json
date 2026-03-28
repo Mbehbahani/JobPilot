@@ -247,7 +247,7 @@
 		}
 	},
 	"app": {
-		"name": "Promus",
+		"name": "JobFlow",
 		"sidebar": {
 			"admin_panel": "Admin Panel",
 			"browse_jobs": "Browse Jobs",
@@ -591,10 +591,10 @@
 		"cta": "Get started",
 		"cta_demo": "Request a demo",
 		"cta_sourcecode": "View sourcecode",
-		"description": "Coda completes your todos. Connected to all your professional tools.",
+		"description": "Nova completes your todos. Connected to all your professional tools.",
 		"section_label": "Home",
 		"tagline": "Your todo list just grew 8 arms.",
-		"title": "Promus"
+		"title": "JobFlow"
 	},
 	"integrations": {
 		"cards": {
@@ -648,7 +648,7 @@
 				"title": "Tolgee"
 			}
 		},
-		"description": "Promus works with the tools you already use",
+		"description": "JobFlow works with the tools you already use",
 		"title": "Connected to your tools"
 	},
 	"meta": {
@@ -725,8 +725,8 @@
 			}
 		},
 		"home": {
-			"description": "Add a task. Promus researches, drafts, and executes — connected to your email, calendar, and messages.",
-			"title": "Coda does your todos"
+			"description": "Add a task. JobFlow researches, drafts, and executes — connected to your email, calendar, and messages.",
+			"title": "Nova does your todos"
 		},
 		"pricing": {
 			"description": "Choose a plan and test the integrated billing flow.",
@@ -763,8 +763,8 @@
 		},
 		"current_plan": "Current Plan",
 		"current_plan_badge": "(Current Plan)",
-		"description": "Simple pricing for a smarter todo list. Try Coda free, upgrade when you need more.",
-		"description_autumn": "Simple pricing for a smarter todo list. Try Coda free, upgrade when you need more.",
+		"description": "Simple pricing for a smarter todo list. Try Nova free, upgrade when you need more.",
+		"description_autumn": "Simple pricing for a smarter todo list. Try Nova free, upgrade when you need more.",
 		"features": {
 			"enterprise": {
 				"0": "Custom message limits",
@@ -1042,7 +1042,7 @@
 			"support_team": "Support Team"
 		},
 		"message": {
-			"role_kai": "Coda",
+			"role_kai": "Nova",
 			"role_support": "Support",
 			"role_you": "You"
 		},
@@ -1072,7 +1072,7 @@
 			"help_label": "Help me with...",
 			"help_text": "Help me set up the project.",
 			"question_label": "Ask a question",
-			"question_text": "Why Promus?"
+			"question_text": "Why JobFlow?"
 		},
 		"thread": {
 			"new_conversation": "New conversation"
@@ -1129,10 +1129,10 @@
 			"placeholder": "Ask about this task...",
 			"title": "Task AI"
 		},
-		"chatgpt_warning_body": "Connect your ChatGPT account to let Coda analyze jobs, fill application fields, and draft motivation letters.",
+		"chatgpt_warning_body": "Connect your ChatGPT account to let Nova analyze jobs, fill application fields, and draft motivation letters.",
 		"chatgpt_warning_cta": "Connect ChatGPT",
 		"chatgpt_warning_title": "ChatGPT connection required",
-		"chatgpt_connect_description": "Connect your ChatGPT account to let Coda work on your tasks. Without it, your board works as a regular todo list.",
+		"chatgpt_connect_description": "Connect your ChatGPT account to let Nova work on your tasks. Without it, your board works as a regular todo list.",
 		"column": {
 			"done": "Done",
 			"in-progress": "In Progress",
@@ -1142,9 +1142,9 @@
 		},
 		"column_edit": {
 			"aria_edit": "Edit column settings",
-			"description": "Customize this list's name and set instructions for Coda.",
-			"instructions_description": "Coda will follow these instructions for tasks in this column.",
-			"instructions_label": "Coda instructions",
+			"description": "Customize this list's name and set instructions for Nova.",
+			"instructions_description": "Nova will follow these instructions for tasks in this column.",
+			"instructions_label": "Nova instructions",
 			"instructions_placeholder": "e.g. Research thoroughly before moving to the next column...",
 			"name_description": "Leave empty to use the default name.",
 			"name_label": "List name",
@@ -1152,14 +1152,14 @@
 		},
 		"cta": "Get Started Free",
 		"detail": {
-			"agent_draft_title": "Coda Draft",
-			"agent_feedback_placeholder": "Tell Coda what to change...",
-			"agent_logs": "Coda logs",
+			"agent_draft_title": "Nova Draft",
+			"agent_feedback_placeholder": "Tell Nova what to change...",
+			"agent_logs": "Nova logs",
 			"agent_reject": "Reject",
 			"agent_send": "Send",
 			"agent_status_awaiting": "Awaiting your approval",
-			"agent_status_done": "Coda completed",
-			"agent_status_working": "Coda is working...",
+			"agent_status_done": "Nova completed",
+			"agent_status_working": "Nova is working...",
 			"agent_submit_feedback": "Submit Feedback",
 			"cancel": "Cancel",
 			"delete": "Delete",
@@ -1186,7 +1186,7 @@
 			"task_6": "Connect with conference speakers on LinkedIn"
 		},
 		"save_failed": "Failed to save board changes. Please try again.",
-		"subheading": "Add a task. Promus researches, drafts, and executes in the background — connected to all your professional tools."
+		"subheading": "Add a task. JobFlow researches, drafts, and executes in the background — connected to all your professional tools."
 	},
 	"validation": {
 		"confirm_password": {
