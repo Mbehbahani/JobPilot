@@ -3,7 +3,7 @@
 	import { cn } from '$lib/utils.js';
 
 	let {
-		appName = 'Promus',
+		appName = 'JobFlow',
 		class: className
 	}: {
 		appName?: string;
@@ -18,7 +18,7 @@
 				src="__BASEURL__/logo.png"
 				width="28"
 				height="28"
-				alt="Coda"
+				alt="Nova"
 				class="my-0 mr-2 inline-block align-middle"
 			/>
 			<Text class="my-0 inline-block align-middle text-[20px] font-bold text-black">

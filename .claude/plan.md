@@ -2,7 +2,7 @@
 
 ## Context
 
-Promus needs a sandbox feature where **mistral-vibe** runs inside a Daytona cloud sandbox, accessible from the web UI. Vibe has `vibe --prompt "..." --output streaming --auto-approve` (NDJSON to stdout). We wrap it with a thin Python HTTP server inside the sandbox.
+JobFlow needs a sandbox feature where **mistral-vibe** runs inside a Daytona cloud sandbox, accessible from the web UI. Vibe has `vibe --prompt "..." --output streaming --auto-approve` (NDJSON to stdout). We wrap it with a thin Python HTTP server inside the sandbox.
 
 **Key change from v1**: Sandbox state is a **local Convex component** (like betterAuth) for clean isolation. The vibe agent gets Unipile access but is walled off from main app tables.
 

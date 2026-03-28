@@ -11,7 +11,7 @@
 			</h2>
 			<div class="my-8 h-1 w-12 rounded-full bg-primary"></div>
 			<p class="max-w-[360px] text-lg font-light text-muted-foreground">
-				Give feedback. Coda learns your tone, your preferences, your way of working.
+				Give feedback. Nova learns your tone, your preferences, your way of working.
 			</p>
 		</div>
 
@@ -43,7 +43,7 @@
 					<div class="flex size-14 items-center justify-center rounded-2xl bg-primary shadow-sm">
 						<span class="text-xl font-bold text-primary-foreground">P</span>
 					</div>
-					<span class="text-xs font-medium whitespace-nowrap text-foreground">Coda output</span>
+					<span class="text-xs font-medium whitespace-nowrap text-foreground">Nova output</span>
 				</div>
 
 				<!-- Right: Review -->

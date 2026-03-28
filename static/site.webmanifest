@@ -1,6 +1,6 @@
 {
-	"name": "Promus",
-	"short_name": "Promus",
+	"name": "JobFlow",
+	"short_name": "JobFlow",
 	"icons": [
 		{
 			"src": "/web-app-manifest-192x192.png",

@@ -15,24 +15,24 @@ const TODO_AGENT_WARNING_MS = 8 * 60 * 1000 + 30 * 1000;
 const TODO_AGENT_MAX_STEPS = 24;
 const TODO_AGENT_WARNING_STEP = 20;
 const TODO_AGENT_TIMEOUT_SUMMARY =
-	'Coda ran out of time after partial progress. Review notes and retry if needed.';
+	'Nova ran out of time after partial progress. Review notes and retry if needed.';
 const TODO_AGENT_STEP_LIMIT_SUMMARY =
-	'Coda stopped after reaching the task step limit. Partial progress was saved.';
+	'Nova stopped after reaching the task step limit. Partial progress was saved.';
 const TODO_AGENT_ERROR_FINISH_SUMMARY =
-	'Coda stopped due to a model error. Review notes and retry if needed.';
+	'Nova stopped due to a model error. Review notes and retry if needed.';
 const TODO_AGENT_LENGTH_FINISH_SUMMARY =
-	'Coda ran out of response tokens before finishing. Review notes and retry if needed.';
+	'Nova ran out of response tokens before finishing. Review notes and retry if needed.';
 const TODO_AGENT_CONTENT_FILTER_SUMMARY =
-	'Coda was stopped by a content filter. Review the task and retry with different wording.';
+	'Nova was stopped by a content filter. Review the task and retry with different wording.';
 const TODO_AGENT_OTHER_FINISH_SUMMARY =
-	'Coda stopped unexpectedly without completing the task. Review notes and retry if needed.';
+	'Nova stopped unexpectedly without completing the task. Review notes and retry if needed.';
 const TODO_AGENT_CONTINUE_PROMPT = 'Complete the task.';
 const TODO_AGENT_MAX_CONTINUATIONS = 1;
 const TODO_AGENT_NEAR_LIMIT_REMINDER =
 	'System reminder: you are close to the runtime limit. Wrap up now. Record concrete findings, move the task to the right column, and send your final one-sentence summary. Do not start new exploratory work unless it is required to finish.';
 
 const TODO_AGENT_STUCK_WORKING_SUMMARY =
-	'Coda finished without completing the task. Review notes and retry.';
+	'Nova finished without completing the task. Review notes and retry.';
 
 type TodoRunOutcome = 'done' | 'timeout' | 'step_limit' | 'error';
 
@@ -176,7 +176,7 @@ export function resolveTodoRunOutcome(args: {
 		return {
 			outcome: 'error',
 			status: 'error',
-			summary: truncateText(`Coda hit an error: ${errorMessage}`, 120),
+			summary: truncateText(`Nova hit an error: ${errorMessage}`, 120),
 			detail: `error=${errorMessage}`
 		};
 	}
@@ -722,7 +722,7 @@ export const triggerAgentForNewTask = internalAction({
 			threadId,
 			promptMessageId: messageId,
 			trigger: 'newTask',
-			defaultSummary: 'Coda finished processing.'
+			defaultSummary: 'Nova finished processing.'
 		});
 	}
 });
@@ -781,7 +781,7 @@ export const triggerAgentForTaskUpdate = internalAction({
 			threadId: args.threadId,
 			promptMessageId: messageId,
 			trigger: 'taskUpdate',
-			defaultSummary: 'Coda finished processing.'
+			defaultSummary: 'Nova finished processing.'
 		});
 	}
 });
@@ -889,7 +889,7 @@ export const triggerAgentForNotification = internalAction({
 			threadId: args.threadId,
 			promptMessageId: messageId,
 			trigger: 'notification',
-			defaultSummary: 'Coda finished processing.',
+			defaultSummary: 'Nova finished processing.',
 			onDone: async () => {
 				await ctx.runMutation(internal.todo.notifications.clearPendingNotifications, {
 					userId: args.userId,

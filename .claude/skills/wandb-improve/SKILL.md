@@ -1,9 +1,9 @@
 ---
 name: wandb-improve
-description: Analyze Weave traces and eval results, then improve Mistral prompts for the Promus task agent
+description: Analyze Weave traces and eval results, then improve Mistral prompts for the JobFlow task agent
 ---
 
-## Self-Improvement Workflow for Promus
+## Self-Improvement Workflow for JobFlow
 
 You have access to the W&B MCP Server. Follow this loop:
 
@@ -15,7 +15,7 @@ Run `cd evals && uv run python scripts/run_eval.py` to get baseline scores.
 
 Use the W&B MCP tools to:
 
-1. Query the latest evaluation results: "Show evaluation scores for promus/task-agent"
+1. Query the latest evaluation results: "Show evaluation scores for JobFlow/task-agent"
 2. Query recent traces: "Show the last 20 task processing traces, sorted by latency"
 3. Identify patterns: Which intents fail? Which tools are misrouted? What's slow?
 

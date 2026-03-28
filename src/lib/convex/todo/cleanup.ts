@@ -29,7 +29,7 @@ export const recoverStaleTasks = internalMutation({
 				tasks[i] = {
 					...task,
 					agentStatus: 'error' as const,
-					agentSummary: 'Coda timed out while working on this task.',
+					agentSummary: 'Nova timed out while working on this task.',
 					updatedAt: now
 				};
 				modified = true;

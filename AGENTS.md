@@ -2,9 +2,9 @@
 
 This project is a saas template built with SvelteKit, Convex, Typescript and modern web technologies.
 
-## Coda Branding
+## Nova Branding
 
-"Coda" is the user-facing name for our AI task agent. All UI text, translations, and marketing copy must use "Coda" — never "agent", "AI agent", or similar generic terms. Internal code (variable names, types, file names) can still use `agent`.
+"Nova" is the user-facing name for our AI task agent. All UI text, translations, and marketing copy must use "Nova" — never "agent", "AI agent", or similar generic terms. Internal code (variable names, types, file names) can still use `agent`.
 
 ## btca
 
@@ -137,7 +137,7 @@ These commands use `dotenv` to load the local TOLGEE_API_KEY from `.env.local`:
 
 - Every new `+page.svelte` route must include `SEOHead`.
 - For localized routes under `src/routes/[[lang]]/`, `SEOHead` title and description must use translated `meta.*` keys in all 4 locale files (`en`, `de`, `es`, `fr`).
-- `meta.*.title` values must be page-title only and must NOT include the site suffix or brand name. `SEOHead` appends `| Promus` automatically (use `"Settings"`, not `"Settings - Promus"`).
+- `meta.*.title` values must be page-title only and must NOT include the site suffix or brand name. `SEOHead` appends `| JobFlow` automatically (use `"Settings"`, not `"Settings - JobFlow"`).
 
 ### Email System
 
@@ -494,19 +494,22 @@ Swap accessibility for performance, seo, best-practices as needed.
 
 ### What This App Actually Is
 
-This is a **Job Application Kanban board** — not a generic task manager. Users drag job applications through 5 stages, and an AI agent (Coda) helps at each stage. The rest of the SaaS template (admin panel, auth, billing, etc.) is scaffolding around this core feature.
+This is a **Job Application Kanban board** — not a generic task manager. Users drag job applications through 5 stages, and an AI agent (Nova) helps at each stage. The rest of the SaaS template (admin panel, auth, billing, etc.) is scaffolding around this core feature.
 
 ### Running the Dev Server (Windows / PowerShell)
 
 `bun` is installed at `C:\Users\Mohammad\.bun\bin` and is NOT on the system PATH by default.
 
 **Option A — scripts (recommended):**
+
 ```powershell
 .\RUN\dev.ps1        # prepends bun to PATH and runs bun run dev
 ```
+
 Or double-click `RUN\dev.bat`.
 
 **Option B — manual:**
+
 ```powershell
 $env:PATH = "C:\Users\Mohammad\.bun\bin;" + $env:PATH
 bun run dev
@@ -530,16 +533,16 @@ bun run dev
 
 These are the files you will edit 95% of the time for visual or UX changes:
 
-| File | Role |
-| ---- | ---- |
-| `src/lib/components/todo-demo/kanban-board.svelte` | Main board, DnD orchestration, column layout, task selection, ChatGPT connection prompt |
-| `src/lib/components/todo-demo/kanban-column.svelte` | Column header, add-task button, column edit button, task list rendering |
-| `src/lib/components/todo-demo/kanban-item.svelte` | **Card appearance** — company name, position, status indicators, "Processing…" label |
-| `src/lib/components/todo-demo/todo-detail-dialog.svelte` | **Task detail dialog** — all fields, stage history, interview section, notes, agent logs |
-| `src/lib/components/todo-demo/todo-add-form.svelte` | Add task inline form (title + optional URL) |
-| `src/lib/components/todo-demo/chatgpt-connect-dialog.svelte` | Modal to connect OpenAI — required for Coda to work |
-| `src/lib/components/todo-demo/column-edit-dialog.svelte` | Edit column name and custom instructions for Coda |
-| `src/lib/components/todo-demo/types.ts` | All TypeScript types — `TodoItem`, `ColumnId`, `KanbanData`, `AgentStatus` |
+| File                                                         | Role                                                                                     |
+| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| `src/lib/components/todo-demo/kanban-board.svelte`           | Main board, DnD orchestration, column layout, task selection, ChatGPT connection prompt  |
+| `src/lib/components/todo-demo/kanban-column.svelte`          | Column header, add-task button, column edit button, task list rendering                  |
+| `src/lib/components/todo-demo/kanban-item.svelte`            | **Card appearance** — company name, position, status indicators, "Processing…" label     |
+| `src/lib/components/todo-demo/todo-detail-dialog.svelte`     | **Task detail dialog** — all fields, stage history, interview section, notes, agent logs |
+| `src/lib/components/todo-demo/todo-add-form.svelte`          | Add task inline form (title + optional URL)                                              |
+| `src/lib/components/todo-demo/chatgpt-connect-dialog.svelte` | Modal to connect OpenAI — required for Nova to work                                      |
+| `src/lib/components/todo-demo/column-edit-dialog.svelte`     | Edit column name and custom instructions for Nova                                        |
+| `src/lib/components/todo-demo/types.ts`                      | All TypeScript types — `TodoItem`, `ColumnId`, `KanbanData`, `AgentStatus`               |
 
 #### Card Display Logic (`kanban-item.svelte`)
 
@@ -562,6 +565,7 @@ Most complex component. Key design decisions already made — do not reverse the
 Every field stored per task. Grouped by purpose:
 
 **Core:**
+
 ```ts
 id: string           // client-generated UUID
 title: string        // job title or free-form description
@@ -573,6 +577,7 @@ columnId: ColumnId   // 'targeted' | 'preparing' | 'applied' | 'interviewing' | 
 ```
 
 **Column Entry Timestamps** (set once when task first enters that column):
+
 ```ts
 targetedAt?: number
 preparingAt?: number
@@ -582,6 +587,7 @@ doneAt?: number
 ```
 
 **Agent State:**
+
 ```ts
 threadId?: string          // Convex Agent thread ID
 agentStatus?: 'idle' | 'working' | 'done' | 'awaiting_approval' | 'error'
@@ -594,7 +600,8 @@ agentStartedAt?: number    // Timestamp when agent last started
 hasUnreadNotes?: boolean   // True when agent updated notes since last user view
 ```
 
-**Job-Specific Fields** (filled by Coda in Preparing mode):
+**Job-Specific Fields** (filled by Nova in Preparing mode):
+
 ```ts
 companyName?: string
 position?: string
@@ -614,6 +621,7 @@ motivationLetter?: string
 ```
 
 **Interview Fields:**
+
 ```ts
 interviewDate?: string     // ISO datetime string
 interviewLink?: string     // Video call URL
@@ -622,26 +630,28 @@ interviewEmail?: string    // Interviewer email(s)
 
 ### Key Backend Files
 
-| File | Role |
-| ---- | ---- |
-| `src/lib/convex/schema.ts` | Database schema — `todoBoards` table with the full task shape above |
-| `src/lib/convex/todos.ts` | All board mutations/queries — `saveBoard`, `getBoard`, `getColumnMeta`, internal helpers, agent trigger dispatch |
-| `src/lib/convex/todo/agent.ts` | Agent tool definitions (see tool list below) |
-| `src/lib/convex/todo/messages.ts` | Agent run loop, prompt construction, trigger functions |
-| `src/lib/convex/todo/threads.ts` | Thread management helpers |
-| `src/lib/convex/todo/notifications.ts` | Cross-task agent notification system |
+| File                                   | Role                                                                                                             |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `src/lib/convex/schema.ts`             | Database schema — `todoBoards` table with the full task shape above                                              |
+| `src/lib/convex/todos.ts`              | All board mutations/queries — `saveBoard`, `getBoard`, `getColumnMeta`, internal helpers, agent trigger dispatch |
+| `src/lib/convex/todo/agent.ts`         | Agent tool definitions (see tool list below)                                                                     |
+| `src/lib/convex/todo/messages.ts`      | Agent run loop, prompt construction, trigger functions                                                           |
+| `src/lib/convex/todo/threads.ts`       | Thread management helpers                                                                                        |
+| `src/lib/convex/todo/notifications.ts` | Cross-task agent notification system                                                                             |
 
-### Coda Agent — Two-Mode Behavior ⚠️ IMPORTANT
+### Nova Agent — Two-Mode Behavior ⚠️ IMPORTANT
 
 **This was the last major feature implemented.** The agent behaves differently depending on which column a task is in when it triggers.
 
 #### Mode 1: Analysis Mode (`targeted` column)
 
 Triggered when:
+
 - A new task is created directly into `targeted`
 - A task is moved back to `targeted` from another column
 
 Agent behavior:
+
 1. Reads task title and any notes/URL
 2. Uses `webSearch` to fetch the job posting if a URL is provided
 3. Identifies which fields are missing (company, skills, salary, deadline, etc.)
@@ -654,11 +664,13 @@ Agent behavior:
 #### Mode 2: Full Action Mode (`preparing` column and others)
 
 Triggered when:
+
 - A new task is created directly into `preparing` (or any non-targeted column)
 - A task is moved from any column to `preparing`
 - A task is moved between applied/interviewing/done
 
 Agent behavior:
+
 1. Calls `getUserProfile` to read the user's resume
 2. Parses the full job description
 3. Calls `updateJobFields` to fill all available fields
@@ -672,30 +684,31 @@ Agent behavior:
 - **Column change** → `saveBoard` mutation in `todos.ts` (line ~446): builds `columnMovePrompt` based on `task.columnId`
 - **Deferred detection** → after agent run completes, `runTodoAgentForTask` checks `taskInfo?.columnId === 'targeted'` and sets `agentStatus = 'idle'` (not 'done') so no cascade fires
 
-### Coda Agent Tools
+### Nova Agent Tools
 
 All defined in `src/lib/convex/todo/agent.ts`:
 
-| Tool | What it does |
-| ---- | ------------ |
-| `updateMyNotes` | Write/replace the task's notes field |
+| Tool              | What it does                                                           |
+| ----------------- | ---------------------------------------------------------------------- |
+| `updateMyNotes`   | Write/replace the task's notes field                                   |
 | `updateJobFields` | Fill job-specific fields (companyName, position, jobUrl, skills, etc.) |
-| `getUserProfile` | Read the user's stored resume/profile |
-| `createTask` | Create a new task card on the board |
-| `moveMyTask` | Move this task to a different column |
-| `setMyTaskUI` | Set `agentDraft` and `agentDraftType` |
-| `notifyTask` | Send a notification message to another task's agent thread |
-| `readTaskNotes` | Read full notes (bypasses the 300-char truncation in prompt) |
-| `webSearch` | Search the web (used to fetch job postings from URLs) |
+| `getUserProfile`  | Read the user's stored resume/profile                                  |
+| `createTask`      | Create a new task card on the board                                    |
+| `moveMyTask`      | Move this task to a different column                                   |
+| `setMyTaskUI`     | Set `agentDraft` and `agentDraftType`                                  |
+| `notifyTask`      | Send a notification message to another task's agent thread             |
+| `readTaskNotes`   | Read full notes (bypasses the 300-char truncation in prompt)           |
+| `webSearch`       | Search the web (used to fetch job postings from URLs)                  |
 
 ### ChatGPT Connection Requirement
 
-Coda will not trigger unless the user has connected their OpenAI account. This is checked in `saveBoard` via:
+Nova will not trigger unless the user has connected their OpenAI account. This is checked in `saveBoard` via:
+
 ```ts
 const hasOpenai = !!(await ctx.db.query('openaiConnections').withIndex('by_user', ...).first());
 ```
 
-The board shows a connect dialog if not connected. Dismiss state is stored in `localStorage` under `promus:chatgpt-connect-dismissed`. The connection is managed via `src/lib/components/todo-demo/chatgpt-connect-dialog.svelte`.
+The board shows a connect dialog if not connected. Dismiss state is stored in `localStorage` under `JobFlow:chatgpt-connect-dismissed`. The connection is managed via `src/lib/components/todo-demo/chatgpt-connect-dialog.svelte`.
 
 ### Lessons Learned — Gotchas for Next Agent
 
@@ -707,21 +720,26 @@ The board shows a connect dialog if not connected. Dismiss state is stored in `l
 - Dialog PR must stay `pr-6 [scrollbar-gutter:stable]` — this prevents layout shift when scrollbar appears.
 
 **PATH issues (Windows):**
+
 - `bun` is not on system PATH in PowerShell by default.
 - Always use `.\RUN\dev.ps1` or prepend `C:\Users\Mohammad\.bun\bin` manually.
 - `bun run check` will silently do nothing if bun isn't found — always verify it ran.
 
 **Schema changes:**
+
 - After any change to `src/lib/convex/schema.ts`, run `bun run generate` to regenerate `convex/_generated/`.
 - The `todoBoards` tasks array is typed inline in the schema — changes there must be mirrored in `src/lib/components/todo-demo/types.ts` and `src/lib/convex/todos.ts` (`taskValidator` and `BoardTask`/`StoredTask` types).
 
 **Icon imports:**
+
 - Never `import { CrosshairIcon } from '@lucide/svelte'` — use `import CrosshairIcon from '@lucide/svelte/icons/crosshair'`.
 
 **i18n for UI text:**
+
 - The Kanban board currently uses hardcoded English labels for column names in `kanban-board.svelte` (`COLUMN_LABELS` map). These are NOT yet translated. Custom column names are stored in Convex via `columnMeta`. If adding new hardcoded UI strings to this feature, check whether i18n is needed.
 
 **Agent prompt truncation:**
+
 - Task notes are truncated to 300 chars in the prompt with a hint to use `readTaskNotes`. The agent must call `readTaskNotes` to get the full content when writing follow-up notes.
 
 ### Convex Deployment

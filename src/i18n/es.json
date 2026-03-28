@@ -247,7 +247,7 @@
 		}
 	},
 	"app": {
-		"name": "Promus",
+		"name": "JobFlow",
 		"sidebar": {
 			"admin_panel": "Panel de Admin",
 			"browse_jobs": "Explorar empleos",
@@ -591,10 +591,10 @@
 		"cta": "Empezar",
 		"cta_demo": "Solicitar una demo",
 		"cta_sourcecode": "Ver código fuente",
-		"description": "Coda completa tus tareas. Conectado a todas tus herramientas profesionales.",
+		"description": "Nova completa tus tareas. Conectado a todas tus herramientas profesionales.",
 		"section_label": "Inicio",
 		"tagline": "Tu lista de tareas acaba de crecer 8 brazos.",
-		"title": "Promus"
+		"title": "JobFlow"
 	},
 	"integrations": {
 		"cards": {
@@ -648,7 +648,7 @@
 				"title": "Tolgee"
 			}
 		},
-		"description": "Promus trabaja con las herramientas que ya usas",
+		"description": "JobFlow trabaja con las herramientas que ya usas",
 		"title": "Conectado a tus herramientas"
 	},
 	"meta": {
@@ -725,8 +725,8 @@
 			}
 		},
 		"home": {
-			"description": "Añade una tarea. Promus investiga, redacta y ejecuta — conectado a tu email, calendario y mensajes.",
-			"title": "Coda hace tus tareas"
+			"description": "Añade una tarea. JobFlow investiga, redacta y ejecuta — conectado a tu email, calendario y mensajes.",
+			"title": "Nova hace tus tareas"
 		},
 		"pricing": {
 			"description": "Elige un plan y prueba el flujo de facturación integrado.",
@@ -763,8 +763,8 @@
 		},
 		"current_plan": "Plan Actual",
 		"current_plan_badge": "(Plan Actual)",
-		"description": "Precios simples para una lista de tareas más inteligente. Prueba Coda gratis, mejora cuando necesites más.",
-		"description_autumn": "Precios simples para una lista de tareas más inteligente. Prueba Coda gratis, mejora cuando necesites más.",
+		"description": "Precios simples para una lista de tareas más inteligente. Prueba Nova gratis, mejora cuando necesites más.",
+		"description_autumn": "Precios simples para una lista de tareas más inteligente. Prueba Nova gratis, mejora cuando necesites más.",
 		"features": {
 			"enterprise": {
 				"0": "Límites de mensajes personalizados",
@@ -1042,7 +1042,7 @@
 			"support_team": "Equipo de Soporte"
 		},
 		"message": {
-			"role_kai": "Coda",
+			"role_kai": "Nova",
 			"role_support": "Soporte",
 			"role_you": "Tú"
 		},
@@ -1072,7 +1072,7 @@
 			"help_label": "Ayúdame con...",
 			"help_text": "Ayúdame a configurar el proyecto.",
 			"question_label": "Hacer una pregunta",
-			"question_text": "¿Por qué Promus?"
+			"question_text": "¿Por qué JobFlow?"
 		},
 		"thread": {
 			"new_conversation": "Nueva conversación"
@@ -1129,10 +1129,10 @@
 			"placeholder": "Pregunta sobre esta tarea...",
 			"title": "IA de tareas"
 		},
-		"chatgpt_warning_body": "Conecta tu cuenta de ChatGPT para que Coda pueda analizar empleos, completar campos de solicitud y redactar cartas de motivación.",
+		"chatgpt_warning_body": "Conecta tu cuenta de ChatGPT para que Nova pueda analizar empleos, completar campos de solicitud y redactar cartas de motivación.",
 		"chatgpt_warning_cta": "Conectar ChatGPT",
 		"chatgpt_warning_title": "Se requiere conexión con ChatGPT",
-		"chatgpt_connect_description": "Conecta tu cuenta de ChatGPT para que Coda trabaje en tus tareas. Sin conexión, tu tablero funciona como una lista de tareas normal.",
+		"chatgpt_connect_description": "Conecta tu cuenta de ChatGPT para que Nova trabaje en tus tareas. Sin conexión, tu tablero funciona como una lista de tareas normal.",
 		"column": {
 			"done": "Hecho",
 			"in-progress": "En progreso",
@@ -1142,9 +1142,9 @@
 		},
 		"column_edit": {
 			"aria_edit": "Editar configuración de columna",
-			"description": "Personaliza el nombre de esta lista y establece instrucciones para Coda.",
-			"instructions_description": "Coda seguirá estas instrucciones para las tareas en esta columna.",
-			"instructions_label": "Instrucciones para Coda",
+			"description": "Personaliza el nombre de esta lista y establece instrucciones para Nova.",
+			"instructions_description": "Nova seguirá estas instrucciones para las tareas en esta columna.",
+			"instructions_label": "Instrucciones para Nova",
 			"instructions_placeholder": "ej. Investigar a fondo antes de mover a la siguiente columna...",
 			"name_description": "Dejar vacío para usar el nombre predeterminado.",
 			"name_label": "Nombre de la lista",
@@ -1152,14 +1152,14 @@
 		},
 		"cta": "Empezar gratis",
 		"detail": {
-			"agent_draft_title": "Borrador de Coda",
-			"agent_feedback_placeholder": "Dile a Coda qué cambiar...",
-			"agent_logs": "Registros de Coda",
+			"agent_draft_title": "Borrador de Nova",
+			"agent_feedback_placeholder": "Dile a Nova qué cambiar...",
+			"agent_logs": "Registros de Nova",
 			"agent_reject": "Rechazar",
 			"agent_send": "Enviar",
 			"agent_status_awaiting": "Esperando tu aprobación",
-			"agent_status_done": "Coda completado",
-			"agent_status_working": "Coda está trabajando...",
+			"agent_status_done": "Nova completado",
+			"agent_status_working": "Nova está trabajando...",
 			"agent_submit_feedback": "Enviar comentarios",
 			"cancel": "Cancelar",
 			"delete": "Eliminar",
@@ -1186,7 +1186,7 @@
 			"task_6": "Conectar con ponentes en LinkedIn"
 		},
 		"save_failed": "No se pudieron guardar los cambios del tablero. Por favor, inténtalo de nuevo.",
-		"subheading": "Añade una tarea. Promus investiga, redacta y ejecuta en segundo plano — conectado a todas tus herramientas profesionales."
+		"subheading": "Añade una tarea. JobFlow investiga, redacta y ejecuta en segundo plano — conectado a todas tus herramientas profesionales."
 	},
 	"validation": {
 		"confirm_password": {

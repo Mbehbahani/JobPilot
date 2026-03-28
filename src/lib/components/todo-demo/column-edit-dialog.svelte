@@ -67,10 +67,10 @@
 				<Field.Label>Agent Instructions</Field.Label>
 				<Textarea
 					bind:value={editInstructions}
-					placeholder="Optional instructions for Coda..."
+					placeholder="Optional instructions for Nova..."
 					rows={4}
 				/>
-				<Field.Description>Tell Coda how to handle tasks in this column</Field.Description>
+				<Field.Description>Tell Nova how to handle tasks in this column</Field.Description>
 			</Field.Field>
 		</Field.Group>
 		<Dialog.Footer>

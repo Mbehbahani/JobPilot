@@ -221,7 +221,7 @@
 		<Sheet.Header>
 			<Sheet.Title>CV / Profile</Sheet.Title>
 			<Sheet.Description>
-				Your resume or profile text. Coda uses this to personalize motivation letters for each job
+				Your resume or profile text. Nova uses this to personalize motivation letters for each job
 				application.
 			</Sheet.Description>
 		</Sheet.Header>

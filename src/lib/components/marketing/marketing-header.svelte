@@ -35,7 +35,7 @@
 				<!-- Logo -->
 				<a href={resolve(localizedHref('/'))} class="ml-2 flex items-center space-x-2">
 					<Logo class="size-5" />
-					<span class="font-semibold">Promus</span>
+					<span class="font-semibold">JobFlow</span>
 				</a>
 
 				<!-- Desktop Actions -->

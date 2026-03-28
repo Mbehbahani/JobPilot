@@ -10,7 +10,7 @@
 </script>
 
 <svelte:head>
-	<title>Slideshow | Promus</title>
+	<title>Slideshow | JobFlow</title>
 </svelte:head>
 
 <div class="flex min-h-screen flex-col items-center justify-center gap-6 bg-muted p-8">
