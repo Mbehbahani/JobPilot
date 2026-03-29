@@ -285,6 +285,10 @@ export class SupportThreadContext {
 
 		// Optimistically hide the button immediately
 		this.isHandedOff = true;
+		// Handoff is a non-streaming flow. Clear any stale AI waiting state so the UI
+		// doesn't remain stuck in the "Connecting..." reasoning state after switching
+		// from Nova to human support.
+		this.isAwaitingStream = false;
 
 		try {
 			// Build query args for optimistic update (must match ChatRoot's query)
@@ -308,10 +312,14 @@ export class SupportThreadContext {
 					)
 				}
 			);
+			// Ensure handoff fully exits AI-processing mode even if the prior thread state
+			// was waiting on a stream that will never arrive for this non-streaming mutation.
+			this.isAwaitingStream = false;
 			return true;
 		} catch (error) {
 			// Rollback on error
 			this.isHandedOff = false;
+			this.isAwaitingStream = false;
 			console.error('[requestHandoff] Failed:', error);
 			this.setError('Failed to request human support. Please try again.');
 			return false;
