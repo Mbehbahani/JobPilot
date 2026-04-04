@@ -46,6 +46,7 @@
 	const globalSearch = useGlobalSearchContext();
 	const auth = useAuth();
 	const viewer = useQuery(api.auth.getCurrentUser, {});
+	const board = useQuery(api.todos.getBoard, {});
 
 	let lastStableAuth = $state<EffectiveAuthState>({
 		isAuthenticated: auth.isAuthenticated,
@@ -158,6 +159,61 @@
 					heading,
 					items
 				});
+			}
+		}
+
+		if (effectiveAuth.isAuthenticated && board.data) {
+			const appGroup = menuGroups.find((group) => group.group === 'app');
+			const appHeading = $t(groupKeyMap.app);
+			const taskItems: MenuRouteItem[] = [];
+
+			for (const [columnId, tasks] of Object.entries(board.data)) {
+				for (const task of tasks) {
+					const primaryLabel = task.companyName?.trim() || task.title;
+					const position = task.position?.trim();
+					const label = position ? `${primaryLabel} - ${position}` : primaryLabel;
+					const localizedUrl = `${localizedHref('/app/my-tasks')}?task=${encodeURIComponent(task.id)}`;
+					const searchableText = [
+						appHeading,
+						label,
+						task.title,
+						task.companyName,
+						task.position,
+						columnId,
+						task.notes
+					]
+						.filter((value): value is string => Boolean(value && value.trim()))
+						.join(' ');
+
+					taskItems.push({
+						href: '/app/my-tasks',
+						access: 'authenticated',
+						group: 'app',
+						id: `task:${task.id}`,
+						label,
+						localizedUrl,
+						value: searchableText,
+						keywords: [
+							'task',
+							'my tasks',
+							columnId,
+							task.companyName ?? '',
+							task.position ?? ''
+						].filter(Boolean)
+					});
+				}
+			}
+
+			if (taskItems.length > 0) {
+				if (appGroup) {
+					appGroup.items = [...taskItems, ...appGroup.items];
+				} else {
+					menuGroups.push({
+						group: 'app',
+						heading: appHeading,
+						items: taskItems
+					});
+				}
 			}
 		}
 

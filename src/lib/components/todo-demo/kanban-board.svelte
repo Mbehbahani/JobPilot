@@ -30,6 +30,7 @@
 	import type { Component } from 'svelte';
 	import { dev } from '$app/environment';
 	import { browser } from '$app/environment';
+	import { page } from '$app/state';
 	import { haptic } from '$lib/hooks/use-haptic.svelte';
 
 	const DEFAULT_COLUMN_IDS: ColumnId[] = [
@@ -125,6 +126,14 @@
 			if (found) return found;
 		}
 		return undefined;
+	});
+
+	const selectedTaskFromUrl = $derived(page.url.searchParams.get('task'));
+
+	$effect(() => {
+		if (!selectedTaskFromUrl) return;
+		selectedTaskId = selectedTaskFromUrl;
+		dialogOpen = true;
 	});
 
 	type SyncEvent = {
