@@ -5,14 +5,8 @@
 	import { createSvelteAuthClient } from '@mmailaender/convex-better-auth-svelte/svelte';
 	import { setupAutumn } from '@stickerdaniel/convex-autumn-svelte/sveltekit';
 	import { ModeWatcher } from 'mode-watcher';
-	import {
-		grantAnalyticsConsent,
-		hasAnalyticsConsent,
-		initGoogleAnalytics,
-		trackGooglePageView
-	} from '$lib/analytics/google-analytics';
+	import { initGoogleAnalytics, trackGooglePageView } from '$lib/analytics/google-analytics';
 	import { initPosthog } from '$lib/analytics/posthog';
-	import ConsentBanner from '$lib/components/ConsentBanner.svelte';
 	import { authClient } from '$lib/auth-client';
 	import { api } from '$lib/convex/_generated/api';
 	import RouteProgress from '$lib/components/RouteProgress.svelte';
@@ -22,8 +16,6 @@
 	import './layout.css';
 
 	let { children, data } = $props();
-
-	let showConsentBanner = $state(false);
 
 	afterNavigate((navigation) => {
 		if (!env.PUBLIC_GA_MEASUREMENT_ID) return;
@@ -36,7 +28,6 @@
 		const PUBLIC_GA_MEASUREMENT_ID = env.PUBLIC_GA_MEASUREMENT_ID;
 		if (PUBLIC_GA_MEASUREMENT_ID) {
 			initGoogleAnalytics(PUBLIC_GA_MEASUREMENT_ID);
-			showConsentBanner = !hasAnalyticsConsent();
 		}
 
 		const PUBLIC_POSTHOG_API_KEY = env.PUBLIC_POSTHOG_API_KEY;
@@ -115,15 +106,6 @@
 <ModeWatcher />
 <SEOHead />
 <Toaster />
-
-{#if showConsentBanner}
-	<ConsentBanner
-		onaccept={() => {
-			grantAnalyticsConsent();
-			showConsentBanner = false;
-		}}
-	/>
-{/if}
 
 <RouteProgress />
 
