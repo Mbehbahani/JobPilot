@@ -6,6 +6,8 @@
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import CopyIcon from '@lucide/svelte/icons/copy';
 	import CheckIcon from '@lucide/svelte/icons/check';
+	import DownloadIcon from '@lucide/svelte/icons/download';
+	import ExternalLinkIcon from '@lucide/svelte/icons/external-link';
 	import XIcon from '@lucide/svelte/icons/x';
 	import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
 	import RotateCcwIcon from '@lucide/svelte/icons/rotate-ccw';
@@ -102,12 +104,70 @@
 	let editInterviewLink = $state('');
 	let editInterviewEmail = $state('');
 	let letterCopied = $state(false);
+	let jobUrlCopied = $state(false);
 
 	async function copyMotivationLetter() {
 		if (!editMotivationLetter.trim()) return;
 		await navigator.clipboard.writeText(editMotivationLetter.trim());
 		letterCopied = true;
 		setTimeout(() => (letterCopied = false), 2000);
+	}
+
+	function buildLetterFilename(): string {
+		const parts = [editCompanyName.trim(), editPosition.trim(), 'motivation-letter']
+			.filter(Boolean)
+			.map((value) =>
+				value
+					.toLowerCase()
+					.replace(/[^a-z0-9]+/g, '-')
+					.replace(/^-+|-+$/g, '')
+			)
+			.filter(Boolean);
+
+		if (parts.length === 0) return 'motivation-letter.txt';
+		return `${parts.join('-')}.txt`;
+	}
+
+	function downloadMotivationLetter(): void {
+		const content = editMotivationLetter.trim();
+		if (!content || typeof document === 'undefined') return;
+
+		const file = new Blob([content], { type: 'text/plain;charset=utf-8' });
+		const url = URL.createObjectURL(file);
+		const anchor = document.createElement('a');
+		anchor.href = url;
+		anchor.download = buildLetterFilename();
+		document.body.append(anchor);
+		anchor.click();
+		anchor.remove();
+		URL.revokeObjectURL(url);
+	}
+
+	function normalizeUrl(value: string): string | null {
+		const trimmed = value.trim();
+		if (!trimmed) return null;
+
+		const normalized = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+		try {
+			return new URL(normalized).toString();
+		} catch {
+			return null;
+		}
+	}
+
+	function openJobUrl(): void {
+		if (typeof window === 'undefined') return;
+		const url = normalizeUrl(editJobUrl);
+		if (!url) return;
+		window.open(url, '_blank', 'noopener,noreferrer');
+	}
+
+	async function copyJobUrl(): Promise<void> {
+		const url = normalizeUrl(editJobUrl);
+		if (!url) return;
+		await navigator.clipboard.writeText(url);
+		jobUrlCopied = true;
+		setTimeout(() => (jobUrlCopied = false), 2000);
 	}
 
 	$effect(() => {
@@ -148,6 +208,12 @@
 			if (liveNotes !== editNotes) {
 				editNotes = liveNotes;
 			}
+		}
+	});
+
+	$effect(() => {
+		if (!editJobUrl.trim() && jobUrlCopied) {
+			jobUrlCopied = false;
 		}
 	});
 
@@ -207,7 +273,6 @@
 	>
 		<Dialog.Header>
 			<Dialog.Title>Job Application Details</Dialog.Title>
-			<Dialog.Description>Edit job application information</Dialog.Description>
 		</Dialog.Header>
 		<div
 			class="grid min-h-0 flex-1 gap-4 overflow-x-hidden overflow-y-auto py-4 pr-6 [scrollbar-gutter:stable]"
@@ -238,7 +303,36 @@
 			<!-- URL & Platform row -->
 			<div class="grid grid-cols-2 gap-3">
 				<div class="grid gap-2">
-					<label for="job-url" class="text-sm font-medium">Job URL</label>
+					<div class="flex items-center justify-between gap-2">
+						<label for="job-url" class="text-sm font-medium">Job URL</label>
+						{#if editJobUrl.trim()}
+							<div class="flex items-center gap-1">
+								<Button
+									variant="ghost"
+									size="sm"
+									class="h-7 gap-1 px-2 text-xs"
+									onclick={openJobUrl}
+								>
+									<ExternalLinkIcon class="size-3.5" />
+									Open
+								</Button>
+								<Button
+									variant="ghost"
+									size="sm"
+									class="h-7 gap-1 px-2 text-xs"
+									onclick={copyJobUrl}
+								>
+									{#if jobUrlCopied}
+										<CheckIcon class="size-3.5" />
+										Copied
+									{:else}
+										<CopyIcon class="size-3.5" />
+										Copy
+									{/if}
+								</Button>
+							</div>
+						{/if}
+					</div>
 					<Input id="job-url" bind:value={editJobUrl} placeholder="https://..." />
 				</div>
 				<div class="grid gap-2">
@@ -392,20 +486,31 @@
 							>Motivation Letter</label
 						>
 						{#if editMotivationLetter.trim()}
-							<Button
-								variant="ghost"
-								size="sm"
-								class="h-7 gap-1.5 text-xs"
-								onclick={copyMotivationLetter}
-							>
-								{#if letterCopied}
-									<CheckIcon class="size-3.5" />
-									Copied
-								{:else}
-									<CopyIcon class="size-3.5" />
-									Copy
-								{/if}
-							</Button>
+							<div class="flex items-center gap-1">
+								<Button
+									variant="ghost"
+									size="sm"
+									class="h-7 gap-1.5 text-xs"
+									onclick={downloadMotivationLetter}
+								>
+									<DownloadIcon class="size-3.5" />
+									Download
+								</Button>
+								<Button
+									variant="ghost"
+									size="sm"
+									class="h-7 gap-1.5 text-xs"
+									onclick={copyMotivationLetter}
+								>
+									{#if letterCopied}
+										<CheckIcon class="size-3.5" />
+										Copied
+									{:else}
+										<CopyIcon class="size-3.5" />
+										Copy
+									{/if}
+								</Button>
+							</div>
 						{/if}
 					</div>
 					<Textarea
