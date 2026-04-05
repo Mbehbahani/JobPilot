@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { invalidate } from '$app/navigation';
+	import { afterNavigate, invalidate } from '$app/navigation';
 	import { env } from '$env/dynamic/public';
 	import { createSvelteAuthClient } from '@mmailaender/convex-better-auth-svelte/svelte';
 	import { setupAutumn } from '@stickerdaniel/convex-autumn-svelte/sveltekit';
 	import { ModeWatcher } from 'mode-watcher';
+	import { initGoogleAnalytics, trackGooglePageView } from '$lib/analytics/google-analytics';
 	import { initPosthog } from '$lib/analytics/posthog';
 	import { authClient } from '$lib/auth-client';
 	import { api } from '$lib/convex/_generated/api';
@@ -16,8 +17,19 @@
 
 	let { children, data } = $props();
 
+	afterNavigate((navigation) => {
+		if (!env.PUBLIC_GA_MEASUREMENT_ID) return;
+		if (!navigation.to) return;
+		trackGooglePageView(navigation.to.url);
+	});
+
 	// Deferred PostHog initialization - loads after interaction or idle
 	onMount(function onMountPosthogInit() {
+		const PUBLIC_GA_MEASUREMENT_ID = env.PUBLIC_GA_MEASUREMENT_ID;
+		if (PUBLIC_GA_MEASUREMENT_ID) {
+			initGoogleAnalytics(PUBLIC_GA_MEASUREMENT_ID);
+		}
+
 		const PUBLIC_POSTHOG_API_KEY = env.PUBLIC_POSTHOG_API_KEY;
 		const PUBLIC_POSTHOG_HOST = env.PUBLIC_POSTHOG_HOST;
 		if (!PUBLIC_POSTHOG_API_KEY || !PUBLIC_POSTHOG_HOST) return;
