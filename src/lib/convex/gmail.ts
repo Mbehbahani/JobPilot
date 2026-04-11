@@ -201,6 +201,32 @@ function extractMentionedCompany(message: GmailMessageSummary): string | undefin
 	return undefined;
 }
 
+function extractInterviewLink(message: GmailMessageSummary): string | undefined {
+	const text = [message.bodyText, message.snippet, message.subject].filter(Boolean).join(' ');
+	const match = text.match(/https?:\/\/[^\s)>'"]+/i);
+	return match?.[0];
+}
+
+function extractInterviewDateText(message: GmailMessageSummary): string | undefined {
+	const text = [message.bodyText, message.snippet, message.subject].filter(Boolean).join(' ');
+	const normalized = text.replace(/\s+/g, ' ').trim();
+
+	const patterns = [
+		/((?:mon|tue|wed|thu|fri|sat|sun)[a-z]*,?\s+[a-z]{3,9}\s+\d{1,2}(?:,?\s+\d{4})?(?:\s+(?:at\s+)??\d{1,2}:\d{2}\s*(?:am|pm)?)?)/i,
+		/([a-z]{3,9}\s+\d{1,2}(?:,?\s+\d{4})?(?:\s+(?:at\s+)??\d{1,2}:\d{2}\s*(?:am|pm)?)?)/i,
+		/(\d{1,2}[./-]\d{1,2}[./-]\d{2,4}(?:\s+(?:at\s+)??\d{1,2}:\d{2})?)/i,
+		/(\d{1,2}:\d{2}\s*(?:am|pm))/i
+	];
+
+	for (const pattern of patterns) {
+		const match = normalized.match(pattern);
+		const value = match?.[1]?.trim();
+		if (value && value.length >= 4) return value;
+	}
+
+	return undefined;
+}
+
 function extractEmailAddress(value?: string): string | undefined {
 	return value?.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)?.[0]?.toLowerCase();
 }
@@ -426,6 +452,8 @@ function classifyEmailOutcome(
 	summary: string;
 	nextAction: string;
 	interviewEmail?: string;
+	interviewDate?: string;
+	interviewLink?: string;
 } | null {
 	const subject = normalizeEmailText(message.subject);
 	const snippet = normalizeEmailText(message.snippet);
@@ -489,9 +517,11 @@ function classifyEmailOutcome(
 			'onsite interview'
 		)
 	) {
-		const interviewEmail = [message.from, message.subject, message.snippet]
+		const interviewEmail = [message.from, message.subject, message.snippet, message.bodyText]
 			.filter(Boolean)
 			.join('\n');
+		const interviewDate = extractInterviewDateText(message);
+		const interviewLink = extractInterviewLink(message);
 		return {
 			type: 'follow_up_interview',
 			summary: `A follow-up interview email was detected${subjectSuffix}${fromSuffix}.`,
@@ -499,7 +529,9 @@ function classifyEmailOutcome(
 				task.columnId === 'applied'
 					? 'Move this task to Interviewing and update the next-round interview details.'
 					: 'Keep this task in Interviewing and update the next-round interview details.',
-			interviewEmail
+			interviewEmail,
+			interviewDate,
+			interviewLink
 		};
 	}
 
@@ -515,9 +547,11 @@ function classifyEmailOutcome(
 			'meet with'
 		)
 	) {
-		const interviewEmail = [message.from, message.subject, message.snippet]
+		const interviewEmail = [message.from, message.subject, message.snippet, message.bodyText]
 			.filter(Boolean)
 			.join('\n');
+		const interviewDate = extractInterviewDateText(message);
+		const interviewLink = extractInterviewLink(message);
 		return {
 			type: 'interview',
 			summary: `An interview-style email was detected${subjectSuffix}${fromSuffix}.`,
@@ -525,7 +559,9 @@ function classifyEmailOutcome(
 				task.columnId === 'applied'
 					? 'Move this task to Interviewing and add the interview details.'
 					: 'Update the interview details and prepare for the meeting.',
-			interviewEmail
+			interviewEmail,
+			interviewDate,
+			interviewLink
 		};
 	}
 
@@ -998,7 +1034,9 @@ export const readRecentEmails = action({
 				emailSignalNextAction: classification.nextAction,
 				emailSignalAt: checkedAt,
 				noteEntry: buildEmailNoteEntry(message, classification),
-				interviewEmail: classification.interviewEmail
+				interviewEmail: classification.interviewEmail,
+				interviewDate: classification.interviewDate,
+				interviewLink: classification.interviewLink
 			});
 
 			touchedTaskIds.add(best.task.id);

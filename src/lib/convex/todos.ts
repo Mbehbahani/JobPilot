@@ -623,7 +623,9 @@ export const updateTaskEmailSignalInternal = internalMutation({
 		emailSignalNextAction: v.string(),
 		emailSignalAt: v.number(),
 		noteEntry: v.string(),
-		interviewEmail: v.optional(v.string())
+		interviewEmail: v.optional(v.string()),
+		interviewDate: v.optional(v.string()),
+		interviewLink: v.optional(v.string())
 	},
 	handler: async (ctx, args) => {
 		const board = await ctx.db
@@ -652,6 +654,12 @@ export const updateTaskEmailSignalInternal = internalMutation({
 			emailSignalMessageId: args.messageId,
 			...(!currentTask.interviewEmail && args.interviewEmail
 				? { interviewEmail: args.interviewEmail }
+				: {}),
+			...(!currentTask.interviewDate && args.interviewDate
+				? { interviewDate: args.interviewDate }
+				: {}),
+			...(!currentTask.interviewLink && args.interviewLink
+				? { interviewLink: args.interviewLink }
 				: {})
 		});
 	}
