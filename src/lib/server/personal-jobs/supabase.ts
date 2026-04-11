@@ -197,6 +197,16 @@ export async function getSearchRun(runId: string): Promise<SearchRun | null> {
 	return rows[0] ?? null;
 }
 
+export async function updateSearchRunSummary(runId: string, summary: string): Promise<boolean> {
+	const { url, key } = getServiceConfig();
+	const res = await fetch(`${url}/rest/v1/search_runs?id=eq.${runId}`, {
+		method: 'PATCH',
+		headers: headers(key),
+		body: JSON.stringify({ llm_summary: summary })
+	});
+	return res.ok;
+}
+
 export async function deleteSearchRun(userId: string, runId: string): Promise<boolean> {
 	const { url, key } = getConfig();
 	// Cascade: delete job matches that came from this run first
