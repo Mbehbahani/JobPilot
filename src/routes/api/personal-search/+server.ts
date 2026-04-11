@@ -19,7 +19,17 @@ const personalSearchLlm = {
 };
 
 const SEARCH_API = env.PUBLIC_PERSONAL_SEARCH_API_URL || 'http://localhost:8000';
-const OPEN_ENDED_SEARCH_CODE = 'oploy.eu';
+const STANDARD_MAX_DAYS_BACK = 7;
+const POWER_MAX_DAYS_BACK = 14;
+const POWER_SEARCH_CODE = env.PUBLIC_PERSONAL_SEARCH_POWER_CODE?.trim() || '';
+
+function isPowerModeReferenceCode(referenceCode: unknown): boolean {
+	if (!POWER_SEARCH_CODE || typeof referenceCode !== 'string') {
+		return false;
+	}
+
+	return referenceCode.trim() === POWER_SEARCH_CODE;
+}
 
 function buildFallbackSummary(args: {
 	status: string;
@@ -71,8 +81,9 @@ function extractAuthUser(locals: App.Locals): { userId: string } | { error: stri
 	return { userId };
 }
 
-function validateSearchBody(body: Record<string, unknown>) {
-	const daysBack = Math.min(Math.max(Number(body.days_back) || 3, 1), 7);
+function validateSearchBody(body: Record<string, unknown>, powerMode: boolean) {
+	const maxDaysBack = powerMode ? POWER_MAX_DAYS_BACK : STANDARD_MAX_DAYS_BACK;
+	const daysBack = Math.min(Math.max(Number(body.days_back) || 3, 1), maxDaysBack);
 	const keywords = Array.isArray(body.keywords)
 		? body.keywords
 				.filter((k: unknown) => typeof k === 'string' && (k as string).trim())
@@ -98,7 +109,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	if ('error' in auth) return json({ error: auth.error }, { status: 401 });
 
 	const body = await request.json();
-	const { daysBack, keywords, platforms } = validateSearchBody(body);
+	const powerMode = isPowerModeReferenceCode(body.reference_code);
+	const { daysBack, keywords, platforms } = validateSearchBody(body, powerMode);
 
 	if (keywords.length === 0) {
 		return json({ error: 'At least one keyword is required' }, { status: 400 });
@@ -160,9 +172,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		days_back: daysBack,
 		platforms: platforms.length > 0 ? platforms : ['indeed'],
 		is_remote: Boolean(body.is_remote),
-		open_ended:
-			typeof body.reference_code === 'string' &&
-			body.reference_code.trim() === OPEN_ENDED_SEARCH_CODE,
+		power_mode: powerMode,
+		open_ended: powerMode,
 		llm_token: locals.token,
 		llm_endpoint: `${new URL(request.url).origin}/api/personal-search/enrich-job`
 	};

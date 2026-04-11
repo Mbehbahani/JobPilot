@@ -22,8 +22,14 @@
 	import { invalidateAll, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import { env as publicEnv } from '$env/dynamic/public';
 
 	let { data }: { data: PageData } = $props();
+	const POWER_SEARCH_CODE = (publicEnv.PUBLIC_PERSONAL_SEARCH_POWER_CODE ?? '').trim();
+	const STANDARD_MAX_DAYS_BACK = 7;
+	const POWER_MAX_DAYS_BACK = 14;
+	const powerModeHoverSummary =
+		'Power mode expands the search window to 14 days, extends the backend runtime budget to 6 minutes, and increases LinkedIn coverage to 4 query variations with up to 20 results per query.';
 
 	// ── Form state (persists across searches) ──
 	let keywords = $state(data.profile?.keywords?.join(', ') ?? '');
@@ -34,6 +40,7 @@
 	let useIndeed = $state(data.profile?.platforms?.includes('indeed') ?? true);
 	let useLinkedin = $state(data.profile?.platforms?.includes('linkedin') ?? false);
 	let referenceCode = $state('');
+	let powerDetailsOpen = $state(false);
 
 	let clearingAllData = $state(false);
 	let generatingKeywords = $state(false);
@@ -121,6 +128,26 @@
 		done: boolean;
 	};
 	let progressSteps = $state<ProgressStep[]>([]);
+
+	const powerModeAvailable = $derived(POWER_SEARCH_CODE.length > 0);
+	const powerModeEnabled = $derived(
+		powerModeAvailable && referenceCode.trim() === POWER_SEARCH_CODE
+	);
+	const effectiveMaxDaysBack = $derived(
+		powerModeEnabled ? POWER_MAX_DAYS_BACK : STANDARD_MAX_DAYS_BACK
+	);
+
+	function applyPowerMode() {
+		if (!POWER_SEARCH_CODE) return;
+		referenceCode = POWER_SEARCH_CODE;
+	}
+
+	function clearPowerMode() {
+		referenceCode = '';
+		if ((Number(daysBack) || 0) > STANDARD_MAX_DAYS_BACK) {
+			daysBack = String(STANDARD_MAX_DAYS_BACK);
+		}
+	}
 
 	// ── Job detail dialog ──
 	let selectedJob = $state<(typeof data.jobs)[number] | null>(null);
@@ -394,10 +421,9 @@
 		progressSteps = [
 			{
 				id: 'init',
-				message:
-					referenceCode.trim() === 'oploy.eu'
-						? 'Starting search. Super mode is enabled for an extended search. Please wait — this process can take several minutes.'
-						: 'Starting search. Please wait — this process can take several minutes.',
+				message: powerModeEnabled
+					? 'Starting search. Power mode is enabled with expanded search limits. Please wait — this process can take several minutes.'
+					: 'Starting search. Please wait — this process can take several minutes.',
 				done: false
 			}
 		];
@@ -411,7 +437,7 @@
 					keywords: kws,
 					city: city || null,
 					country: country || null,
-					days_back: Math.min(Math.max(Number(daysBack) || 3, 1), 7),
+					days_back: Math.min(Math.max(Number(daysBack) || 3, 1), effectiveMaxDaysBack),
 					platforms,
 					is_remote: isRemote,
 					reference_code: referenceCode || null
@@ -813,17 +839,72 @@
 					<Input id="country" bind:value={country} placeholder="e.g. Germany" class="mt-1" />
 				</div>
 				<div>
-					<label for="days" class="text-sm font-medium">Days Back (1–7)</label>
-					<Input id="days" type="number" min="1" max="7" bind:value={daysBack} class="mt-1" />
-				</div>
-				<div>
-					<label for="reference-code" class="text-sm font-medium">Reference (optional)</label>
+					<label for="days" class="text-sm font-medium">Days Back (1–{effectiveMaxDaysBack})</label>
 					<Input
-						id="reference-code"
-						bind:value={referenceCode}
-						placeholder="Optional"
+						id="days"
+						type="number"
+						min="1"
+						max={String(effectiveMaxDaysBack)}
+						bind:value={daysBack}
 						class="mt-1"
 					/>
+					<p class="text-muted-foreground mt-1 text-xs">
+						{#if powerModeEnabled}
+							Power mode doubles the time window from 7 to 14 days for this run.
+						{:else}
+							Standard mode searches up to 7 days. Apply Power mode to extend this to 14 days.
+						{/if}
+					</p>
+				</div>
+				<div class="sm:col-span-2 lg:col-span-2">
+					<div class="flex flex-wrap items-center gap-2">
+						<label class="text-sm font-medium">Power mode</label>
+						<button
+							type="button"
+							class="cursor-pointer rounded-full"
+							title={powerModeHoverSummary}
+							onclick={() => {
+								powerDetailsOpen = !powerDetailsOpen;
+							}}
+						>
+							<Badge variant={powerModeEnabled ? 'default' : 'outline'} class="text-xs">
+								{powerModeEnabled ? 'Power active' : 'Power available'}
+							</Badge>
+						</button>
+					</div>
+					<div class="mt-2 flex flex-wrap items-center gap-2">
+						<Button
+							type="button"
+							variant={powerModeEnabled ? 'secondary' : 'outline'}
+							onclick={powerModeEnabled ? clearPowerMode : applyPowerMode}
+							disabled={!powerModeAvailable || searching}
+						>
+							{powerModeEnabled ? 'Remove Power mode' : 'Apply Power mode'}
+						</Button>
+						<span class="text-muted-foreground text-xs">
+							{#if powerModeEnabled}
+								Expanded limits are active for this search.
+							{:else if powerModeAvailable}
+								Apply the configured code without typing it manually.
+							{:else}
+								Power mode is unavailable until PUBLIC_PERSONAL_SEARCH_POWER_CODE is configured.
+							{/if}
+						</span>
+					</div>
+					{#if powerDetailsOpen}
+						<div class="bg-muted/40 mt-3 space-y-2 rounded-lg border p-3 text-xs">
+							<p class="font-medium">Technical upgrades in Power mode</p>
+							<ul class="text-muted-foreground list-disc space-y-1 pl-4">
+								<li>Search window increases from 7 days to 14 days.</li>
+								<li>Backend search runtime budget increases from 3 minutes to 6 minutes.</li>
+								<li>LinkedIn expands from 2 to 4 query variations.</li>
+								<li>LinkedIn expands from 10 to 20 results per query.</li>
+								<li>
+									Indeed stays broad while preserving its current 6 queries × 30 results per query.
+								</li>
+							</ul>
+						</div>
+					{/if}
 				</div>
 				<div class="flex items-end">
 					<Button onclick={startSearch} disabled={searching}>
