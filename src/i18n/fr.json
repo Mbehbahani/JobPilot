@@ -247,10 +247,14 @@
 		}
 	},
 	"app": {
-		"name": "JobFlow",
+		"name": "JobPilot",
 		"sidebar": {
 			"admin_panel": "Panneau Admin",
 			"browse_jobs": "Parcourir les offres",
+			"browse_jobs_caution": "Cela ouvre le site externe d’offres d’emploi. C’est surtout destiné aux tests et ce n’est pas le parcours recommandé pour la plupart des utilisateurs.",
+			"support_jobpilot": "Aidez à le faire tourner",
+			"support_jobpilot_info": "🚀 Soutenez JobLab et accédez à des fonctionnalités de recherche d’emploi plus puissantes",
+			"my_job_search": "Ma recherche d’emploi",
 			"community_chat": "Chat communautaire",
 			"connect_accounts": "Connecter des comptes",
 			"connect_accounts_error": "Impossible d'obtenir le lien de connexion. Réessaie.",
@@ -594,7 +598,7 @@
 		"description": "Nova complète tes tâches. Connecté à tous tes outils professionnels.",
 		"section_label": "Accueil",
 		"tagline": "Du chaos de la recherche d'emploi au succès structuré.",
-		"title": "JobFlow"
+		"title": "JobPilot"
 	},
 	"integrations": {
 		"cards": {
@@ -648,7 +652,7 @@
 				"title": "Tolgee"
 			}
 		},
-		"description": "JobFlow fonctionne avec les outils que tu utilises déjà",
+		"description": "JobPilot fonctionne avec les outils que tu utilises déjà",
 		"title": "Connecté à tes outils"
 	},
 	"meta": {
@@ -725,7 +729,7 @@
 			}
 		},
 		"home": {
-			"description": "Ajoute une tâche. JobFlow recherche, rédige et exécute — connecté à ton email, calendrier et messages.",
+			"description": "Ajoute une tâche. JobPilot recherche, rédige et exécute — connecté à ton email, calendrier et messages.",
 			"title": "Nova fait tes tâches"
 		},
 		"pricing": {
@@ -1072,7 +1076,7 @@
 			"help_label": "Aide-moi avec...",
 			"help_text": "Aide-moi à configurer le projet.",
 			"question_label": "Poser une question",
-			"question_text": "Pourquoi JobFlow ?"
+			"question_text": "Pourquoi JobPilot ?"
 		},
 		"thread": {
 			"new_conversation": "Nouvelle conversation"
@@ -1186,7 +1190,7 @@
 			"task_6": "Se connecter avec les intervenants sur LinkedIn"
 		},
 		"save_failed": "Impossible d'enregistrer les modifications du tableau. Réessaie.",
-		"subheading": "Ajoute une tâche. JobFlow recherche, rédige et exécute en arrière-plan — connecté à tous tes outils professionnels."
+		"subheading": "Ajoute une tâche. JobPilot recherche, rédige et exécute en arrière-plan — connecté à tous tes outils professionnels."
 	},
 	"validation": {
 		"confirm_password": {

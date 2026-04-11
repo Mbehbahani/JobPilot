@@ -247,10 +247,14 @@
 		}
 	},
 	"app": {
-		"name": "JobFlow",
+		"name": "JobPilot",
 		"sidebar": {
 			"admin_panel": "Admin Panel",
 			"browse_jobs": "Browse Jobs",
+			"browse_jobs_caution": "This opens the external jobs site. It is mainly for testing and is not the recommended flow for most users.",
+			"support_jobpilot": "Help keep it running",
+			"support_jobpilot_info": "🚀 Support JobLab and get access to more powerful job search features",
+			"my_job_search": "My Job Search",
 			"community_chat": "Community Chat",
 			"connect_accounts": "Connect Accounts",
 			"connect_accounts_error": "Failed to get connection link. Please try again.",
@@ -594,7 +598,7 @@
 		"description": "Nova completes your todos. Connected to all your professional tools.",
 		"section_label": "Home",
 		"tagline": "From job search chaos to structured success.",
-		"title": "JobFlow"
+		"title": "JobPilot"
 	},
 	"integrations": {
 		"cards": {
@@ -648,7 +652,7 @@
 				"title": "Tolgee"
 			}
 		},
-		"description": "JobFlow works with the tools you already use",
+		"description": "JobPilot works with the tools you already use",
 		"title": "Connected to your tools"
 	},
 	"meta": {
@@ -725,7 +729,7 @@
 			}
 		},
 		"home": {
-			"description": "Add a task. JobFlow researches, drafts, and executes — connected to your email, calendar, and messages.",
+			"description": "Add a task. JobPilot researches, drafts, and executes — connected to your email, calendar, and messages.",
 			"title": "Nova does your todos"
 		},
 		"pricing": {
@@ -1072,7 +1076,7 @@
 			"help_label": "Help me with...",
 			"help_text": "Help me set up the project.",
 			"question_label": "Ask a question",
-			"question_text": "Why JobFlow?"
+			"question_text": "Why JobPilot?"
 		},
 		"thread": {
 			"new_conversation": "New conversation"
@@ -1186,7 +1190,7 @@
 			"task_6": "Connect with conference speakers on LinkedIn"
 		},
 		"save_failed": "Failed to save board changes. Please try again.",
-		"subheading": "Add a task. JobFlow researches, drafts, and executes in the background — connected to all your professional tools."
+		"subheading": "Add a task. JobPilot researches, drafts, and executes in the background — connected to all your professional tools."
 	},
 	"validation": {
 		"confirm_password": {

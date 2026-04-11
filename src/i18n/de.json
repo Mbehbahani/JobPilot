@@ -247,10 +247,14 @@
 		}
 	},
 	"app": {
-		"name": "JobFlow",
+		"name": "JobPilot",
 		"sidebar": {
 			"admin_panel": "Admin-Bereich",
 			"browse_jobs": "Jobs durchsuchen",
+			"browse_jobs_caution": "Dies öffnet die externe Jobseite. Es ist hauptsächlich für Tests gedacht und für die meisten Nutzer nicht der empfohlene Weg.",
+			"support_jobpilot": "Hilf, es am Laufen zu halten",
+			"support_jobpilot_info": "🚀 Unterstütze JobLab und erhalte Zugang zu leistungsstärkeren Jobsuch-Funktionen",
+			"my_job_search": "Meine Jobsuche",
 			"community_chat": "Community-Chat",
 			"connect_accounts": "Konten verbinden",
 			"connect_accounts_error": "Verbindungslink konnte nicht abgerufen werden. Bitte versuch es erneut.",
@@ -594,7 +598,7 @@
 		"description": "Nova erledigt deine Todos. Verbunden mit all deinen professionellen Tools.",
 		"section_label": "Start",
 		"tagline": "Vom Chaos der Jobsuche zum strukturierten Erfolg.",
-		"title": "JobFlow"
+		"title": "JobPilot"
 	},
 	"integrations": {
 		"cards": {
@@ -648,7 +652,7 @@
 				"title": "Tolgee"
 			}
 		},
-		"description": "JobFlow arbeitet mit den Tools, die du bereits nutzt",
+		"description": "JobPilot arbeitet mit den Tools, die du bereits nutzt",
 		"title": "Verbunden mit deinen Tools"
 	},
 	"meta": {
@@ -725,7 +729,7 @@
 			}
 		},
 		"home": {
-			"description": "Füge eine Aufgabe hinzu. JobFlow recherchiert, formuliert und erledigt — verbunden mit deiner E-Mail, deinem Kalender und deinen Nachrichten.",
+			"description": "Füge eine Aufgabe hinzu. JobPilot recherchiert, formuliert und erledigt — verbunden mit deiner E-Mail, deinem Kalender und deinen Nachrichten.",
 			"title": "Nova erledigt deine Todos"
 		},
 		"pricing": {
@@ -1072,7 +1076,7 @@
 			"help_label": "Hilfe bei...",
 			"help_text": "Hilf mir bei der Einrichtung.",
 			"question_label": "Frage stellen",
-			"question_text": "Warum JobFlow?"
+			"question_text": "Warum JobPilot?"
 		},
 		"thread": {
 			"new_conversation": "Neue Unterhaltung"
@@ -1186,7 +1190,7 @@
 			"task_6": "Mit Konferenz-Speakern auf LinkedIn connecten"
 		},
 		"save_failed": "Änderungen am Board konnten nicht gespeichert werden. Bitte versuch es erneut.",
-		"subheading": "Füge eine Aufgabe hinzu. JobFlow recherchiert, formuliert und erledigt im Hintergrund — verbunden mit all deinen professionellen Tools."
+		"subheading": "Füge eine Aufgabe hinzu. JobPilot recherchiert, formuliert und erledigt im Hintergrund — verbunden mit all deinen professionellen Tools."
 	},
 	"validation": {
 		"confirm_password": {

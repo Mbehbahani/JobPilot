@@ -2,11 +2,13 @@
 	import NavUser from '../nav-user.svelte';
 	import * as Sidebar from '$lib/components/ui/sidebar/index.js';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+	import * as Tooltip from '$lib/components/ui/tooltip/index.js';
 	import { resolve } from '$app/paths';
 	import type { ComponentProps, Snippet } from 'svelte';
 	import { T } from '@tolgee/svelte';
 	import type { SidebarConfig, User } from './types';
 	import { haptic } from '$lib/hooks/use-haptic.svelte';
+	import CircleHelpIcon from '@lucide/svelte/icons/circle-help';
 
 	interface Props extends ComponentProps<typeof Sidebar.Root> {
 		config: SidebarConfig;
@@ -73,7 +75,9 @@
 								class={item.isActive ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''}
 							>
 								{#snippet child({ props })}
-									{@const isExternal = item.url.startsWith('http://') || item.url.startsWith('https://')}
+									{@const isExternal =
+										item.url.startsWith('http://') || item.url.startsWith('https://')}
+									<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 									<a
 										href={isExternal ? item.url : resolve(item.url)}
 										target={isExternal ? '_blank' : undefined}
@@ -109,9 +113,40 @@
 						<Sidebar.MenuItem>
 							<Sidebar.MenuButton>
 								{#snippet child({ props })}
-									<a href={resolve(link.url)} onclick={() => haptic.trigger('light')} {...props}>
+									{@const isExternal =
+										link.url.startsWith('http://') || link.url.startsWith('https://')}
+									<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+									<a
+										href={isExternal ? link.url : resolve(link.url)}
+										target={isExternal ? '_blank' : undefined}
+										rel={isExternal ? 'noopener noreferrer' : undefined}
+										onclick={() => haptic.trigger('light')}
+										{...props}
+									>
 										<link.icon />
 										<span><T keyName={link.translationKey} /></span>
+										{#if link.infoTooltipKey}
+											<Tooltip.Root>
+												<Tooltip.Trigger>
+													{#snippet child({ props: tooltipProps })}
+														<button
+															{...tooltipProps}
+															type="button"
+															class="ml-auto inline-flex size-4 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
+															onclick={(event) => {
+																event.preventDefault();
+																event.stopPropagation();
+															}}
+														>
+															<CircleHelpIcon class="size-3.5" />
+														</button>
+													{/snippet}
+												</Tooltip.Trigger>
+												<Tooltip.Content side="right" class="max-w-64 text-xs leading-5">
+													<p><T keyName={link.infoTooltipKey} /></p>
+												</Tooltip.Content>
+											</Tooltip.Root>
+										{/if}
 									</a>
 								{/snippet}
 							</Sidebar.MenuButton>

@@ -247,10 +247,14 @@
 		}
 	},
 	"app": {
-		"name": "JobFlow",
+		"name": "JobPilot",
 		"sidebar": {
 			"admin_panel": "Panel de Admin",
 			"browse_jobs": "Explorar empleos",
+			"browse_jobs_caution": "Esto abre el sitio externo de empleos. Se usa principalmente para pruebas y no es el flujo recomendado para la mayoría de los usuarios.",
+			"support_jobpilot": "Ayuda a mantenerlo en funcionamiento",
+			"support_jobpilot_info": "🚀 Apoya JobLab y obtén acceso a funciones de búsqueda de empleo más potentes",
+			"my_job_search": "Mi búsqueda de empleo",
 			"community_chat": "Chat comunitario",
 			"connect_accounts": "Conectar cuentas",
 			"connect_accounts_error": "No se pudo obtener el enlace de conexión. Inténtelo de nuevo.",
@@ -594,7 +598,7 @@
 		"description": "Nova completa tus tareas. Conectado a todas tus herramientas profesionales.",
 		"section_label": "Inicio",
 		"tagline": "Del caos de la búsqueda de empleo al éxito estructurado.",
-		"title": "JobFlow"
+		"title": "JobPilot"
 	},
 	"integrations": {
 		"cards": {
@@ -648,7 +652,7 @@
 				"title": "Tolgee"
 			}
 		},
-		"description": "JobFlow trabaja con las herramientas que ya usas",
+		"description": "JobPilot trabaja con las herramientas que ya usas",
 		"title": "Conectado a tus herramientas"
 	},
 	"meta": {
@@ -725,7 +729,7 @@
 			}
 		},
 		"home": {
-			"description": "Añade una tarea. JobFlow investiga, redacta y ejecuta — conectado a tu email, calendario y mensajes.",
+			"description": "Añade una tarea. JobPilot investiga, redacta y ejecuta — conectado a tu email, calendario y mensajes.",
 			"title": "Nova hace tus tareas"
 		},
 		"pricing": {
@@ -1072,7 +1076,7 @@
 			"help_label": "Ayúdame con...",
 			"help_text": "Ayúdame a configurar el proyecto.",
 			"question_label": "Hacer una pregunta",
-			"question_text": "¿Por qué JobFlow?"
+			"question_text": "¿Por qué JobPilot?"
 		},
 		"thread": {
 			"new_conversation": "Nueva conversación"
@@ -1186,7 +1190,7 @@
 			"task_6": "Conectar con ponentes en LinkedIn"
 		},
 		"save_failed": "No se pudieron guardar los cambios del tablero. Por favor, inténtalo de nuevo.",
-		"subheading": "Añade una tarea. JobFlow investiga, redacta y ejecuta en segundo plano — conectado a todas tus herramientas profesionales."
+		"subheading": "Añade una tarea. JobPilot investiga, redacta y ejecuta en segundo plano — conectado a todas tus herramientas profesionales."
 	},
 	"validation": {
 		"confirm_password": {

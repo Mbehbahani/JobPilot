@@ -9,7 +9,7 @@
 				Add a task. Get it done.
 			</h2>
 			<p class="text-lg font-light text-muted-foreground">
-				JobFlow connects to your tools, gathers context, and delivers ready-to-send output.
+				JobPilot connects to your tools, gathers context, and delivers ready-to-send output.
 			</p>
 		</div>
 
@@ -49,7 +49,7 @@
 					<div class="h-6 w-px bg-border"></div>
 				</div>
 
-				<!-- JobFlow agent -->
+				<!-- JobPilot agent -->
 				<div
 					class="flex flex-1 flex-col gap-4 rounded-2xl border-2 border-primary/30 bg-primary/5 p-6"
 				>

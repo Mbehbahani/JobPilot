@@ -34,7 +34,7 @@
 
 <svelte:head>
 	{#if title}
-		<title>{title} | JobFlow</title>
+		<title>{title} | JobPilot</title>
 		<meta property="og:title" content={title} />
 		<meta name="twitter:title" content={title} />
 	{/if}

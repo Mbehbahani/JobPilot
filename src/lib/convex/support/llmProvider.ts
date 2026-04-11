@@ -13,7 +13,9 @@ export function getSupportLanguageModel(): any {
  * Throws if the user has not connected their OpenAI account.
  */
 export async function getTaskLanguageModelForUser(
-	ctx: { runAction: (fn: any, args: any) => Promise<any> },
+	ctx: {
+		runAction: (fn: any, args: any) => Promise<any>;
+	},
 	userId: string
 ): Promise<any> {
 	const result = await ctx.runAction(internal.openai.getValidAccessToken, { userId });

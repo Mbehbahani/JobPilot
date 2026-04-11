@@ -6,7 +6,7 @@
 	const currentYear = new Date().getFullYear();
 
 	let {
-		companyName = 'JobFlow Inc.',
+		companyName = 'JobPilot Inc.',
 		address = '123 Main Street, Suite 100, San Francisco, CA 94102',
 		class: className,
 		...restProps

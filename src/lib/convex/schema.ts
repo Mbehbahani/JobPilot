@@ -45,6 +45,19 @@ export default defineSchema({
 					v.union(v.literal('message'), v.literal('email'), v.literal('research'))
 				),
 				hasUnreadNotes: v.optional(v.boolean()),
+				hasUnreadEmailSignal: v.optional(v.boolean()),
+				emailSignalType: v.optional(
+					v.union(
+						v.literal('interview'),
+						v.literal('follow_up_interview'),
+						v.literal('rejection'),
+						v.literal('acceptance')
+					)
+				),
+				emailSignalSummary: v.optional(v.string()),
+				emailSignalNextAction: v.optional(v.string()),
+				emailSignalAt: v.optional(v.number()),
+				emailSignalMessageId: v.optional(v.string()),
 				agentSpec: v.optional(v.string()),
 				// Job-specific fields
 				companyName: v.optional(v.string()),
@@ -252,6 +265,20 @@ export default defineSchema({
 		expiresAt: v.number(), // ms timestamp
 		accountId: v.optional(v.string()), // ChatGPT account ID from JWT
 		email: v.optional(v.string()), // from id_token claims
+		connectedAt: v.number(),
+		updatedAt: v.number()
+	}).index('by_user', ['userId']),
+
+	// Gmail OAuth connections — stores Google tokens for Gmail sync access
+	gmailConnections: defineTable({
+		userId: v.string(),
+		accessToken: v.string(),
+		refreshToken: v.string(),
+		expiresAt: v.number(), // ms timestamp
+		email: v.optional(v.string()),
+		scope: v.optional(v.string()),
+		lastSyncAt: v.optional(v.number()),
+		historyId: v.optional(v.string()),
 		connectedAt: v.number(),
 		updatedAt: v.number()
 	}).index('by_user', ['userId']),

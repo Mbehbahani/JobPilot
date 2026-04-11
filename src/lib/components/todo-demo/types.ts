@@ -1,5 +1,6 @@
 export type AgentStatus = 'idle' | 'working' | 'done' | 'awaiting_approval' | 'error';
 export type AgentDraftType = 'message' | 'email' | 'research';
+export type EmailSignalType = 'interview' | 'follow_up_interview' | 'rejection' | 'acceptance';
 
 export type TodoItem = {
 	id: string;
@@ -12,6 +13,12 @@ export type TodoItem = {
 	agentDraft?: string;
 	agentDraftType?: AgentDraftType;
 	hasUnreadNotes?: boolean;
+	hasUnreadEmailSignal?: boolean;
+	emailSignalType?: EmailSignalType;
+	emailSignalSummary?: string;
+	emailSignalNextAction?: string;
+	emailSignalAt?: number;
+	emailSignalMessageId?: string;
 	agentSpec?: string;
 	createdAt?: number;
 	targetedAt?: number;

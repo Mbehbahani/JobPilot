@@ -11,7 +11,14 @@
 	import { useConvexClient, useQuery } from 'convex-svelte';
 	import { toast } from 'svelte-sonner';
 	import { api } from '$lib/convex/_generated/api';
-	import type { KanbanData, ColumnId, TodoItem, AgentStatus, ColumnMeta } from './types.js';
+	import type {
+		KanbanData,
+		ColumnId,
+		TodoItem,
+		AgentStatus,
+		ColumnMeta,
+		EmailSignalType
+	} from './types.js';
 	import KanbanColumn from './kanban-column.svelte';
 	import KanbanItem from './kanban-item.svelte';
 	import TodoDetailDialog from './todo-detail-dialog.svelte';
@@ -69,7 +76,7 @@
 
 	// ChatGPT connection check
 	const openaiConnection = useQuery(api.openai.getConnection, {});
-	const CONNECT_DISMISSED_KEY = 'JobFlow:chatgpt-connect-dismissed';
+	const CONNECT_DISMISSED_KEY = 'JobPilot:chatgpt-connect-dismissed';
 	let connectPopupDismissed = $state(
 		browser ? localStorage.getItem(CONNECT_DISMISSED_KEY) === '1' : false
 	);
@@ -115,9 +122,57 @@
 		done: CircleCheckIcon
 	};
 
+	type EmailSignalBanner = {
+		taskId: string;
+		taskTitle: string;
+		summary: string;
+		nextAction: string;
+		type: EmailSignalType;
+	};
+
 	function getColumnTitle(colId: string): string {
 		return columnMetaMap[colId]?.name || COLUMN_LABELS[colId] || colId;
 	}
+
+	function getEmailSignalBannerClass(type: EmailSignalType): string {
+		switch (type) {
+			case 'rejection':
+				return 'rounded-lg border border-red-500/25 bg-red-500/10 px-3 py-2 text-red-950 dark:text-red-100';
+			case 'acceptance':
+				return 'rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 text-emerald-950 dark:text-emerald-100';
+			case 'interview':
+			case 'follow_up_interview':
+				return 'rounded-lg border border-sky-500/25 bg-sky-500/10 px-3 py-2 text-sky-950 dark:text-sky-100';
+		}
+	}
+
+	let columnEmailSignalBanners = $derived.by(() => {
+		const banners: Record<'applied' | 'interviewing', EmailSignalBanner[]> = {
+			applied: [],
+			interviewing: []
+		};
+
+		for (const columnId of ['applied', 'interviewing'] as const) {
+			for (const task of items[columnId]) {
+				if (
+					task.hasUnreadEmailSignal &&
+					task.emailSignalType &&
+					task.emailSignalSummary &&
+					task.emailSignalNextAction
+				) {
+					banners[columnId].push({
+						taskId: task.id,
+						taskTitle: task.companyName || task.title,
+						summary: task.emailSignalSummary,
+						nextAction: task.emailSignalNextAction,
+						type: task.emailSignalType
+					});
+				}
+			}
+		}
+
+		return banners;
+	});
 
 	let selectedTask: TodoItem | undefined = $derived.by(() => {
 		if (!selectedTaskId) return undefined;
@@ -126,6 +181,16 @@
 			if (found) return found;
 		}
 		return undefined;
+	});
+
+	let selectedTaskColumnId: ColumnId | null = $derived.by(() => {
+		if (!selectedTaskId) return null;
+		for (const colId of columnIds) {
+			if (items[colId].some((t) => t.id === selectedTaskId)) {
+				return colId;
+			}
+		}
+		return null;
 	});
 
 	const selectedTaskFromUrl = $derived(page.url.searchParams.get('task'));
@@ -179,6 +244,23 @@
 		return `task-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 	}
 
+	function clearEmailSignal(task: TodoItem): TodoItem {
+		const {
+			hasUnreadEmailSignal: _hasUnreadEmailSignal,
+			emailSignalType: _emailSignalType,
+			emailSignalSummary: _emailSignalSummary,
+			emailSignalNextAction: _emailSignalNextAction,
+			emailSignalAt: _emailSignalAt,
+			emailSignalMessageId: _emailSignalMessageId,
+			...rest
+		} = task;
+
+		return {
+			...rest,
+			hasUnreadNotes: false
+		};
+	}
+
 	$effect(() => {
 		if (!boardQuery.data || isDragging || pendingSaveCount > 0) return;
 		items = cloneBoard(boardQuery.data);
@@ -188,8 +270,8 @@
 	$effect(() => {
 		if (!columnMetaQuery.data || isDragging || pendingColumnSave) return;
 		const metaIds = columnMetaQuery.data
-			.map((c) => c.id)
-			.filter((id) => DEFAULT_COLUMN_IDS.includes(id as ColumnId));
+			.map((c: { id: string }) => c.id)
+			.filter((id: string): id is ColumnId => DEFAULT_COLUMN_IDS.includes(id as ColumnId));
 		if (metaIds.length > 0) {
 			// Add any default columns not in metadata at the end
 			const remaining = DEFAULT_COLUMN_IDS.filter((id) => !metaIds.includes(id));
@@ -239,7 +321,7 @@
 			console.error('[kanban] Failed to save board:', error);
 			items = rollbackSnapshot;
 			haptic.trigger('error');
-			toast.error('Failed to save changes');
+			toast.error(error instanceof Error ? error.message : 'Failed to save changes');
 		} finally {
 			pendingSaveCount = Math.max(0, pendingSaveCount - 1);
 		}
@@ -272,13 +354,17 @@
 		selectedTaskId = task.id;
 		dialogOpen = true;
 
-		if (task.hasUnreadNotes) {
+		if (task.hasUnreadNotes || task.hasUnreadEmailSignal) {
 			const rollbackBoard = cloneBoard(items);
 			const nextBoard = cloneBoard(items);
 			for (const colId of columnIds) {
 				const idx = nextBoard[colId].findIndex((t) => t.id === task.id);
 				if (idx !== -1) {
-					nextBoard[colId][idx] = { ...nextBoard[colId][idx], hasUnreadNotes: false };
+					nextBoard[colId][idx] = {
+						...nextBoard[colId][idx],
+						hasUnreadNotes: false,
+						hasUnreadEmailSignal: false
+					};
 					break;
 				}
 			}
@@ -287,13 +373,108 @@
 		}
 	}
 
+	async function acknowledgeEmailSignal(taskId: string) {
+		const rollbackBoard = cloneBoard(items);
+		const nextBoard = cloneBoard(items);
+
+		for (const colId of columnIds) {
+			const idx = nextBoard[colId].findIndex((t) => t.id === taskId);
+			if (idx !== -1) {
+				const {
+					hasUnreadEmailSignal: _hasUnreadEmailSignal,
+					emailSignalType: _emailSignalType,
+					emailSignalSummary: _emailSignalSummary,
+					emailSignalNextAction: _emailSignalNextAction,
+					emailSignalAt: _emailSignalAt,
+					emailSignalMessageId: _emailSignalMessageId,
+					...rest
+				} = nextBoard[colId][idx];
+				nextBoard[colId][idx] = {
+					...rest,
+					hasUnreadNotes: false
+				};
+				break;
+			}
+		}
+
+		items = nextBoard;
+
+		try {
+			await convexClient.mutation(api.todos.acknowledgeTaskEmailSignal, {
+				taskId
+			});
+		} catch (error) {
+			console.error('[kanban] Failed to acknowledge email signal:', error);
+			items = rollbackBoard;
+			haptic.trigger('error');
+			toast.error('Failed to dismiss email warning');
+		}
+	}
+
+	function getTaskDateForColumn(task: TodoItem, columnId: ColumnId): number {
+		switch (columnId) {
+			case 'targeted':
+				return task.targetedAt ?? task.createdAt ?? 0;
+			case 'preparing':
+				return task.preparingAt ?? task.targetedAt ?? task.createdAt ?? 0;
+			case 'applied':
+				return task.appliedAt ?? task.preparingAt ?? task.targetedAt ?? task.createdAt ?? 0;
+			case 'interviewing':
+				return (
+					task.interviewingAt ??
+					task.appliedAt ??
+					task.preparingAt ??
+					task.targetedAt ??
+					task.createdAt ??
+					0
+				);
+			case 'done':
+				return (
+					task.doneAt ??
+					task.interviewingAt ??
+					task.appliedAt ??
+					task.preparingAt ??
+					task.targetedAt ??
+					task.createdAt ??
+					0
+				);
+		}
+	}
+
+	async function sortColumnByDate(columnId: ColumnId): Promise<void> {
+		if (items[columnId].length < 2) return;
+
+		const rollbackBoard = cloneBoard(items);
+		const nextBoard = cloneBoard(items);
+		const sortedTasks = [...nextBoard[columnId]].sort((a, b) => {
+			const dateDiff = getTaskDateForColumn(b, columnId) - getTaskDateForColumn(a, columnId);
+			if (dateDiff !== 0) return dateDiff;
+			const createdDiff = (b.createdAt ?? 0) - (a.createdAt ?? 0);
+			if (createdDiff !== 0) return createdDiff;
+			return a.title.localeCompare(b.title);
+		});
+
+		const hasChanged = sortedTasks.some(
+			(task, index) => task.id !== nextBoard[columnId][index]?.id
+		);
+		if (!hasChanged) return;
+
+		nextBoard[columnId] = sortedTasks;
+		items = nextBoard;
+		haptic.trigger('success');
+		await persistBoard(nextBoard, rollbackBoard);
+	}
+
 	async function handleTaskSave(id: string, updates: Partial<TodoItem>) {
 		const rollbackBoard = cloneBoard(items);
 		const nextBoard = cloneBoard(items);
 		for (const colId of columnIds) {
 			const idx = nextBoard[colId].findIndex((t) => t.id === id);
 			if (idx !== -1) {
-				nextBoard[colId][idx] = { ...nextBoard[colId][idx], ...updates };
+				const currentTask = nextBoard[colId][idx];
+				nextBoard[colId][idx] = currentTask.hasUnreadEmailSignal
+					? { ...clearEmailSignal(currentTask), ...updates }
+					: { ...currentTask, ...updates };
 				break;
 			}
 		}
@@ -309,6 +490,26 @@
 			nextBoard[colId] = nextBoard[colId].filter((t) => t.id !== id);
 		}
 		items = nextBoard;
+		await persistBoard(nextBoard, rollbackBoard);
+	}
+
+	async function handleMoveTaskToDone(id: string) {
+		const sourceColumnId = columnIds.find((colId) => items[colId].some((t) => t.id === id));
+		if (!sourceColumnId || sourceColumnId === 'done') return;
+
+		const taskToMove = items[sourceColumnId].find((t) => t.id === id);
+		if (!taskToMove) return;
+
+		const rollbackBoard = cloneBoard(items);
+		const nextBoard = cloneBoard(items);
+		nextBoard[sourceColumnId] = nextBoard[sourceColumnId].filter((t) => t.id !== id);
+		nextBoard.done = [
+			{ ...clearEmailSignal(taskToMove), doneAt: Date.now() },
+			...nextBoard.done.filter((t) => t.id !== id)
+		];
+		items = nextBoard;
+		dialogOpen = false;
+		haptic.trigger('success');
 		await persistBoard(nextBoard, rollbackBoard);
 	}
 
@@ -670,18 +871,47 @@
 						icon={COLUMN_ICONS[columnId]}
 						index={colIdx}
 						onAdd={(title) => addTodo(columnId, title)}
+						onSortByDate={() => sortColumnByDate(columnId)}
+						sortAriaLabel="Sort tasks by newest date"
 						onEdit={() => {
 							editingColumnId = columnId;
 							columnEditOpen = true;
 						}}
 						editAriaLabel="Edit column"
 					>
+						{#if columnId === 'applied' && columnEmailSignalBanners.applied.length > 0}
+							<div class="grid gap-2">
+								{#each columnEmailSignalBanners.applied as banner (banner.taskId)}
+									<div class={getEmailSignalBannerClass(banner.type)}>
+										<div class="flex items-start justify-between gap-3">
+											<div class="min-w-0 flex-1">
+												<p class="text-[11px] font-semibold uppercase tracking-wide">
+													{banner.taskTitle}
+												</p>
+												<p class="mt-1 text-xs">{banner.summary}</p>
+												<p class="mt-1 text-[11px] font-medium">Next action: {banner.nextAction}</p>
+											</div>
+											<Button
+												variant="outline"
+												size="sm"
+												class="h-7 shrink-0 border-current/25 bg-white/60 px-2 text-[11px] dark:bg-black/10"
+												onclick={() => acknowledgeEmailSignal(banner.taskId)}
+											>
+												OK
+											</Button>
+										</div>
+									</div>
+								{/each}
+							</div>
+						{/if}
 						{#each items[columnId] as task, taskIdx (task.id)}
 							<KanbanItem
 								{task}
 								index={taskIdx}
 								group={columnId}
 								data={{ group: columnId }}
+								canQuickDelete={columnId === 'done'}
+								onQuickDelete={handleTaskDelete}
 								onclick={handleTaskClick}
 							/>
 						{/each}
@@ -696,18 +926,49 @@
 							icon={COLUMN_ICONS[columnId]}
 							index={colIdx + 3}
 							onAdd={(title) => addTodo(columnId, title)}
+							onSortByDate={() => sortColumnByDate(columnId)}
+							sortAriaLabel="Sort tasks by newest date"
 							onEdit={() => {
 								editingColumnId = columnId;
 								columnEditOpen = true;
 							}}
 							editAriaLabel="Edit column"
 						>
+							{#if columnId === 'interviewing' && columnEmailSignalBanners.interviewing.length > 0}
+								<div class="grid gap-2">
+									{#each columnEmailSignalBanners.interviewing as banner (banner.taskId)}
+										<div class={getEmailSignalBannerClass(banner.type)}>
+											<div class="flex items-start justify-between gap-3">
+												<div class="min-w-0 flex-1">
+													<p class="text-[11px] font-semibold uppercase tracking-wide">
+														{banner.taskTitle}
+													</p>
+													<p class="mt-1 text-xs">{banner.summary}</p>
+													<p class="mt-1 text-[11px] font-medium">
+														Next action: {banner.nextAction}
+													</p>
+												</div>
+												<Button
+													variant="outline"
+													size="sm"
+													class="h-7 shrink-0 border-current/25 bg-white/60 px-2 text-[11px] dark:bg-black/10"
+													onclick={() => acknowledgeEmailSignal(banner.taskId)}
+												>
+													OK
+												</Button>
+											</div>
+										</div>
+									{/each}
+								</div>
+							{/if}
 							{#each items[columnId] as task, taskIdx (task.id)}
 								<KanbanItem
 									{task}
 									index={taskIdx}
 									group={columnId}
 									data={{ group: columnId }}
+									canQuickDelete={columnId === 'done'}
+									onQuickDelete={handleTaskDelete}
 									onclick={handleTaskClick}
 								/>
 							{/each}
@@ -801,6 +1062,8 @@
 		bind:open={dialogOpen}
 		onSave={handleTaskSave}
 		onDelete={handleTaskDelete}
+		canMoveToDone={selectedTaskColumnId !== null && selectedTaskColumnId !== 'done'}
+		onMoveToDone={handleMoveTaskToDone}
 		onApprove={handleAgentApprove}
 		onReject={handleAgentReject}
 		onBlockAction={handleBlockAction}

@@ -10,6 +10,7 @@ export interface NavItem {
 	icon?: LucideIcon;
 	isActive?: boolean;
 	badge?: number;
+	infoTooltipKey?: string;
 }
 
 export interface HeaderDropdownItem {
@@ -30,6 +31,7 @@ export interface FooterLink {
 	url: string;
 	icon: LucideIcon;
 	condition?: boolean;
+	infoTooltipKey?: string;
 }
 
 export interface SidebarConfig {

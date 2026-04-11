@@ -71,7 +71,7 @@ http.route({
 		if (!userId) {
 			return new Response(
 				JSON.stringify({
-					error: 'No account linked. Please sign in to job-JobFlow and browse jobs from there.'
+					error: 'No account linked. Please sign in to JobPilot and browse jobs from there.'
 				}),
 				{ status: 401, headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' } }
 			);

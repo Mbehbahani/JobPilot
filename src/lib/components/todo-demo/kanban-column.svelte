@@ -4,13 +4,15 @@
 	interface KanbanColumnProps {
 		id: string;
 		title: string;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 		icon?: Component<any>;
 		index: number;
 		isOverlay?: boolean;
 		overlayTilted?: boolean;
 		children: Snippet;
 		onAdd: (title: string) => void | Promise<void>;
+		onSortByDate?: () => void | Promise<void>;
+		sortAriaLabel?: string;
 		onEdit?: () => void;
 		editAriaLabel?: string;
 	}
@@ -32,6 +34,8 @@
 		overlayTilted = true,
 		children,
 		onAdd,
+		onSortByDate,
+		sortAriaLabel,
 		onEdit,
 		editAriaLabel
 	}: KanbanColumnProps = $props();
@@ -65,6 +69,16 @@
 					{title}
 				</span>
 				<div class="flex items-center gap-0.5">
+					{#if onSortByDate && !isOverlay}
+						<button
+							class="rounded px-1.5 py-1 text-[11px] font-medium uppercase tracking-wide text-foreground/70 transition-colors hover:bg-muted/70 hover:text-foreground dark:hover:bg-background"
+							onclick={onSortByDate}
+							aria-label={sortAriaLabel}
+							title="Sort by newest date"
+						>
+							Date
+						</button>
+					{/if}
 					{#if onEdit && !isOverlay}
 						<button
 							class="rounded p-1 text-foreground/70 transition-colors hover:bg-muted/70 hover:text-foreground dark:hover:bg-background"

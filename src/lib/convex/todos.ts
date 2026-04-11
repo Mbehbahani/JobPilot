@@ -4,10 +4,10 @@ import { internal } from './_generated/api';
 import { authedMutation, authedQuery } from './functions';
 
 const COLUMN_IDS = ['targeted', 'preparing', 'applied', 'interviewing', 'done'] as const;
-const DEFAULT_COLUMN_IDS = [...COLUMN_IDS];
+const _DEFAULT_COLUMN_IDS = [...COLUMN_IDS];
 
 type ColumnMeta = { id: string; name?: string; instructions?: string };
-const columnMetaValidator = v.object({
+const _columnMetaValidator = v.object({
 	id: v.string(),
 	name: v.optional(v.string()),
 	instructions: v.optional(v.string())
@@ -25,6 +25,14 @@ const agentStatusValidator = v.optional(
 const agentDraftTypeValidator = v.optional(
 	v.union(v.literal('message'), v.literal('email'), v.literal('research'))
 );
+const emailSignalTypeValidator = v.optional(
+	v.union(
+		v.literal('interview'),
+		v.literal('follow_up_interview'),
+		v.literal('rejection'),
+		v.literal('acceptance')
+	)
+);
 
 const taskValidator = v.object({
 	id: v.string(),
@@ -37,6 +45,12 @@ const taskValidator = v.object({
 	agentDraft: v.optional(v.string()),
 	agentDraftType: agentDraftTypeValidator,
 	hasUnreadNotes: v.optional(v.boolean()),
+	hasUnreadEmailSignal: v.optional(v.boolean()),
+	emailSignalType: emailSignalTypeValidator,
+	emailSignalSummary: v.optional(v.string()),
+	emailSignalNextAction: v.optional(v.string()),
+	emailSignalAt: v.optional(v.number()),
+	emailSignalMessageId: v.optional(v.string()),
 	agentSpec: v.optional(v.string()),
 	createdAt: v.optional(v.number()),
 	targetedAt: v.optional(v.number()),
@@ -65,6 +79,7 @@ const boardValidator = v.record(v.string(), v.array(taskValidator));
 type ColumnId = (typeof COLUMN_IDS)[number];
 type AgentStatus = 'idle' | 'working' | 'done' | 'awaiting_approval' | 'error';
 type AgentDraftType = 'message' | 'email' | 'research';
+type EmailSignalType = 'interview' | 'follow_up_interview' | 'rejection' | 'acceptance';
 type BoardTask = {
 	id: string;
 	title: string;
@@ -76,6 +91,12 @@ type BoardTask = {
 	agentDraft?: string;
 	agentDraftType?: AgentDraftType;
 	hasUnreadNotes?: boolean;
+	hasUnreadEmailSignal?: boolean;
+	emailSignalType?: EmailSignalType;
+	emailSignalSummary?: string;
+	emailSignalNextAction?: string;
+	emailSignalAt?: number;
+	emailSignalMessageId?: string;
 	agentSpec?: string;
 	createdAt?: number;
 	targetedAt?: number;
@@ -110,6 +131,12 @@ type StoredTask = {
 	agentDraft?: string;
 	agentDraftType?: AgentDraftType;
 	hasUnreadNotes?: boolean;
+	hasUnreadEmailSignal?: boolean;
+	emailSignalType?: EmailSignalType;
+	emailSignalSummary?: string;
+	emailSignalNextAction?: string;
+	emailSignalAt?: number;
+	emailSignalMessageId?: string;
 	agentSpec?: string;
 	agentStartedAt?: number;
 	// Job-specific fields
@@ -192,6 +219,14 @@ function toBoard(tasks: StoredTask[]): Board {
 				...(task.agentDraft ? { agentDraft: task.agentDraft } : {}),
 				...(task.agentDraftType ? { agentDraftType: task.agentDraftType } : {}),
 				...(task.hasUnreadNotes ? { hasUnreadNotes: task.hasUnreadNotes } : {}),
+				...(task.hasUnreadEmailSignal ? { hasUnreadEmailSignal: task.hasUnreadEmailSignal } : {}),
+				...(task.emailSignalType ? { emailSignalType: task.emailSignalType } : {}),
+				...(task.emailSignalSummary ? { emailSignalSummary: task.emailSignalSummary } : {}),
+				...(task.emailSignalNextAction
+					? { emailSignalNextAction: task.emailSignalNextAction }
+					: {}),
+				...(task.emailSignalAt ? { emailSignalAt: task.emailSignalAt } : {}),
+				...(task.emailSignalMessageId ? { emailSignalMessageId: task.emailSignalMessageId } : {}),
 				...(task.agentSpec ? { agentSpec: task.agentSpec } : {}),
 				...(task.createdAt ? { createdAt: task.createdAt } : {}),
 				...(task.companyName ? { companyName: task.companyName } : {}),
@@ -250,6 +285,16 @@ function sanitizeAndFlattenBoard(
 			const agentDraft = rawTask.agentDraft?.trim() || existing?.agentDraft || undefined;
 			const agentDraftType = rawTask.agentDraftType || existing?.agentDraftType || undefined;
 			const hasUnreadNotes = rawTask.hasUnreadNotes ?? existing?.hasUnreadNotes ?? undefined;
+			const hasUnreadEmailSignal =
+				rawTask.hasUnreadEmailSignal ?? existing?.hasUnreadEmailSignal ?? undefined;
+			const emailSignalType = rawTask.emailSignalType || existing?.emailSignalType || undefined;
+			const emailSignalSummary =
+				rawTask.emailSignalSummary?.trim() || existing?.emailSignalSummary || undefined;
+			const emailSignalNextAction =
+				rawTask.emailSignalNextAction?.trim() || existing?.emailSignalNextAction || undefined;
+			const emailSignalAt = rawTask.emailSignalAt ?? existing?.emailSignalAt ?? undefined;
+			const emailSignalMessageId =
+				rawTask.emailSignalMessageId?.trim() || existing?.emailSignalMessageId || undefined;
 			const agentSpec = rawTask.agentSpec || existing?.agentSpec || undefined;
 			// Job fields
 			const companyName = rawTask.companyName?.trim() || existing?.companyName || undefined;
@@ -285,6 +330,12 @@ function sanitizeAndFlattenBoard(
 				...(agentDraft ? { agentDraft } : {}),
 				...(agentDraftType ? { agentDraftType } : {}),
 				...(hasUnreadNotes ? { hasUnreadNotes } : {}),
+				...(hasUnreadEmailSignal ? { hasUnreadEmailSignal } : {}),
+				...(emailSignalType ? { emailSignalType } : {}),
+				...(emailSignalSummary ? { emailSignalSummary } : {}),
+				...(emailSignalNextAction ? { emailSignalNextAction } : {}),
+				...(emailSignalAt ? { emailSignalAt } : {}),
+				...(emailSignalMessageId ? { emailSignalMessageId } : {}),
 				...(agentSpec ? { agentSpec } : {}),
 				...(companyName ? { companyName } : {}),
 				...(position ? { position } : {}),
@@ -349,6 +400,20 @@ export const saveBoard = authedMutation({
 		);
 		const sanitizedTasks = sanitizeAndFlattenBoard(parsedBoard, existingTasksById);
 		const now = Date.now();
+
+		for (const task of sanitizedTasks) {
+			const oldTask = existingTasksById.get(task.id);
+
+			if (task.columnId === 'done') {
+				task.agentStatus = 'idle';
+				continue;
+			}
+
+			if (oldTask?.agentStatus === 'working' && oldTask.columnId !== task.columnId) {
+				task.agentStatus = 'error';
+				task.agentSummary = `Nova stopped because this task was moved from "${oldTask.columnId}" to "${task.columnId}" while it was still processing. Review and retry if needed.`;
+			}
+		}
 
 		if (existing) {
 			await ctx.db.patch(existing._id, {
@@ -525,6 +590,111 @@ export const updateTaskNotesInternal = internalMutation({
 	args: { userId: v.string(), taskId: v.string(), notes: v.string() },
 	handler: async (ctx, args) => {
 		await patchTask(ctx, args, { notes: args.notes, hasUnreadNotes: true });
+	}
+});
+
+export const getTasksForEmailMatchingInternal = internalQuery({
+	args: { userId: v.string() },
+	handler: async (ctx, args) => {
+		const board = await ctx.db
+			.query('todoBoards')
+			.withIndex('by_user', (q: any) => q.eq('userId', args.userId))
+			.first();
+		if (!board) return [] as StoredTask[];
+
+		return (board.tasks as StoredTask[]).filter(
+			(task) => task.columnId === 'applied' || task.columnId === 'interviewing'
+		);
+	}
+});
+
+export const updateTaskEmailSignalInternal = internalMutation({
+	args: {
+		userId: v.string(),
+		taskId: v.string(),
+		messageId: v.string(),
+		emailSignalType: v.union(
+			v.literal('interview'),
+			v.literal('follow_up_interview'),
+			v.literal('rejection'),
+			v.literal('acceptance')
+		),
+		emailSignalSummary: v.string(),
+		emailSignalNextAction: v.string(),
+		emailSignalAt: v.number(),
+		noteEntry: v.string(),
+		interviewEmail: v.optional(v.string())
+	},
+	handler: async (ctx, args) => {
+		const board = await ctx.db
+			.query('todoBoards')
+			.withIndex('by_user', (q: any) => q.eq('userId', args.userId))
+			.first();
+		if (!board) throw new Error('Board not found');
+
+		const currentTask = (board.tasks as StoredTask[]).find((t) => t.id === args.taskId);
+		if (!currentTask) throw new Error('Task not found');
+		if (currentTask.emailSignalMessageId === args.messageId && currentTask.hasUnreadEmailSignal) {
+			return;
+		}
+
+		const existingNotes = currentTask.notes?.trim();
+		const notes = [existingNotes, args.noteEntry].filter(Boolean).join('\n\n');
+
+		await patchTask(ctx, args, {
+			notes,
+			hasUnreadNotes: true,
+			hasUnreadEmailSignal: true,
+			emailSignalType: args.emailSignalType,
+			emailSignalSummary: args.emailSignalSummary,
+			emailSignalNextAction: args.emailSignalNextAction,
+			emailSignalAt: args.emailSignalAt,
+			emailSignalMessageId: args.messageId,
+			...(!currentTask.interviewEmail && args.interviewEmail
+				? { interviewEmail: args.interviewEmail }
+				: {})
+		});
+	}
+});
+
+export const acknowledgeTaskEmailSignal = authedMutation({
+	args: {
+		taskId: v.string()
+	},
+	returns: v.null(),
+	handler: async (ctx, args) => {
+		const board = await ctx.db
+			.query('todoBoards')
+			.withIndex('by_user', (q) => q.eq('userId', ctx.user._id))
+			.first();
+		if (!board) throw new Error('Board not found');
+
+		const tasks = (board.tasks as StoredTask[]).map((task) => {
+			if (task.id !== args.taskId) return task;
+
+			const {
+				hasUnreadEmailSignal: _hasUnreadEmailSignal,
+				emailSignalType: _emailSignalType,
+				emailSignalSummary: _emailSignalSummary,
+				emailSignalNextAction: _emailSignalNextAction,
+				emailSignalAt: _emailSignalAt,
+				emailSignalMessageId: _emailSignalMessageId,
+				...rest
+			} = task;
+
+			return {
+				...rest,
+				hasUnreadNotes: false,
+				updatedAt: Date.now()
+			};
+		});
+
+		await ctx.db.patch(board._id, {
+			tasks,
+			updatedAt: Date.now()
+		});
+
+		return null;
 	}
 });
 
