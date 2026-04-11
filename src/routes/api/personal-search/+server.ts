@@ -6,8 +6,12 @@ import { anyApi } from 'convex/server';
 import {
 	upsertSearchProfile,
 	getOldRunIds,
-	deleteSearchRun
+	deleteSearchRun,
+	updateSearchRunSummary
 } from '$lib/server/personal-jobs/supabase';
+
+// Extend Vercel serverless function timeout for long-running searches (search + LLM).
+export const config = { maxDuration: 300 };
 
 const personalSearchLlm = {
 	standardizeInputs: anyApi.personalSearchLlm.standardizeInputs,
@@ -225,6 +229,9 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 							});
 							if (summary) {
 								controller.enqueue(sseEncode('interpretation', { summary }));
+								// Persist so the summary survives page reloads
+								const runId = String(lastCompleteData.run_id ?? '');
+								if (runId) updateSearchRunSummary(runId, summary).catch(() => {});
 							}
 						} catch (e) {
 							console.warn('[personal-search] LLM interpretation skipped:', (e as Error).message);
@@ -265,7 +272,11 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 					city: standardized.city ?? undefined,
 					country: standardized.country ?? undefined
 				});
-				if (summary) data.llm_summary = summary;
+				if (summary) {
+					data.llm_summary = summary;
+					// Persist so the summary survives page reloads
+					if (data.run_id) updateSearchRunSummary(data.run_id, summary).catch(() => {});
+				}
 			} catch {
 				/* skip interpretation */
 			}
