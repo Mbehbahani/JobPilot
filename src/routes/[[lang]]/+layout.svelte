@@ -9,11 +9,10 @@
 	import type { LayoutData } from './$types';
 	import { watch } from 'runed';
 	import { languageContext } from '$lib/i18n/context';
-	import LazyCustomerSupport from '$lib/components/customer-support/lazy-customer-support.svelte';
 
 	let { data, children }: { data: LayoutData; children: any } = $props();
 
-	const isInternalRoute = $derived(
+	const _isInternalRoute = $derived(
 		page.url.pathname.includes('/admin') || page.url.pathname.includes('/app')
 	);
 
@@ -73,7 +72,4 @@
 	<AppAuthOAuthBootstrap />
 	<GlobalSearchShell />
 	{@render children()}
-	{#if !isInternalRoute}
-		<LazyCustomerSupport />
-	{/if}
 </TolgeeProvider>

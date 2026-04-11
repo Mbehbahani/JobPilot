@@ -9,6 +9,8 @@
 		overlayTilted?: boolean;
 		data?: { group: string | number };
 		onclick?: (task: TodoItem) => void;
+		onQuickDelete?: (id: string) => void;
+		canQuickDelete?: boolean;
 	}
 </script>
 
@@ -16,8 +18,10 @@
 	import { fade } from 'svelte/transition';
 	import { useSortable } from '@dnd-kit-svelte/svelte/sortable';
 	import StickyNoteIcon from '@lucide/svelte/icons/sticky-note';
+	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
 	import Logo from '$lib/components/icons/logo.svelte';
+	import type { EmailSignalType } from './types.js';
 
 	let {
 		task,
@@ -26,7 +30,9 @@
 		isOverlay = false,
 		overlayTilted = true,
 		data,
-		onclick
+		onclick,
+		onQuickDelete,
+		canQuickDelete = false
 	}: KanbanItemProps = $props();
 
 	function formatShortDate(ts?: number): string {
@@ -84,6 +90,33 @@
 			onclick?.(task);
 		}
 	}
+
+	function handleQuickDelete() {
+		onQuickDelete?.(task.id);
+	}
+
+	function stopEvent(event: Event) {
+		event.stopPropagation();
+	}
+
+	function getEmailSignalHighlightClass(type?: EmailSignalType): string {
+		switch (type) {
+			case 'rejection':
+				return 'border-red-500/50 bg-red-500/[0.08] ring-1 ring-red-500/20 shadow-[0_0_0_1px_rgba(239,68,68,0.12)] dark:border-red-400/80 dark:bg-red-500/20 dark:ring-red-400/45 dark:shadow-[0_0_0_1px_rgba(248,113,113,0.35),0_0_18px_rgba(239,68,68,0.16)]';
+			case 'acceptance':
+				return 'border-emerald-500/50 bg-emerald-500/[0.08] ring-1 ring-emerald-500/20 shadow-[0_0_0_1px_rgba(16,185,129,0.12)] dark:border-emerald-400/80 dark:bg-emerald-500/20 dark:ring-emerald-400/45 dark:shadow-[0_0_0_1px_rgba(52,211,153,0.35),0_0_18px_rgba(16,185,129,0.16)]';
+			case 'interview':
+			case 'follow_up_interview':
+				return 'border-sky-500/50 bg-sky-500/[0.08] ring-1 ring-sky-500/20 shadow-[0_0_0_1px_rgba(14,165,233,0.12)] dark:border-sky-400/80 dark:bg-sky-500/20 dark:ring-sky-400/45 dark:shadow-[0_0_0_1px_rgba(56,189,248,0.35),0_0_18px_rgba(14,165,233,0.16)]';
+			default:
+				return '';
+		}
+	}
+
+	let emailSignalHighlightClass = $derived.by(() => {
+		if (!task.hasUnreadEmailSignal) return '';
+		return getEmailSignalHighlightClass(task.emailSignalType);
+	});
 </script>
 
 <div
@@ -111,7 +144,7 @@
 		></div>
 	{/if}
 	<div
-		class="relative z-[1] overflow-hidden rounded-lg border border-border/80 bg-card px-3 py-2 text-sm text-foreground hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none dark:border-border/60 dark:bg-background {(isDragging.current ||
+		class="relative z-[1] overflow-hidden rounded-lg border border-border/80 bg-card px-3 py-2 text-sm text-foreground hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none dark:border-border/60 dark:bg-background {emailSignalHighlightClass} {(isDragging.current ||
 			isDropping.current) &&
 		!isOverlay
 			? 'invisible'
@@ -129,6 +162,22 @@
 		<div class="flex min-w-0 items-center justify-between gap-2">
 			<span class="min-w-0 truncate text-xs font-medium">{cardLine1}</span>
 			<div class="flex shrink-0 items-center gap-1">
+				{#if canQuickDelete && !isOverlay}
+					<button
+						type="button"
+						class="rounded p-0.5 text-destructive/80 transition-colors hover:bg-destructive/10 hover:text-destructive"
+						title="Delete task immediately"
+						aria-label="Delete task immediately"
+						onclick={(event) => {
+							event.stopPropagation();
+							handleQuickDelete();
+						}}
+						onpointerdown={stopEvent}
+						onpointerup={stopEvent}
+					>
+						<Trash2Icon class="size-3.5" />
+					</button>
+				{/if}
 				{#if task.agentStatus === 'error'}
 					<TriangleAlertIcon class="size-3.5 text-destructive" />
 				{:else if task.agentStatus === 'working'}

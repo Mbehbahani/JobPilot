@@ -1,6 +1,6 @@
 @echo off
 :: ─────────────────────────────────────────────
-::  JobFlow – Start dev server (Vite + Convex)
+::  JobPilot – Start dev server (Vite + Convex)
 ::  Double-click this file or run it from CMD.
 :: ─────────────────────────────────────────────
 set "PATH=C:\Users\Mohammad\.bun\bin;%PATH%"

@@ -108,6 +108,15 @@ export const openaiOAuth = {
 	clientId: 'app_EMoamEEZ73f0CkXaXp7hrann'
 };
 
+/** Gmail OAuth - disabled if not configured */
+export const gmailOAuth = {
+	enabled: !!(process.env.GMAIL_GOOGLE_CLIENT_ID && process.env.GMAIL_GOOGLE_CLIENT_SECRET),
+	clientId: process.env.GMAIL_GOOGLE_CLIENT_ID,
+	clientSecret: process.env.GMAIL_GOOGLE_CLIENT_SECRET,
+	scopes: ['openid', 'email', 'profile', 'https://www.googleapis.com/auth/gmail.readonly'],
+	getRedirectUri: () => `${getSiteUrl()}/api/auth/gmail/callback`
+};
+
 /**
  * Support LLM provider: OpenRouter (requires OPENROUTER_API_KEY)
  * Task agent: user's connected ChatGPT Codex subscription

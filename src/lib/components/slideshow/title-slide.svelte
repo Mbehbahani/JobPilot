@@ -10,7 +10,7 @@
 
 		<div class="flex flex-col gap-4">
 			<h1 class="font-serif text-[96px] leading-none font-bold tracking-tighter text-foreground">
-				JobFlow
+				JobPilot
 			</h1>
 			<div class="h-1 w-16 rounded-full bg-primary"></div>
 			<p class="text-lg font-light text-muted-foreground">Your tasks, done before you start.</p>

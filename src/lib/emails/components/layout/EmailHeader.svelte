@@ -3,7 +3,7 @@
 	import { cn } from '$lib/utils.js';
 
 	let {
-		appName = 'JobFlow',
+		appName = 'JobPilot',
 		class: className
 	}: {
 		appName?: string;

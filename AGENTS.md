@@ -137,7 +137,7 @@ These commands use `dotenv` to load the local TOLGEE_API_KEY from `.env.local`:
 
 - Every new `+page.svelte` route must include `SEOHead`.
 - For localized routes under `src/routes/[[lang]]/`, `SEOHead` title and description must use translated `meta.*` keys in all 4 locale files (`en`, `de`, `es`, `fr`).
-- `meta.*.title` values must be page-title only and must NOT include the site suffix or brand name. `SEOHead` appends `| JobFlow` automatically (use `"Settings"`, not `"Settings - JobFlow"`).
+- `meta.*.title` values must be page-title only and must NOT include the site suffix or brand name. `SEOHead` appends `| JobPilot` automatically (use `"Settings"`, not `"Settings - JobPilot"`).
 
 ### Email System
 
@@ -708,7 +708,7 @@ Nova will not trigger unless the user has connected their OpenAI account. This i
 const hasOpenai = !!(await ctx.db.query('openaiConnections').withIndex('by_user', ...).first());
 ```
 
-The board shows a connect dialog if not connected. Dismiss state is stored in `localStorage` under `JobFlow:chatgpt-connect-dismissed`. The connection is managed via `src/lib/components/todo-demo/chatgpt-connect-dialog.svelte`.
+The board shows a connect dialog if not connected. Dismiss state is stored in `localStorage` under `JobPilot:chatgpt-connect-dismissed`. The connection is managed via `src/lib/components/todo-demo/chatgpt-connect-dialog.svelte`.
 
 ### Lessons Learned — Gotchas for Next Agent
 

@@ -4,10 +4,10 @@
 	import Marquee from '../magic/Marquee.svelte';
 	import ProgressiveBlur from '../magic/ProgressiveBlur.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import Logo from '$lib/components/icons/logo.svelte';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
-	import ChartBar from '@lucide/svelte/icons/chart-bar';
+	import SearchIcon from '@lucide/svelte/icons/search';
 	import HeroOctopusAnimation from './hero-octopus-animation.svelte';
-	import { env } from '$env/dynamic/public';
 	import nvidiaLogo from './logos/nvidia.svg';
 	import awsLightLogo from './logos/aws-light.svg';
 	import awsDarkLogo from './logos/aws-dark.svg';
@@ -51,6 +51,17 @@
 						<Button
 							size="lg"
 							variant="ghost"
+							href={localizedHref('/app/my-job-search')}
+							class="h-12 rounded-full px-5 text-base hover:bg-zinc-950/5 dark:hover:bg-white/5"
+						>
+							<SearchIcon class="mr-1 size-4" />
+							<span class="text-nowrap">
+								<T keyName="app.sidebar.my_job_search" defaultValue="My Job Search" />
+							</span>
+						</Button>
+						<Button
+							size="lg"
+							variant="ghost"
 							href="https://oploy.eu"
 							target="_blank"
 							rel="noopener noreferrer"
@@ -60,18 +71,17 @@
 								<T keyName="hero.cta_sourcecode" defaultValue="View sourcecode" />
 							</span>
 						</Button>
+
 						<Button
 							size="lg"
 							variant="ghost"
-							href={env.PUBLIC_ANALYTICS_URL || 'http://localhost:3000/dashboard'}
+							href="https://ko-fi.com/W7W41XLNI2"
 							target="_blank"
 							rel="noopener noreferrer"
 							class="h-12 rounded-full px-5 text-base hover:bg-zinc-950/5 dark:hover:bg-white/5"
 						>
-							<ChartBar class="mr-1 size-4" />
-							<span class="text-nowrap">
-								<T keyName="app.sidebar.browse_jobs" defaultValue="Browse Jobs" />
-							</span>
+							<Logo class="support-logo mr-1 size-4 text-primary" />
+							<span class="text-nowrap">Help Keep It Running</span>
 						</Button>
 					</div>
 				</div>
@@ -222,3 +232,27 @@
 		</div>
 	</section>
 </main>
+
+<style>
+	.support-logo {
+		animation: support-logo-pulse 1.4s ease-in-out infinite;
+	}
+
+	@keyframes support-logo-pulse {
+		0%,
+		100% {
+			opacity: 0.65;
+			transform: scale(1);
+		}
+		50% {
+			opacity: 1;
+			transform: scale(1.08);
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.support-logo {
+			animation: none;
+		}
+	}
+</style>

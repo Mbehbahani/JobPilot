@@ -24,6 +24,8 @@
 		open = $bindable(false),
 		onSave,
 		onDelete,
+		onMoveToDone,
+		canMoveToDone = false,
 		onApprove,
 		onReject,
 		onBlockAction,
@@ -33,6 +35,8 @@
 		open: boolean;
 		onSave: (id: string, updates: Partial<TodoItem>) => void;
 		onDelete: (id: string) => void;
+		onMoveToDone?: (id: string) => void;
+		canMoveToDone?: boolean;
 		onApprove?: (id: string) => void;
 		onReject?: (id: string, feedback: string) => void;
 		onBlockAction?: (taskId: string, threadId: string, action: string) => void;
@@ -245,6 +249,11 @@
 		open = false;
 	}
 
+	function handleMoveToDone() {
+		onMoveToDone?.(task.id);
+		open = false;
+	}
+
 	function handleDialogKeydown(e: KeyboardEvent) {
 		const mod = e.metaKey || e.ctrlKey;
 		if (!mod) return;
@@ -387,44 +396,6 @@
 				/>
 			</div>
 
-			<!-- Interview Details -->
-			<div class="grid gap-3 rounded-lg border bg-muted/20 p-3">
-				<p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Interview</p>
-				<div class="grid grid-cols-2 gap-3">
-					<div class="grid gap-2">
-						<label for="interview-date" class="text-sm font-medium">Date / Time</label>
-						<Input
-							id="interview-date"
-							bind:value={editInterviewDate}
-							placeholder="e.g. Apr 5, 10:00 AM"
-						/>
-					</div>
-					<div class="grid gap-2">
-						<label for="interview-link" class="text-sm font-medium">Call Link</label>
-						<Input
-							id="interview-link"
-							bind:value={editInterviewLink}
-							placeholder="https://meet.google.com/..."
-							class="truncate"
-						/>
-					</div>
-				</div>
-				<div class="grid gap-2">
-					<label for="interview-email" class="text-sm font-medium"
-						>Interview Email <span class="font-normal text-muted-foreground"
-							>(paste invitation here)</span
-						></label
-					>
-					<Textarea
-						id="interview-email"
-						bind:value={editInterviewEmail}
-						placeholder="Paste the interview invitation email here..."
-						rows={5}
-						class="break-words"
-					/>
-				</div>
-			</div>
-
 			<!-- Stage History Timeline -->
 			<div class="grid gap-1.5">
 				<p class="text-xs font-medium tracking-wide text-muted-foreground uppercase">
@@ -524,6 +495,44 @@
 				</div>
 			</div>
 
+			<!-- Interview Details -->
+			<div class="grid gap-3 rounded-lg border bg-muted/20 p-3">
+				<p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Interview</p>
+				<div class="grid grid-cols-2 gap-3">
+					<div class="grid gap-2">
+						<label for="interview-date" class="text-sm font-medium">Date / Time</label>
+						<Input
+							id="interview-date"
+							bind:value={editInterviewDate}
+							placeholder="e.g. Apr 5, 10:00 AM"
+						/>
+					</div>
+					<div class="grid gap-2">
+						<label for="interview-link" class="text-sm font-medium">Call Link</label>
+						<Input
+							id="interview-link"
+							bind:value={editInterviewLink}
+							placeholder="https://meet.google.com/..."
+							class="truncate"
+						/>
+					</div>
+				</div>
+				<div class="grid gap-2">
+					<label for="interview-email" class="text-sm font-medium"
+						>Interview Email <span class="font-normal text-muted-foreground"
+							>(paste invitation here)</span
+						></label
+					>
+					<Textarea
+						id="interview-email"
+						bind:value={editInterviewEmail}
+						placeholder="Paste the interview invitation email here..."
+						rows={5}
+						class="break-words"
+					/>
+				</div>
+			</div>
+
 			{#if task.agentStatus === 'working'}
 				<div class="flex items-center gap-2 rounded-md border bg-muted/30 px-3 py-2">
 					<Logo class="size-4 agent-working text-primary" />
@@ -591,10 +600,18 @@
 		</div>
 
 		<Dialog.Footer class="!flex-row items-center !justify-between">
-			<Button variant="destructive" size="sm" onclick={handleDelete}>
-				<Trash2Icon class="mr-1.5 size-3.5" />
-				Delete
-			</Button>
+			<div class="flex gap-2">
+				<Button variant="destructive" size="sm" onclick={handleDelete}>
+					<Trash2Icon class="mr-1.5 size-3.5" />
+					Delete
+				</Button>
+				{#if canMoveToDone}
+					<Button variant="outline" size="sm" onclick={handleMoveToDone}>
+						<CheckIcon class="mr-1.5 size-3.5" />
+						Move to Done
+					</Button>
+				{/if}
+			</div>
 			<div class="flex gap-2">
 				<Button variant="outline" onclick={() => (open = false)}>
 					Cancel
