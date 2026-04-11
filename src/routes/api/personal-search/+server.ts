@@ -21,6 +21,37 @@ const personalSearchLlm = {
 const SEARCH_API = env.PUBLIC_PERSONAL_SEARCH_API_URL || 'http://localhost:8000';
 const OPEN_ENDED_SEARCH_CODE = 'oploy.eu';
 
+function buildFallbackSummary(args: {
+	status: string;
+	totalFound: number;
+	totalNew: number;
+	sourceSummary: Record<string, any>;
+	keywords: string[];
+	city?: string | null;
+	country?: string | null;
+}): string {
+	const location = [args.city, args.country].filter(Boolean).join(', ');
+	const locationPart = location ? ` in ${location}` : '';
+	const keywordPart = args.keywords.length > 0 ? ` for ${args.keywords.join(', ')}` : '';
+
+	const sourceParts = Object.entries(args.sourceSummary || {}).map(([src, info]) => {
+		const found = Number(info?.found ?? 0);
+		const added = Number(info?.new ?? 0);
+		const err = info?.error ? ` (${String(info.error)})` : '';
+		return `${src}: ${found} found, ${added} new${err}`;
+	});
+
+	if (args.status !== 'completed' && args.status !== 'partial_success') {
+		return `Search finished with status ${args.status}. Found ${args.totalFound} jobs and ${args.totalNew} new${locationPart}${keywordPart}.`;
+	}
+
+	const primary = `Found ${args.totalFound} jobs, ${args.totalNew} new${locationPart}${keywordPart}.`;
+	if (sourceParts.length === 0) {
+		return primary;
+	}
+	return `${primary} ${sourceParts.join(' | ')}`;
+}
+
 function decodeJwtPayload(token: string): { sub?: string } | null {
 	try {
 		const payload = token.split('.')[1];
@@ -216,6 +247,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 								message: 'Analyzing results...'
 							})
 						);
+						let emittedSummary = false;
 						try {
 							const convex = createConvexHttpClient({ token: locals.token });
 							const summary = await convex.action(personalSearchLlm.interpretResult, {
@@ -232,9 +264,25 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 								// Persist so the summary survives page reloads
 								const runId = String(lastCompleteData.run_id ?? '');
 								if (runId) updateSearchRunSummary(runId, summary).catch(() => {});
+								emittedSummary = true;
 							}
 						} catch (e) {
 							console.warn('[personal-search] LLM interpretation skipped:', (e as Error).message);
+						}
+
+						if (!emittedSummary) {
+							const fallbackSummary = buildFallbackSummary({
+								status: String(lastCompleteData.status ?? 'completed'),
+								totalFound: Number(lastCompleteData.total_found ?? 0),
+								totalNew: Number(lastCompleteData.total_new ?? 0),
+								sourceSummary: (lastCompleteData.source_summary ?? {}) as Record<string, any>,
+								keywords: standardized.keywords,
+								city: standardized.city ?? undefined,
+								country: standardized.country ?? undefined
+							});
+							controller.enqueue(sseEncode('interpretation', { summary: fallbackSummary }));
+							const runId = String(lastCompleteData.run_id ?? '');
+							if (runId) updateSearchRunSummary(runId, fallbackSummary).catch(() => {});
 						}
 					}
 
@@ -260,7 +308,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		const data = await res.json();
 
 		// Add LLM interpretation for non-streaming
-		if (llmAvailable && data.status) {
+		if (data.status) {
 			try {
 				const convex = createConvexHttpClient({ token: locals.token });
 				const summary = await convex.action(personalSearchLlm.interpretResult, {
@@ -279,6 +327,20 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 				}
 			} catch {
 				/* skip interpretation */
+			}
+
+			if (!data.llm_summary) {
+				const fallbackSummary = buildFallbackSummary({
+					status: String(data.status ?? 'completed'),
+					totalFound: Number(data.total_found ?? 0),
+					totalNew: Number(data.total_new ?? 0),
+					sourceSummary: (data.source_summary ?? {}) as Record<string, any>,
+					keywords: standardized.keywords,
+					city: standardized.city ?? undefined,
+					country: standardized.country ?? undefined
+				});
+				data.llm_summary = fallbackSummary;
+				if (data.run_id) updateSearchRunSummary(data.run_id, fallbackSummary).catch(() => {});
 			}
 		}
 
