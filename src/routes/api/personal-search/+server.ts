@@ -7,7 +7,8 @@ import {
 	upsertSearchProfile,
 	getOldRunIds,
 	deleteSearchRun,
-	updateSearchRunSummary
+	updateSearchRunSummary,
+	getRecentSearchRuns
 } from '$lib/server/personal-jobs/supabase';
 
 // Extend Vercel serverless function timeout for long-running searches (search + LLM).
@@ -101,6 +102,69 @@ function validateSearchBody(body: Record<string, unknown>, powerMode: boolean) {
 
 function sseEncode(event: string, data: object): Uint8Array {
 	return new TextEncoder().encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+}
+
+/**
+ * When API Gateway times out (30s hard limit), Lambda keeps running and writes
+ * results to Supabase. This function polls Supabase until the search run completes
+ * or we reach the Vercel function timeout.
+ */
+async function pollForSearchCompletion(
+	controller: ReadableStreamDefaultController<Uint8Array>,
+	userId: string,
+	encode: typeof sseEncode
+): Promise<Record<string, unknown> | null> {
+	controller.enqueue(
+		encode('step', {
+			step: 'async_processing',
+			message: 'Search is processing in the background. Waiting for results...'
+		})
+	);
+
+	const maxPollSeconds = 260; // stay within Vercel's 300s maxDuration
+	const pollIntervalMs = 5000;
+	let elapsed = 0;
+	let lastKeepalive = 0;
+
+	while (elapsed < maxPollSeconds) {
+		await new Promise<void>((r) => setTimeout(r, pollIntervalMs));
+		elapsed += pollIntervalMs / 1000;
+
+		try {
+			const runs = await getRecentSearchRuns(userId, 1);
+			const latest = runs[0];
+			if (latest && latest.status !== 'running' && latest.status !== 'queued') {
+				const completeData = {
+					run_id: latest.id,
+					status: latest.status,
+					total_found: latest.total_found ?? 0,
+					total_new: latest.total_new ?? 0,
+					total_duplicate: (latest.total_found ?? 0) - (latest.total_new ?? 0),
+					source_summary: latest.source_summary_json ?? {}
+				};
+				controller.enqueue(encode('complete', completeData));
+				return completeData;
+			}
+		} catch {
+			/* Supabase query failed — retry on next poll */
+		}
+
+		// Send keepalive every 30s so the connection doesn't drop
+		if (elapsed - lastKeepalive >= 30) {
+			lastKeepalive = elapsed;
+			controller.enqueue(
+				encode('step', {
+					step: 'async_processing',
+					message: `Still processing... (${Math.round(elapsed)}s)`
+				})
+			);
+		}
+	}
+
+	controller.enqueue(
+		encode('error', { error: 'Search timed out. Refresh the page to check for results.' })
+	);
+	return null;
 }
 
 /** Standard (non-streaming) search */
@@ -209,45 +273,67 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 							body: JSON.stringify(searchPayload)
 						});
 
-						if (!backendRes.body) {
+						if (!backendRes.ok) {
+							// API Gateway returns 504 after its 30s hard timeout limit,
+							// but Lambda keeps running and writes results to Supabase.
+							// Fall back to polling Supabase for the search run to complete.
+							lastCompleteData = await pollForSearchCompletion(controller, auth.userId, sseEncode);
+							if (!lastCompleteData) {
+								controller.close();
+								return;
+							}
+						} else if (!backendRes.body) {
 							controller.enqueue(sseEncode('error', { error: 'Backend not available' }));
 							controller.close();
 							return;
-						}
+						} else {
+							const reader = backendRes.body.getReader();
+							const decoder = new TextDecoder();
+							let buffer = '';
 
-						const reader = backendRes.body.getReader();
-						const decoder = new TextDecoder();
-						let buffer = '';
-
-						while (true) {
-							const { done, value } = await reader.read();
-							if (done) break;
-							const chunk = decoder.decode(value, { stream: true });
-							buffer += chunk;
-
-							// Parse events from buffer to capture the 'complete' event
-							const lines = buffer.split('\n');
-							buffer = lines.pop() || '';
-							let currentEvent = '';
-							for (const line of lines) {
-								if (line.startsWith('event: ')) {
-									currentEvent = line.slice(7).trim();
-								} else if (line.startsWith('data: ') && currentEvent === 'complete') {
-									try {
-										lastCompleteData = JSON.parse(line.slice(6).trim());
-									} catch {
-										/* ignore */
+							function parseBufferForComplete() {
+								const lines = buffer.split('\n');
+								buffer = lines.pop() || '';
+								let currentEvent = '';
+								for (const line of lines) {
+									if (line.startsWith('event: ')) {
+										currentEvent = line.slice(7).trim();
+									} else if (line.startsWith('data: ') && currentEvent === 'complete') {
+										try {
+											lastCompleteData = JSON.parse(line.slice(6).trim());
+										} catch {
+											/* ignore */
+										}
+									} else if (line.trim() === '') {
+										currentEvent = '';
 									}
 								}
 							}
 
-							// Forward raw chunk to client
-							controller.enqueue(value);
+							while (true) {
+								const { done, value } = await reader.read();
+								if (done) break;
+								const chunk = decoder.decode(value, { stream: true });
+								buffer += chunk;
+								parseBufferForComplete();
+								// Forward raw chunk to client
+								controller.enqueue(value);
+							}
+							// Flush decoder and process remaining buffer
+							buffer += decoder.decode(new Uint8Array(), { stream: false });
+							if (buffer.trim()) {
+								buffer += '\n';
+								parseBufferForComplete();
+							}
 						}
 					} catch (_e) {
-						controller.enqueue(sseEncode('error', { error: 'Search backend unavailable' }));
-						controller.close();
-						return;
+						// Network error or fetch timeout — Lambda may still be running.
+						// Poll Supabase as fallback.
+						lastCompleteData = await pollForSearchCompletion(controller, auth.userId, sseEncode);
+						if (!lastCompleteData) {
+							controller.close();
+							return;
+						}
 					}
 
 					// Step 3: LLM interpretation of results

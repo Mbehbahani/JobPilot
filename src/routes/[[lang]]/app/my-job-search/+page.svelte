@@ -153,11 +153,6 @@
 		powerModeEnabled ? POWER_MAX_DAYS_BACK : STANDARD_MAX_DAYS_BACK
 	);
 
-	function applyPowerMode() {
-		if (!POWER_SEARCH_CODE || referenceCode.trim() !== POWER_SEARCH_CODE) return;
-		if (browser) localStorage.setItem(POWER_MODE_STORAGE_KEY, POWER_SEARCH_CODE);
-	}
-
 	function clearPowerMode() {
 		if (browser) localStorage.removeItem(POWER_MODE_STORAGE_KEY);
 		referenceCode = '';
@@ -165,6 +160,13 @@
 			daysBack = String(STANDARD_MAX_DAYS_BACK);
 		}
 	}
+
+	$effect(() => {
+		if (!browser || !POWER_SEARCH_CODE) return;
+		if (referenceCode.trim() === POWER_SEARCH_CODE) {
+			localStorage.setItem(POWER_MODE_STORAGE_KEY, POWER_SEARCH_CODE);
+		}
+	});
 
 	// ── Job detail dialog ──
 	let selectedJob = $state<(typeof data.jobs)[number] | null>(null);
@@ -467,12 +469,7 @@
 				const decoder = new TextDecoder();
 				let buffer = '';
 
-				while (true) {
-					const { done, value } = await reader.read();
-					if (done) break;
-					buffer += decoder.decode(value, { stream: true });
-
-					// Parse SSE events from buffer
+				function drainBuffer() {
 					const lines = buffer.split('\n');
 					buffer = lines.pop() || '';
 
@@ -480,16 +477,38 @@
 					let currentData = '';
 					for (const line of lines) {
 						if (line.startsWith('event: ')) {
-							currentEvent = line.slice(7).trim();
-						} else if (line.startsWith('data: ')) {
-							currentData = line.slice(6).trim();
+							// If we had a pending event+data, flush it first
 							if (currentEvent && currentData) {
 								handleSSEEvent(currentEvent, currentData);
-								currentEvent = '';
-								currentData = '';
 							}
+							currentEvent = line.slice(7).trim();
+							currentData = '';
+						} else if (line.startsWith('data: ')) {
+							currentData = line.slice(6).trim();
+						} else if (line.trim() === '' && currentEvent && currentData) {
+							// Blank line = end of SSE event
+							handleSSEEvent(currentEvent, currentData);
+							currentEvent = '';
+							currentData = '';
 						}
 					}
+					// Flush any remaining event+data pair (no trailing blank line)
+					if (currentEvent && currentData) {
+						handleSSEEvent(currentEvent, currentData);
+					}
+				}
+
+				while (true) {
+					const { done, value } = await reader.read();
+					if (done) break;
+					buffer += decoder.decode(value, { stream: true });
+					drainBuffer();
+				}
+				// Flush decoder and process any remaining buffered data
+				buffer += decoder.decode(new Uint8Array(), { stream: false });
+				if (buffer.trim()) {
+					buffer += '\n';
+					drainBuffer();
 				}
 			} else {
 				// Fallback: non-streaming JSON response
@@ -898,16 +917,6 @@
 							placeholder="Optional"
 							class="flex-1"
 						/>
-						<Button
-							type="button"
-							variant={powerModeEnabled ? 'secondary' : 'outline'}
-							onclick={powerModeEnabled ? clearPowerMode : applyPowerMode}
-							disabled={!powerModeAvailable ||
-								searching ||
-								(!powerModeEnabled && referenceCode.trim() !== POWER_SEARCH_CODE)}
-						>
-							{powerModeEnabled ? 'Applied' : 'Apply'}
-						</Button>
 					</div>
 					{#if powerDetailsOpen}
 						<div class="bg-muted/40 mt-3 space-y-2 rounded-lg border p-3 text-xs">
