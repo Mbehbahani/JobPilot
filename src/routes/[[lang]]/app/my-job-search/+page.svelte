@@ -22,12 +22,14 @@
 	import { invalidateAll, goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
+	import { browser } from '$app/environment';
 	import { env as publicEnv } from '$env/dynamic/public';
 
 	let { data }: { data: PageData } = $props();
 	const POWER_SEARCH_CODE = (publicEnv.PUBLIC_PERSONAL_SEARCH_POWER_CODE ?? '').trim();
 	const STANDARD_MAX_DAYS_BACK = 7;
 	const POWER_MAX_DAYS_BACK = 14;
+	const POWER_MODE_STORAGE_KEY = 'JobPilot:personal-search-power-code';
 	const powerModeHoverSummary =
 		'Power mode expands the search window to 14 days, extends the backend runtime budget to 6 minutes, and increases LinkedIn coverage to 4 query variations with up to 20 results per query.';
 
@@ -39,8 +41,22 @@
 	let isRemote = $state(data.profile?.is_remote ?? false);
 	let useIndeed = $state(data.profile?.platforms?.includes('indeed') ?? true);
 	let useLinkedin = $state(data.profile?.platforms?.includes('linkedin') ?? false);
-	let referenceCode = $state('');
+	let referenceCode = $state(browser ? (localStorage.getItem(POWER_MODE_STORAGE_KEY) ?? '') : '');
 	let powerDetailsOpen = $state(false);
+
+	$effect(() => {
+		if (!browser) return;
+		const savedCode = localStorage.getItem(POWER_MODE_STORAGE_KEY) ?? '';
+		if (!savedCode) return;
+		if (POWER_SEARCH_CODE && savedCode === POWER_SEARCH_CODE) {
+			referenceCode = savedCode;
+			return;
+		}
+		localStorage.removeItem(POWER_MODE_STORAGE_KEY);
+		if (referenceCode === savedCode) {
+			referenceCode = '';
+		}
+	});
 
 	let clearingAllData = $state(false);
 	let generatingKeywords = $state(false);
@@ -138,11 +154,12 @@
 	);
 
 	function applyPowerMode() {
-		if (!POWER_SEARCH_CODE) return;
-		referenceCode = POWER_SEARCH_CODE;
+		if (!POWER_SEARCH_CODE || referenceCode.trim() !== POWER_SEARCH_CODE) return;
+		if (browser) localStorage.setItem(POWER_MODE_STORAGE_KEY, POWER_SEARCH_CODE);
 	}
 
 	function clearPowerMode() {
+		if (browser) localStorage.removeItem(POWER_MODE_STORAGE_KEY);
 		referenceCode = '';
 		if ((Number(daysBack) || 0) > STANDARD_MAX_DAYS_BACK) {
 			daysBack = String(STANDARD_MAX_DAYS_BACK);
@@ -856,40 +873,41 @@
 						{/if}
 					</p>
 				</div>
-				<div class="sm:col-span-2 lg:col-span-2">
-					<div class="flex flex-wrap items-center gap-2">
-						<label class="text-sm font-medium">Power mode</label>
-						<button
-							type="button"
-							class="cursor-pointer rounded-full"
-							title={powerModeHoverSummary}
-							onclick={() => {
-								powerDetailsOpen = !powerDetailsOpen;
-							}}
-						>
-							<Badge variant={powerModeEnabled ? 'default' : 'outline'} class="text-xs">
-								{powerModeEnabled ? 'Power active' : 'Power available'}
-							</Badge>
-						</button>
+				<div>
+					<div class="flex items-center gap-2">
+						<label for="reference-code" class="text-sm font-medium">Reference (optional)</label>
+						{#if powerModeAvailable}
+							<button
+								type="button"
+								class="cursor-pointer rounded-full"
+								title={powerModeHoverSummary}
+								onclick={() => {
+									powerDetailsOpen = !powerDetailsOpen;
+								}}
+							>
+								<Badge variant={powerModeEnabled ? 'default' : 'outline'} class="text-xs">
+									{powerModeEnabled ? 'Power' : 'Bonus'}
+								</Badge>
+							</button>
+						{/if}
 					</div>
-					<div class="mt-2 flex flex-wrap items-center gap-2">
+					<div class="mt-1 flex gap-2">
+						<Input
+							id="reference-code"
+							bind:value={referenceCode}
+							placeholder="Optional"
+							class="flex-1"
+						/>
 						<Button
 							type="button"
 							variant={powerModeEnabled ? 'secondary' : 'outline'}
 							onclick={powerModeEnabled ? clearPowerMode : applyPowerMode}
-							disabled={!powerModeAvailable || searching}
+							disabled={!powerModeAvailable ||
+								searching ||
+								(!powerModeEnabled && referenceCode.trim() !== POWER_SEARCH_CODE)}
 						>
-							{powerModeEnabled ? 'Remove Power mode' : 'Apply Power mode'}
+							{powerModeEnabled ? 'Applied' : 'Apply'}
 						</Button>
-						<span class="text-muted-foreground text-xs">
-							{#if powerModeEnabled}
-								Expanded limits are active for this search.
-							{:else if powerModeAvailable}
-								Apply the configured code without typing it manually.
-							{:else}
-								Power mode is unavailable until PUBLIC_PERSONAL_SEARCH_POWER_CODE is configured.
-							{/if}
-						</span>
 					</div>
 					{#if powerDetailsOpen}
 						<div class="bg-muted/40 mt-3 space-y-2 rounded-lg border p-3 text-xs">
@@ -900,7 +918,7 @@
 								<li>LinkedIn expands from 2 to 4 query variations.</li>
 								<li>LinkedIn expands from 10 to 20 results per query.</li>
 								<li>
-									Indeed stays broad while preserving its current 6 queries × 30 results per query.
+									Activate Bonus mode with a reference code after supporting “Help keep it running”.
 								</li>
 							</ul>
 						</div>
@@ -925,7 +943,6 @@
 					<label class="flex items-center gap-2">
 						<input type="checkbox" bind:checked={useLinkedin} class="accent-primary" />
 						<span class="text-sm">LinkedIn</span>
-						<Badge variant="outline" class="text-xs">strict limits</Badge>
 					</label>
 				</div>
 				<div class="flex items-end">
