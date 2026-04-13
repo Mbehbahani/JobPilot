@@ -1,6 +1,41 @@
 <!doctype html>
 <html lang="en">
 	<head>
+		<!-- Google tag (gtag.js) -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-EPT9EHXJRJ"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag() {
+				dataLayer.push(arguments);
+			}
+
+			var consentGranted = false;
+			try {
+				consentGranted = window.localStorage.getItem('ga-consent') === 'granted';
+			} catch (e) {
+				consentGranted = false;
+			}
+
+			gtag('consent', 'default', {
+				ad_storage: 'denied',
+				ad_user_data: 'denied',
+				ad_personalization: 'denied',
+				analytics_storage: 'denied'
+			});
+
+			if (consentGranted) {
+				gtag('consent', 'update', {
+					ad_storage: 'granted',
+					ad_user_data: 'granted',
+					ad_personalization: 'granted',
+					analytics_storage: 'granted'
+				});
+			}
+
+			gtag('js', new Date());
+
+			gtag('config', 'G-EPT9EHXJRJ', { send_page_view: false });
+		</script>
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/png" href="%sveltekit.assets%/favicon-96x96.png" sizes="96x96" />
 		<link rel="icon" type="image/svg+xml" href="%sveltekit.assets%/favicon.svg" />

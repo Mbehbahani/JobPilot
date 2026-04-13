@@ -14,7 +14,15 @@ export function initGoogleAnalytics(measurementId: string): void {
 	const id = measurementId.trim();
 	if (!id) return;
 
-	if (initializedMeasurementId === id) return;
+	const scriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`;
+	const hasScript = Array.from(document.scripts).some((script) => script.src === scriptSrc);
+	const hasExistingGtag = typeof window.gtag === 'function';
+
+	if (initializedMeasurementId === id || (hasScript && hasExistingGtag)) {
+		initializedMeasurementId = id;
+		return;
+	}
+
 	initializedMeasurementId = id;
 
 	window.dataLayer = window.dataLayer || [];
@@ -28,9 +36,6 @@ export function initGoogleAnalytics(measurementId: string): void {
 	window.gtag('config', id, {
 		send_page_view: false
 	});
-
-	const scriptSrc = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`;
-	const hasScript = Array.from(document.scripts).some((script) => script.src === scriptSrc);
 	if (hasScript) return;
 
 	const script = document.createElement('script');
