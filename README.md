@@ -19,7 +19,7 @@ At the product level, it combines:
 
 At the engineering level, the project demonstrates how to build an AI-enabled system with explicit boundaries, persistence layers, failure handling, deployment discipline, and evaluation loops.
 
-This repository (`job-promus`) is the main application layer for JobPilot. It is backed by a broader multi-service workspace that includes a dedicated Python search backend, data/evaluation modules, and deployment infrastructure.
+This repository (`JobPilot`) is the main application layer for JobPilot. It is backed by a broader multi-service workspace that includes a dedicated Python search backend, data/evaluation modules, and deployment infrastructure.
 
 ---
 
@@ -44,7 +44,7 @@ JobPilot is not a single UI app with an API wrapper. It is a multi-component sys
 
 ### Core components
 
-#### 1. Main App (`job-promus`)
+#### 1. Main App (`JobPilot`)
 
 - Built with **SvelteKit**
 - Serves the main product UI and route orchestration
