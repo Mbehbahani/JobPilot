@@ -1,6 +1,6 @@
-# Promus – Local Development Guide 2
+# JobPilot – Local Development Guide 2
 
-> **Promus** is a Kanban board where each task can have an AI agent ("Coda") that uses connected accounts (email, LinkedIn, etc.) to perform real work via the Unipile SDK.
+> **JobPilot** is a Kanban board where each task can have an AI agent ("Coda") that uses connected accounts (email, LinkedIn, etc.) to perform real work via the Unipile SDK.
 
 ---
 
@@ -78,7 +78,7 @@ Unipile API (email, LinkedIn, messaging actions)
 ## 2. Project Structure
 
 ```
-job-promus/
+JobPilot/
 ├── src/
 │   ├── routes/              # SvelteKit pages
 │   ├── lib/
@@ -292,7 +292,7 @@ job-analytics-frontend (Next.js :3000)
   ├── /api/kanban/apply           → Proxy → POST /api/integration/add-job
   └── /api/kanban/check-duplicate → Proxy → POST /api/integration/check-duplicate
   │
-  └──► Convex HTTP endpoints on job-promus
+  └──► Convex HTTP endpoints on JobPilot
 ```
 
 ### Environment Variables
@@ -301,11 +301,11 @@ job-analytics-frontend (Next.js :3000)
 
 | Variable | Purpose | Local Dev | Production |
 |---|---|---|---|
-| `PROMUS_CONVEX_SITE_URL` | Convex HTTP endpoint URL for API proxy routes | `PUBLIC_CONVEX_SITE_URL_PLACEHOLDER` (default) | Your Convex deployment's site URL |
-| `PROMUS_INTEGRATION_API_KEY` | Bearer token for authenticating API requests | Empty (no auth locally) | Set to match `INTEGRATION_API_KEY` on Convex |
-| `NEXT_PUBLIC_KANBAN_URL` | URL for the "Kanban" button in the header | `http://localhost:5173` (default) | Your Vercel deployment URL, e.g. `https://job-promus.vercel.app` |
+| `JOBPILOT_CONVEX_SITE_URL` | Convex HTTP endpoint URL for API proxy routes | `PUBLIC_CONVEX_SITE_URL_PLACEHOLDER` (default) | Your Convex deployment's site URL |
+| `JOBPILOT_INTEGRATION_API_KEY` | Bearer token for authenticating API requests | Empty (no auth locally) | Set to match `INTEGRATION_API_KEY` on Convex |
+| `NEXT_PUBLIC_KANBAN_URL` | URL for the "Kanban" button in the header | `http://localhost:5173` (default) | Your Vercel deployment URL, e.g. `https://jobpilot.oploy.eu` |
 
-#### In job-promus Convex backend (`bun convex env set`)
+#### In JobPilot Convex backend (`bun convex env set`)
 
 | Variable | Purpose |
 |---|---|
@@ -330,14 +330,14 @@ The **Kanban** button in the analytics header links to the Kanban app. The URL d
 
 The proxy routes (`/api/kanban/apply`, `/api/kanban/check-duplicate`) forward requests to the Convex HTTP endpoint. The default is `PUBLIC_CONVEX_SITE_URL_PLACEHOLDER`:
 
-- **Using a different Convex deployment**: Set `PROMUS_CONVEX_SITE_URL` in job-analytics-frontend:
+- **Using a different Convex deployment**: Set `JOBPILOT_CONVEX_SITE_URL` in job-analytics-frontend:
   ```
-  PROMUS_CONVEX_SITE_URL=https://your-deployment-name.convex.site
+  JOBPILOT_CONVEX_SITE_URL=https://your-deployment-name.convex.site
   ```
 - **Securing the API in production**: Set both sides:
   ```bash
   # In job-analytics-frontend .env
-  PROMUS_INTEGRATION_API_KEY=your-secret-key
+  JOBPILOT_INTEGRATION_API_KEY=your-secret-key
 
   # In Convex backend
   bun convex env set INTEGRATION_API_KEY your-secret-key
