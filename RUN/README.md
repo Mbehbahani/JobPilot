@@ -206,7 +206,7 @@ This runs two concurrent processes:
 
 | Command | What it does |
 |---|---|
-| `bun run dev` | Start frontend + Convex backend watcher |
+| `bun run dev`  | Start frontend + Convex backend watcher |
 | `bun run build` | Production build |
 | `bun run check` | TypeScript / Svelte type check |
 | `bun run generate` | Regenerate Convex types (run after schema changes) |
