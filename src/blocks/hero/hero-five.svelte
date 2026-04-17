@@ -8,6 +8,7 @@
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import HeroOctopusAnimation from './hero-octopus-animation.svelte';
+	import PipelineDemo from './pipeline-demo.svelte';
 	import nvidiaLogo from './logos/nvidia.svg';
 	import awsLightLogo from './logos/aws-light.svg';
 	import awsDarkLogo from './logos/aws-dark.svg';
@@ -91,7 +92,7 @@
 			</div>
 		</div>
 	</section>
-	<section>
+	<!-- <section>
 		<div class="group relative m-auto max-w-6xl px-6">
 			<div class="flex flex-col items-center md:flex-row">
 				<div class="md:max-w-44 md:border-r md:pr-6">
@@ -229,6 +230,22 @@
 					/>
 				</div>
 			</div>
+		</div>
+	</section> -->
+
+	<!-- ── Pipeline demo section ─────────────────────────────────────────── -->
+	<section class="pb-24 lg:pb-32">
+		<div class="mx-auto max-w-6xl px-6 lg:px-12">
+			<!-- Section heading -->
+			<div class="mb-10 text-center">
+				<h2 class="font-serif text-3xl font-bold md:text-4xl">Search → Pipeline, Automatically</h2>
+				<p class="mt-4 mx-auto max-w-xl text-base text-muted-foreground text-balance">
+					Nova scans LinkedIn and Indeed in real time, scores every match against your profile, and
+					lets you send the best ones to your Kanban with a single click.
+				</p>
+			</div>
+			<!-- Animated table -->
+			<PipelineDemo />
 		</div>
 	</section>
 </main>

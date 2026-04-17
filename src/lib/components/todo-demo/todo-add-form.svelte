@@ -39,7 +39,7 @@
 		<Input bind:value={title} placeholder="Add a job application..." class="h-8" autofocus />
 		{#if columnId === 'targeted'}
 			<p class="text-[11px] leading-4 text-muted-foreground">
-				Tip: paste a job title, URL, or LinkedIn link — Nova will fill in the details.
+				Tip: paste a job title, URL, or job description — Nova will fill in the details.
 			</p>
 		{/if}
 		<div class="flex gap-2">
