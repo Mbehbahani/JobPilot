@@ -23,6 +23,7 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { browser } from '$app/environment';
+	import { Debounced } from 'runed';
 	import { env as publicEnv } from '$env/dynamic/public';
 
 	let { data }: { data: PageData } = $props();
@@ -207,6 +208,7 @@
 		Record<string, 'idle' | 'loading' | 'success' | 'duplicate' | 'error'>
 	>({});
 	let searchQuery = $state('');
+	const debouncedSearchQuery = new Debounced(() => searchQuery, 150);
 
 	function normalizeFilterOption(value: string | null | undefined): string {
 		const normalized = typeof value === 'string' ? value.trim() : '';
@@ -351,7 +353,7 @@
 			const remoteState = match.job?.is_remote ? 'Remote' : 'On-site';
 			const runCode = runCodeMap[match.search_run_id ?? ''] ?? 'NA';
 			const searchTerm = normalizeFilterOption(getSearchTerm(match));
-			const query = searchQuery.trim().toLowerCase();
+			const query = (debouncedSearchQuery.current ?? '').trim().toLowerCase();
 
 			if (levelFilter.length > 0 && !levelFilter.includes(level)) return false;
 			if (functionFilter.length > 0 && !functionFilter.includes(jobFunction)) return false;
@@ -369,12 +371,6 @@
 				const haystack = [
 					getActualRole(match.job),
 					match.job?.company_name ?? '',
-					getJobLevel(match.job),
-					getJobFunction(match.job),
-					...getEducationLevels(match.job),
-					match.job?.country ?? '',
-					match.job?.source ?? '',
-					getSearchTerm(match),
 					...getJobSkills(match.job)
 				]
 					.join(' ')

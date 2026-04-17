@@ -179,8 +179,7 @@
 						task.title,
 						task.companyName,
 						task.position,
-						columnId,
-						task.notes
+						columnId
 					]
 						.filter((value): value is string => Boolean(value && value.trim()))
 						.join(' ');

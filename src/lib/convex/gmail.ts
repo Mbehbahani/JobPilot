@@ -10,6 +10,8 @@ import type { Doc } from './_generated/dataModel';
 import { v } from 'convex/values';
 import { authComponent } from './auth';
 import { gmailOAuth } from './env';
+import { generateText } from 'ai';
+import { getTaskLanguageModelForUser } from './support/llmProvider';
 
 const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
@@ -168,9 +170,11 @@ function containsPhrase(text: string, phrase?: string): boolean {
 function extractMentionedPosition(message: GmailMessageSummary): string | undefined {
 	const text = normalizeEmailText([message.subject, message.bodyText, message.snippet].join(' '));
 	const patterns = [
-		/position of ([a-z0-9&/(),\- ]{4,120}?)(?: here at | at | with | however | unfortunately | thank | best |$)/,
-		/application for (?:the )?([a-z0-9&/(),\- ]{4,120}?)(?: role| position| here at | at | with | however | unfortunately | thank | best |$)/,
-		/applied for (?:the )?([a-z0-9&/(),\- ]{4,120}?)(?: role| position| here at | at | with | however | unfortunately | thank | best |$)/
+		/position of ([a-z0-9&/(),\- ]{4,120}?)(?: here at | at | with | however | unfortunately | thank | sorry | best |$)/,
+		/role of ([a-z0-9&/(),\- ]{4,120}?)(?: here at | at | with | however | unfortunately | thank | sorry | best | based |$)/,
+		/application for (?:the )?([a-z0-9&/(),\- ]{4,120}?)(?: role| position| here at | at | with | however | unfortunately | thank | sorry | best |$)/,
+		/applied for (?:the )?([a-z0-9&/(),\- ]{4,120}?)(?: role| position| here at | at | with | however | unfortunately | thank | sorry | best |$)/,
+		/applying for (?:the )?(?:role of |position of )?([a-z0-9&/(),\- ]{4,120}?)(?: here at | at | with | however | unfortunately | thank | sorry | best | based |$)/
 	];
 
 	for (const pattern of patterns) {
@@ -250,7 +254,8 @@ const GENERIC_RECRUITING_DOMAIN_SUFFIXES = [
 	'ashbyhq.com',
 	'jobvite.com',
 	'icims.com',
-	'successfactors.com'
+	'successfactors.com',
+	'successfactors.eu'
 ];
 
 function isGenericRecruitingDomain(domain?: string): boolean {
@@ -473,10 +478,21 @@ function classifyEmailOutcome(
 			'not moving forward',
 			'not be moving forward',
 			'regret to inform',
+			'sorry to inform',
+			'we regret',
 			'other candidates',
 			'position has been filled',
 			'rejected',
-			'rejection'
+			'rejection',
+			'not been selected',
+			'not been successful',
+			'application was not successful',
+			'we will not be proceeding',
+			'decided to proceed with other',
+			'decided to move forward with other',
+			'does not sufficiently match',
+			'does not match the requirements',
+			'unable to offer you'
 		)
 	) {
 		return {
@@ -582,6 +598,87 @@ function buildEmailNoteEntry(
 	]
 		.filter(Boolean)
 		.join('\n');
+}
+
+type EmailClassification = {
+	type: EmailSignalType;
+	summary: string;
+	nextAction: string;
+	interviewEmail?: string;
+	interviewDate?: string;
+	interviewLink?: string;
+};
+
+async function llmMatchAndClassify(
+	model: any,
+	message: GmailMessageSummary,
+	candidateTasks: MatchableTask[]
+): Promise<{ taskId: string; classification: EmailClassification } | null> {
+	if (!model || candidateTasks.length === 0) return null;
+
+	const taskList = candidateTasks
+		.map(
+			(t, i) =>
+				`${i + 1}. ID="${t.id}" Company="${t.companyName || 'Unknown'}" Position="${t.position || t.title}"`
+		)
+		.join('\n');
+
+	const emailBody = truncateText(message.bodyText || message.snippet || '', 1200) ?? '';
+
+	const prompt = `Match this email to one of the user's job applications and classify it.
+
+EMAIL:
+From: ${message.from || 'Unknown'}
+Subject: ${message.subject || 'No subject'}
+Body: ${emailBody}
+
+JOB APPLICATIONS:
+${taskList}
+
+Classify as one of: "rejection", "acceptance", "interview", "follow_up_interview"
+If the email does NOT clearly correspond to any listed application, set taskId to null.
+
+Return ONLY valid JSON (no markdown, no explanation):
+{"taskId":"matching ID or null","type":"rejection|acceptance|interview|follow_up_interview","summary":"one sentence about what this means","nextAction":"one sentence suggesting what to do"}`;
+
+	try {
+		const result = await generateText({
+			model,
+			prompt,
+			temperature: 0.1
+		});
+
+		const jsonText = result.text.replace(/```json\s*|```\s*/g, '').trim();
+		const parsed = JSON.parse(jsonText);
+
+		if (!parsed.taskId || parsed.taskId === 'null') return null;
+
+		const validTypes: EmailSignalType[] = [
+			'rejection',
+			'acceptance',
+			'interview',
+			'follow_up_interview'
+		];
+		const signalType: EmailSignalType = validTypes.includes(parsed.type)
+			? parsed.type
+			: 'rejection';
+
+		const isInterview = signalType === 'interview' || signalType === 'follow_up_interview';
+
+		return {
+			taskId: parsed.taskId,
+			classification: {
+				type: signalType,
+				summary: truncateText(parsed.summary, 200) || 'Email signal detected',
+				nextAction: truncateText(parsed.nextAction, 200) || 'Review this email',
+				interviewEmail: isInterview ? message.from : undefined,
+				interviewDate: isInterview ? extractInterviewDateText(message) : undefined,
+				interviewLink: isInterview ? extractInterviewLink(message) : undefined
+			}
+		};
+	} catch {
+		return null;
+	}
 }
 
 function getMessageHeader(
@@ -913,6 +1010,7 @@ export const readRecentEmails = action({
 	returns: v.object({
 		count: v.number(),
 		checkedAt: v.number(),
+		warning: v.optional(v.string()),
 		messages: v.array(
 			v.object({
 				id: v.string(),
@@ -1008,6 +1106,17 @@ export const readRecentEmails = action({
 		})) ?? []) as MatchableTask[];
 		const touchedTaskIds = new Set<string>();
 
+		// Try to get the user's connected ChatGPT model for LLM fallback matching
+		let chatGptModel: any = null;
+		let chatGptWarning: string | undefined;
+		try {
+			chatGptModel = await getTaskLanguageModelForUser(ctx, user._id);
+		} catch (e) {
+			chatGptWarning =
+				'ChatGPT is not connected — email matching is limited to basic detection. Connect your ChatGPT account in Settings → Connections for better accuracy.';
+			console.warn('[gmail] ChatGPT unavailable for LLM fallback:', e);
+		}
+
 		for (const message of messages) {
 			const scoredTasks = candidateTasks
 				.filter((task) => !touchedTaskIds.has(task.id))
@@ -1016,18 +1125,55 @@ export const readRecentEmails = action({
 
 			const best = scoredTasks[0];
 			const runnerUp = scoredTasks[1];
-			if (!best || best.score < 5) continue;
-			if (runnerUp && best.score < runnerUp.score + 2) continue;
-			if (best.task.emailSignalMessageId === message.id && best.task.hasUnreadEmailSignal) {
-				continue;
+
+			let matchedTask: MatchableTask | null = null;
+			let classification: EmailClassification | null = null;
+
+			// Gate 1: Heuristic confident match
+			if (best && best.score >= 5 && (!runnerUp || best.score >= runnerUp.score + 2)) {
+				if (best.task.emailSignalMessageId === message.id && best.task.hasUnreadEmailSignal) {
+					continue;
+				}
+				classification = classifyEmailOutcome(message, best.task);
+				if (classification) {
+					matchedTask = best.task;
+				}
 			}
 
-			const classification = classifyEmailOutcome(message, best.task);
-			if (!classification) continue;
+			// Gate 2: LLM fallback when heuristic had signal but couldn't fully resolve
+			if (!matchedTask && best && best.score >= 3 && chatGptModel) {
+				try {
+					const llmResult = await llmMatchAndClassify(
+						chatGptModel,
+						message,
+						candidateTasks.filter((t) => !touchedTaskIds.has(t.id))
+					);
+					if (llmResult) {
+						const matched = candidateTasks.find((t) => t.id === llmResult.taskId);
+						if (matched && !touchedTaskIds.has(matched.id)) {
+							if (matched.emailSignalMessageId === message.id && matched.hasUnreadEmailSignal) {
+								continue;
+							}
+							matchedTask = matched;
+							classification = llmResult.classification;
+						}
+					}
+				} catch (e) {
+					// ChatGPT call failed at runtime (rate limit, token expired mid-session, etc.)
+					if (!chatGptWarning) {
+						chatGptWarning =
+							'ChatGPT encountered an error during email matching. Some emails may not have been matched. Please check your ChatGPT connection.';
+						console.warn('[gmail] ChatGPT LLM call failed:', e);
+					}
+					chatGptModel = null; // stop trying for remaining emails
+				}
+			}
+
+			if (!matchedTask || !classification) continue;
 
 			await ctx.runMutation(internal.todos.updateTaskEmailSignalInternal, {
 				userId: user._id,
-				taskId: best.task.id,
+				taskId: matchedTask.id,
 				messageId: message.id,
 				emailSignalType: classification.type,
 				emailSignalSummary: classification.summary,
@@ -1039,7 +1185,7 @@ export const readRecentEmails = action({
 				interviewLink: classification.interviewLink
 			});
 
-			touchedTaskIds.add(best.task.id);
+			touchedTaskIds.add(matchedTask.id);
 		}
 
 		await ctx.runMutation(internal.gmail.markSynced, {
@@ -1050,6 +1196,7 @@ export const readRecentEmails = action({
 		return {
 			count: messages.length,
 			checkedAt,
+			warning: chatGptWarning,
 			messages: messages.map(({ bodyText: _bodyText, ...message }) => message)
 		};
 	}

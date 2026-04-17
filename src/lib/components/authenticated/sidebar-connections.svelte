@@ -111,6 +111,9 @@
 				maxResults: selectedEmailReadCount
 			});
 			haptic.trigger('success');
+			if (result.warning) {
+				toast.warning(result.warning);
+			}
 			if (result.count === 0) {
 				toast.success('No recent inbox emails were found');
 			} else {

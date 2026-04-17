@@ -11,8 +11,8 @@ Set-Location (Split-Path $PSScriptRoot -Parent)
 # NOTE: This mutates the Convex cloud deployment (CONVEX_DEPLOYMENT_PLACEHOLDER).
 #       Run .\RUN\restore-prod.ps1 before deploying to production.
 Write-Host "[dev] Setting Convex env vars for local dev..." -ForegroundColor Cyan
-bunx convex env set SITE_URL http://localhost:5173
-bunx convex env set EMAIL_ASSET_URL http://localhost:5173
+# bunx convex env set SITE_URL http://localhost:5173
+# bunx convex env set EMAIL_ASSET_URL http://localhost:5173
 
 # ── Personal Job Search backend (FastAPI on :8000) ────────────────────────────
 # Required for the My Job Search page (/app/my-job-search) to work.
