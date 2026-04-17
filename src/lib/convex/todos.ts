@@ -46,6 +46,7 @@ const taskValidator = v.object({
 	agentDraftType: agentDraftTypeValidator,
 	hasUnreadNotes: v.optional(v.boolean()),
 	hasUnreadEmailSignal: v.optional(v.boolean()),
+	isNewTask: v.optional(v.boolean()),
 	emailSignalType: emailSignalTypeValidator,
 	emailSignalSummary: v.optional(v.string()),
 	emailSignalNextAction: v.optional(v.string()),
@@ -92,6 +93,7 @@ type BoardTask = {
 	agentDraftType?: AgentDraftType;
 	hasUnreadNotes?: boolean;
 	hasUnreadEmailSignal?: boolean;
+	isNewTask?: boolean;
 	emailSignalType?: EmailSignalType;
 	emailSignalSummary?: string;
 	emailSignalNextAction?: string;
@@ -132,6 +134,7 @@ type StoredTask = {
 	agentDraftType?: AgentDraftType;
 	hasUnreadNotes?: boolean;
 	hasUnreadEmailSignal?: boolean;
+	isNewTask?: boolean;
 	emailSignalType?: EmailSignalType;
 	emailSignalSummary?: string;
 	emailSignalNextAction?: string;
@@ -220,6 +223,7 @@ function toBoard(tasks: StoredTask[]): Board {
 				...(task.agentDraftType ? { agentDraftType: task.agentDraftType } : {}),
 				...(task.hasUnreadNotes ? { hasUnreadNotes: task.hasUnreadNotes } : {}),
 				...(task.hasUnreadEmailSignal ? { hasUnreadEmailSignal: task.hasUnreadEmailSignal } : {}),
+				...(task.isNewTask ? { isNewTask: task.isNewTask } : {}),
 				...(task.emailSignalType ? { emailSignalType: task.emailSignalType } : {}),
 				...(task.emailSignalSummary ? { emailSignalSummary: task.emailSignalSummary } : {}),
 				...(task.emailSignalNextAction
@@ -287,6 +291,7 @@ function sanitizeAndFlattenBoard(
 			const hasUnreadNotes = rawTask.hasUnreadNotes ?? existing?.hasUnreadNotes ?? undefined;
 			const hasUnreadEmailSignal =
 				rawTask.hasUnreadEmailSignal ?? existing?.hasUnreadEmailSignal ?? undefined;
+			const isNewTask = rawTask.isNewTask ?? existing?.isNewTask ?? undefined;
 			const emailSignalType = rawTask.emailSignalType || existing?.emailSignalType || undefined;
 			const emailSignalSummary =
 				rawTask.emailSignalSummary?.trim() || existing?.emailSignalSummary || undefined;
@@ -331,6 +336,7 @@ function sanitizeAndFlattenBoard(
 				...(agentDraftType ? { agentDraftType } : {}),
 				...(hasUnreadNotes ? { hasUnreadNotes } : {}),
 				...(hasUnreadEmailSignal ? { hasUnreadEmailSignal } : {}),
+				...(isNewTask ? { isNewTask } : {}),
 				...(emailSignalType ? { emailSignalType } : {}),
 				...(emailSignalSummary ? { emailSignalSummary } : {}),
 				...(emailSignalNextAction ? { emailSignalNextAction } : {}),
@@ -461,8 +467,11 @@ export const saveBoard = authedMutation({
 				}
 
 				if (!oldTask.threadId) {
-					// No thread yet — create one on any meaningful change
-					if (columnChanged || notesChanged) {
+					// No thread yet — create one on any meaningful change.
+					// Notes-only change on a targeted task is skipped: the agent writes notes itself,
+					// and stale client state can cause false notesChanged positives after a drag.
+					const shouldTrigger = columnChanged || (notesChanged && task.columnId !== 'targeted');
+					if (shouldTrigger) {
 						await ctx.scheduler.runAfter(0, internal.todo.messages.triggerAgentForNewTask, {
 							userId: ctx.user._id,
 							taskId: task.id,
@@ -507,7 +516,10 @@ export const saveBoard = authedMutation({
 							taskTitle: task.title,
 							prompt: columnMovePrompt
 						});
-					} else if (notesChanged) {
+					} else if (notesChanged && task.columnId !== 'targeted') {
+						// Targeted tasks: never re-trigger on notes-only change.
+						// The agent writes its own notes there, and stale client state from
+						// a drag can cause false positives that re-run the analysis.
 						await ctx.scheduler.runAfter(0, internal.todo.messages.triggerAgentForTaskUpdate, {
 							userId: ctx.user._id,
 							threadId: oldTask.threadId,
@@ -1028,6 +1040,7 @@ export const addJobFromExternalInternal = internalMutation({
 			createdAt: now,
 			updatedAt: now,
 			targetedAt: now,
+			isNewTask: true,
 			...(jobFields.companyName ? { companyName: jobFields.companyName } : {}),
 			...(jobFields.position ? { position: jobFields.position } : {}),
 			...(jobFields.jobUrl ? { jobUrl: jobFields.jobUrl } : {}),

@@ -99,7 +99,7 @@
 			<div class="grid min-h-0 gap-2">
 				{@render children()}
 			</div>
-			<TodoAddForm {onAdd} />
+			<TodoAddForm {onAdd} columnId={id} />
 		</div>
 	</div>
 

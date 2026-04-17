@@ -170,7 +170,11 @@
 	});
 
 	// ── Job detail dialog ──
-	let selectedJob = $state<(typeof data.jobs)[number] | null>(null);
+	let selectedJobId = $state<string | null>(null);
+	// Derived so it stays fresh after invalidateAll() refreshes data.jobs
+	const selectedJob = $derived(
+		selectedJobId ? (data.jobs.find((j) => j.id === selectedJobId) ?? null) : null
+	);
 	let dialogOpen = $state(false);
 	let filtersOpen = $state(false);
 
@@ -201,6 +205,22 @@
 	const runTimestampMap = $derived(
 		Object.fromEntries(data.recentRuns.map((r) => [r.id, new Date(r.created_at).getTime()]))
 	);
+
+	// Normalize raw match scores to a 0–10 range so the full scale is always used.
+	// Rounded to 1 decimal place. Falls back to the raw score if all scores are equal.
+	const normalizedScoreMap = $derived.by(() => {
+		const scores = data.jobs.map((m) => m.match_score ?? 0);
+		const min = Math.min(...scores);
+		const max = Math.max(...scores);
+		const range = max - min;
+		return Object.fromEntries(
+			data.jobs.map((m) => {
+				const raw = m.match_score ?? 0;
+				const normalized = range > 0 ? ((raw - min) / range) * 10 : raw;
+				return [m.id, Math.round(normalized * 10) / 10];
+			})
+		);
+	});
 
 	// ── Action feedback ──
 	let actionFeedback = $state<Record<string, { message: string; type: 'success' | 'error' }>>({});
@@ -384,13 +404,13 @@
 				const tsA = runTimestampMap[a.search_run_id ?? ''] ?? 0;
 				const tsB = runTimestampMap[b.search_run_id ?? ''] ?? 0;
 				if (tsA !== tsB) return sortDir === 'desc' ? tsB - tsA : tsA - tsB;
-				return (b.match_score ?? 0) - (a.match_score ?? 0);
+				return (normalizedScoreMap[b.id] ?? 0) - (normalizedScoreMap[a.id] ?? 0);
 			}
 			let va: string | number = 0;
 			let vb: string | number = 0;
 			if (sortField === 'match_score') {
-				va = a.match_score ?? 0;
-				vb = b.match_score ?? 0;
+				va = normalizedScoreMap[a.id] ?? 0;
+				vb = normalizedScoreMap[b.id] ?? 0;
 			} else if (sortField === 'posted_date') {
 				va = a.job?.posted_date ?? '';
 				vb = b.job?.posted_date ?? '';
@@ -551,7 +571,7 @@
 
 	// ── Actions ──
 	function openJobDetail(job: (typeof data.jobs)[number]) {
-		selectedJob = job;
+		selectedJobId = job.id;
 		dialogOpen = true;
 	}
 
@@ -1362,11 +1382,13 @@
 											<div class="flex items-center gap-2">
 												<div class="h-2 w-10 overflow-hidden rounded-full bg-muted">
 													<div
-														class={`h-full ${relevanceColor(match.match_score)}`}
-														style={`width: ${Math.max(0, Math.min(100, (match.match_score / 10) * 100))}%`}
+														class={`h-full ${relevanceColor(normalizedScoreMap[match.id] ?? 0)}`}
+														style={`width: ${Math.max(0, Math.min(100, ((normalizedScoreMap[match.id] ?? 0) / 10) * 100))}%`}
 													></div>
 												</div>
-												<span class="text-sm font-semibold">{Math.round(match.match_score)}</span>
+												<span class="text-sm font-semibold"
+													>{(normalizedScoreMap[match.id] ?? 0).toFixed(1)}</span
+												>
 											</div>
 										</div>
 									</Table.Cell>
@@ -1575,7 +1597,7 @@
 						{getJobFunction(job)}
 					</span>
 					<Badge variant="outline">
-						Score: {selectedJob.match_score.toFixed(1)}/10
+						Score: {(normalizedScoreMap[selectedJob.id] ?? 0).toFixed(1)}/10
 					</Badge>
 				</div>
 
@@ -1628,9 +1650,28 @@
 						<BookmarkIcon class="mr-1 h-3.5 w-3.5" />
 						{selectedJob.is_saved ? 'Saved' : 'Save'}
 					</Button>
-					<Button variant="outline" size="sm" onclick={(e: Event) => sendToTasks(selectedJob!, e)}>
+					<Button
+						variant="outline"
+						size="sm"
+						onclick={(e: Event) => sendToTasks(selectedJob!, e)}
+						disabled={sentToTasksState[selectedJob.id] === 'loading' ||
+							sentToTasksState[selectedJob.id] === 'success' ||
+							sentToTasksState[selectedJob.id] === 'duplicate'}
+						class={sentToTasksState[selectedJob.id] === 'success' ||
+						sentToTasksState[selectedJob.id] === 'duplicate'
+							? 'border-green-500 text-green-600 hover:text-green-600'
+							: sentToTasksState[selectedJob.id] === 'error'
+								? 'border-red-500 text-red-600 hover:text-red-600'
+								: ''}
+					>
 						<SendIcon class="mr-1 h-3.5 w-3.5" />
-						Send to Tasks
+						{sentToTasksState[selectedJob.id] === 'success'
+							? 'Sent!'
+							: sentToTasksState[selectedJob.id] === 'duplicate'
+								? 'Already added'
+								: sentToTasksState[selectedJob.id] === 'loading'
+									? 'Sending…'
+									: 'Send to Tasks'}
 					</Button>
 				</div>
 

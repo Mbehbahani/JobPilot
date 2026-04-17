@@ -21,7 +21,7 @@
 	import CvProfileSheet from './cv-profile-sheet.svelte';
 	import { haptic } from '$lib/hooks/use-haptic.svelte';
 	const gmailSecurityMessage =
-		'Your data is secure. JobPilot uses Google’s official authentication (OAuth) for Gmail access. We only read the selected recent emails to help you manage tasks, and we do not share your data.';
+		'Nova monitors your Gmail for replies to job applications — spotting interviews, offers, and rejections so your Kanban board stays up to date automatically. Your data is secure: JobPilot uses Google’s official OAuth and only reads recent emails. We never share your data.';
 
 	const client = useConvexClient();
 

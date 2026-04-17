@@ -46,6 +46,7 @@ export default defineSchema({
 				),
 				hasUnreadNotes: v.optional(v.boolean()),
 				hasUnreadEmailSignal: v.optional(v.boolean()),
+				isNewTask: v.optional(v.boolean()),
 				emailSignalType: v.optional(
 					v.union(
 						v.literal('interview'),

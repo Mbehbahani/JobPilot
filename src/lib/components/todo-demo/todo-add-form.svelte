@@ -4,7 +4,10 @@
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import XIcon from '@lucide/svelte/icons/x';
 
-	let { onAdd }: { onAdd: (title: string) => void | Promise<void> } = $props();
+	let {
+		onAdd,
+		columnId = ''
+	}: { onAdd: (title: string) => void | Promise<void>; columnId?: string } = $props();
 
 	let title = $state('');
 	let editing = $state(false);
@@ -34,6 +37,11 @@
 {#if editing}
 	<form onsubmit={handleSubmit} class="grid gap-2 pt-2">
 		<Input bind:value={title} placeholder="Add a job application..." class="h-8" autofocus />
+		{#if columnId === 'targeted'}
+			<p class="text-[11px] leading-4 text-muted-foreground">
+				Tip: paste a job title, URL, or LinkedIn link — Nova will fill in the details.
+			</p>
+		{/if}
 		<div class="flex gap-2">
 			<Button type="submit" size="sm" class="h-7 text-xs">Add</Button>
 			<Button type="button" variant="ghost" size="icon" class="size-7" onclick={cancel}>

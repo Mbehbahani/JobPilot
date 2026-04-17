@@ -117,6 +117,12 @@
 		if (!task.hasUnreadEmailSignal) return '';
 		return getEmailSignalHighlightClass(task.emailSignalType);
 	});
+
+	const newTaskHighlightClass = $derived(
+		task.isNewTask && !task.hasUnreadEmailSignal
+			? 'border-green-500/50 bg-green-500/[0.08] ring-1 ring-green-500/20 shadow-[0_0_0_1px_rgba(34,197,94,0.12)] dark:border-green-400/80 dark:bg-green-500/20 dark:ring-green-400/45 dark:shadow-[0_0_0_1px_rgba(74,222,128,0.35),0_0_18px_rgba(34,197,94,0.16)]'
+			: ''
+	);
 </script>
 
 <div
@@ -144,7 +150,7 @@
 		></div>
 	{/if}
 	<div
-		class="relative z-[1] overflow-hidden rounded-lg border border-border/80 bg-card px-3 py-2 text-sm text-foreground hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none dark:border-border/60 dark:bg-background {emailSignalHighlightClass} {(isDragging.current ||
+		class="relative z-[1] overflow-hidden rounded-lg border border-border/80 bg-card px-3 py-2 text-sm text-foreground hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none dark:border-border/60 dark:bg-background {emailSignalHighlightClass} {newTaskHighlightClass} {(isDragging.current ||
 			isDropping.current) &&
 		!isOverlay
 			? 'invisible'

@@ -14,6 +14,7 @@ export type TodoItem = {
 	agentDraftType?: AgentDraftType;
 	hasUnreadNotes?: boolean;
 	hasUnreadEmailSignal?: boolean;
+	isNewTask?: boolean;
 	emailSignalType?: EmailSignalType;
 	emailSignalSummary?: string;
 	emailSignalNextAction?: string;

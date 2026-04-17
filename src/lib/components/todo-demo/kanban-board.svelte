@@ -354,7 +354,7 @@
 		selectedTaskId = task.id;
 		dialogOpen = true;
 
-		if (task.hasUnreadNotes || task.hasUnreadEmailSignal) {
+		if (task.hasUnreadNotes || task.hasUnreadEmailSignal || task.isNewTask) {
 			const rollbackBoard = cloneBoard(items);
 			const nextBoard = cloneBoard(items);
 			for (const colId of columnIds) {
@@ -363,7 +363,8 @@
 					nextBoard[colId][idx] = {
 						...nextBoard[colId][idx],
 						hasUnreadNotes: false,
-						hasUnreadEmailSignal: false
+						hasUnreadEmailSignal: false,
+						isNewTask: false
 					};
 					break;
 				}
