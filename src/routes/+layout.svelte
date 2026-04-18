@@ -16,7 +16,7 @@
 	import './layout.css';
 
 	let { children, data } = $props();
-	let showConsentBanner = false;
+	let showConsentBanner = $state(false);
 
 	function grantGoogleConsent(): void {
 		if (typeof window === 'undefined') return;
@@ -146,7 +146,7 @@
 			<button
 				type="button"
 				class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-				on:click={grantGoogleConsent}
+				onclick={grantGoogleConsent}
 			>
 				Close
 			</button>
