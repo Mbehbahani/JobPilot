@@ -1,29 +1,57 @@
-<script>
+<script lang="ts">
 	import { T } from '@tolgee/svelte';
 	import { localizedHref } from '$lib/utils/i18n';
-	import Marquee from '../magic/Marquee.svelte';
-	import ProgressiveBlur from '../magic/ProgressiveBlur.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import Logo from '$lib/components/icons/logo.svelte';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import HeroOctopusAnimation from './hero-octopus-animation.svelte';
 	import PipelineDemo from './pipeline-demo.svelte';
-	import nvidiaLogo from './logos/nvidia.svg';
-	import awsLightLogo from './logos/aws-light.svg';
-	import awsDarkLogo from './logos/aws-dark.svg';
-	import elevenlabsLightLogo from './logos/elevenlabs-light.svg';
-	import elevenlabsDarkLogo from './logos/elevenlabs-dark.svg';
-	import mistralLightLogo from './logos/mistral-light.svg';
-	import hfLightLogo from './logos/hf-light.svg';
-	import hfDarkLogo from './logos/hf-dark.svg';
-	import wandbLightLogo from './logos/wandb-light.svg';
-	import wandbDarkLogo from './logos/wandb-dark.svg';
-	import orbmarkLightLogo from './logos/orbmark-light.svg';
-	import orbmarkDarkLogo from './logos/orbmark-dark.svg';
-	import supercellLightLogo from './logos/supercell-light.svg';
-	import supercellDarkLogo from './logos/supercell-dark.svg';
+
+	const tutorials = [
+		{
+			id: 'X4gX67QjKVQ',
+			emoji: '🔌',
+			title: 'Use ChatGPT Inside Apps (No API Needed)'
+		},
+		{
+			id: 'N92yHginPRw',
+			emoji: '📘',
+			title: 'Add Jobs Faster with AI'
+		},
+		{
+			id: 'PKUBM6oVpmk',
+			emoji: '🗂️',
+			title: 'Manage CV & Motivation Letters with AI'
+		},
+		{
+			id: 'hFBIUkhTLcc',
+			emoji: '🔎',
+			title: 'AI Job Search Automation'
+		},
+		{
+			id: 'FQtYAEoMMyM',
+			emoji: '📬',
+			title: 'Gmail Job Tracker with AI'
+		}
+	];
+
+	let activeVideo: { id: string; title: string } | null = $state(null);
+
+	function openVideo(t: { id: string; emoji: string; title: string }) {
+		activeVideo = { id: t.id, title: t.title };
+	}
+
+	function closeVideo() {
+		activeVideo = null;
+	}
+
+	function handleKeydown(e: KeyboardEvent) {
+		if (e.key === 'Escape') closeVideo();
+	}
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 <main class="overflow-hidden">
 	<section class="flex items-center justify-center">
@@ -92,146 +120,6 @@
 			</div>
 		</div>
 	</section>
-	<!-- <section>
-		<div class="group relative m-auto max-w-6xl px-6">
-			<div class="flex flex-col items-center md:flex-row">
-				<div class="md:max-w-44 md:border-r md:pr-6">
-					<p class="text-end text-sm"><T keyName="hero.companies_text" /></p>
-				</div>
-				<div class="relative py-6 md:w-[calc(100%-11rem)]">
-					<Marquee>
-						<div class="flex h-8 items-center">
-							<img
-								class="h-4 w-auto shrink-0 object-contain dark:invert"
-								src={nvidiaLogo}
-								alt="NVIDIA Logo"
-								height="16"
-								width="auto"
-							/>
-						</div>
-						<div class="flex h-8 items-center">
-							<img
-								class="h-6 w-auto shrink-0 object-contain dark:hidden"
-								src={awsLightLogo}
-								alt="AWS Logo"
-								height="24"
-								width="auto"
-							/>
-							<img
-								class="hidden h-6 w-auto shrink-0 object-contain dark:block"
-								src={awsDarkLogo}
-								alt="AWS Logo"
-								height="24"
-								width="auto"
-							/>
-						</div>
-						<div class="flex h-8 items-center">
-							<img
-								class="h-3.5 w-auto shrink-0 object-contain dark:hidden"
-								src={elevenlabsLightLogo}
-								alt="ElevenLabs Logo"
-								height="14"
-								width="auto"
-							/>
-							<img
-								class="hidden h-3.5 w-auto shrink-0 object-contain dark:block"
-								src={elevenlabsDarkLogo}
-								alt="ElevenLabs Logo"
-								height="14"
-								width="auto"
-							/>
-						</div>
-						<div class="flex h-8 items-center">
-							<img
-								class="h-5 w-auto shrink-0 object-contain dark:invert"
-								src={mistralLightLogo}
-								alt="Mistral Logo"
-								height="20"
-								width="auto"
-							/>
-						</div>
-						<div class="flex h-8 items-center">
-							<img
-								class="h-6 w-auto shrink-0 object-contain dark:hidden"
-								src={hfLightLogo}
-								alt="Hugging Face Logo"
-								height="24"
-								width="auto"
-							/>
-							<img
-								class="hidden h-6 w-auto shrink-0 object-contain dark:block"
-								src={hfDarkLogo}
-								alt="Hugging Face Logo"
-								height="24"
-								width="auto"
-							/>
-						</div>
-						<div class="flex h-8 items-center">
-							<img
-								class="h-5 w-auto shrink-0 object-contain dark:hidden"
-								src={wandbLightLogo}
-								alt="Weights & Biases Logo"
-								height="20"
-								width="auto"
-							/>
-							<img
-								class="hidden h-5 w-auto shrink-0 object-contain dark:block"
-								src={wandbDarkLogo}
-								alt="Weights & Biases Logo"
-								height="20"
-								width="auto"
-							/>
-						</div>
-						<div class="flex h-8 items-center">
-							<img
-								class="h-5 w-auto shrink-0 object-contain dark:hidden"
-								src={orbmarkLightLogo}
-								alt="Orbmark Logo"
-								height="20"
-								width="auto"
-							/>
-							<img
-								class="hidden h-5 w-auto shrink-0 object-contain dark:block"
-								src={orbmarkDarkLogo}
-								alt="Orbmark Logo"
-								height="20"
-								width="auto"
-							/>
-						</div>
-						<div class="flex h-8 items-center">
-							<img
-								class="h-7 w-auto shrink-0 object-contain dark:hidden"
-								src={supercellLightLogo}
-								alt="Supercell Logo"
-								height="28"
-								width="auto"
-							/>
-							<img
-								class="hidden h-7 w-auto shrink-0 object-contain dark:block"
-								src={supercellDarkLogo}
-								alt="Supercell Logo"
-								height="28"
-								width="auto"
-							/>
-						</div>
-					</Marquee>
-
-					<div class="absolute inset-y-0 left-0 w-20 bg-linear-to-r from-background"></div>
-					<div class="absolute inset-y-0 right-0 w-20 bg-linear-to-l from-background"></div>
-					<ProgressiveBlur
-						class="pointer-events-none absolute top-0 left-0 z-10 h-full w-20"
-						direction="left"
-						blurIntensity={1}
-					/>
-					<ProgressiveBlur
-						class="pointer-events-none absolute top-0 right-0 z-10 h-full w-20"
-						direction="right"
-						blurIntensity={1}
-					/>
-				</div>
-			</div>
-		</div>
-	</section> -->
 
 	<!-- ── Pipeline demo section ─────────────────────────────────────────── -->
 	<section class="pb-24 lg:pb-32">
@@ -248,28 +136,111 @@
 			<PipelineDemo />
 		</div>
 	</section>
+
+	<!-- ── Tutorial videos section ─────────────────────────────────────────── -->
+	<section class="pb-24 lg:pb-32">
+		<div class="mx-auto max-w-6xl px-6 lg:px-12">
+			<div class="mb-8 text-center">
+				<p class="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+					Video Guides
+				</p>
+				<h2 class="font-serif text-2xl font-bold md:text-3xl">Learn in Minutes</h2>
+				<p class="mt-3 mx-auto max-w-md text-sm text-muted-foreground">
+					Short tutorials to help you get the most out of JobPilot.
+				</p>
+			</div>
+
+			<div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+				{#each tutorials as t (t.id)}
+					<button
+						type="button"
+						onclick={() => openVideo(t)}
+						class="group flex flex-col gap-2 text-left"
+						aria-label="Play: {t.title}"
+					>
+						<div
+							class="relative aspect-video overflow-hidden rounded-xl bg-muted ring-1 ring-border transition-all duration-200 group-hover:ring-2 group-hover:ring-primary/50 group-hover:shadow-lg group-hover:shadow-primary/10"
+						>
+							<img
+								src="https://img.youtube.com/vi/{t.id}/mqdefault.jpg"
+								alt={t.title}
+								class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+								loading="lazy"
+							/>
+							<!-- Play button -->
+							<div class="absolute inset-0 flex items-center justify-center">
+								<div
+									class="flex h-9 w-9 items-center justify-center rounded-full bg-black/55 backdrop-blur-sm transition-all duration-200 group-hover:scale-110 group-hover:bg-primary"
+								>
+									<svg
+										class="ml-0.5 h-4 w-4 text-white"
+										viewBox="0 0 24 24"
+										fill="currentColor"
+										aria-hidden="true"
+									>
+										<path d="M8 5v14l11-7z" />
+									</svg>
+								</div>
+							</div>
+						</div>
+						<p
+							class="text-xs font-medium leading-snug text-foreground/75 line-clamp-2 transition-colors group-hover:text-foreground"
+						>
+							{t.emoji}
+							{t.title}
+						</p>
+					</button>
+				{/each}
+			</div>
+		</div>
+	</section>
+
+	<!-- ── Video lightbox ──────────────────────────────────────────────────── -->
+	{#if activeVideo}
+		<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+		<div
+			class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+			onclick={closeVideo}
+			role="dialog"
+			aria-modal="true"
+			aria-label={activeVideo.title}
+		>
+			<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
+			<div
+				class="relative w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10"
+				onclick={(e) => e.stopPropagation()}
+			>
+				<!-- Header bar -->
+				<div class="flex items-center justify-between gap-2 bg-zinc-900 px-4 py-2.5">
+					<p class="text-sm font-medium text-white/80 line-clamp-1">{activeVideo.title}</p>
+					<button
+						type="button"
+						onclick={closeVideo}
+						class="ml-2 shrink-0 rounded-full p-1.5 text-white/50 transition hover:bg-white/10 hover:text-white"
+						aria-label="Close video"
+					>
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							class="h-4 w-4"
+						>
+							<path d="M18 6 6 18M6 6l12 12" stroke-linecap="round" />
+						</svg>
+					</button>
+				</div>
+				<!-- Embed -->
+				<div class="aspect-video w-full bg-black">
+					<iframe
+						src="https://www.youtube.com/embed/{activeVideo.id}?autoplay=1&rel=0"
+						title={activeVideo.title}
+						class="h-full w-full"
+						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+						allowfullscreen
+					></iframe>
+				</div>
+			</div>
+		</div>
+	{/if}
 </main>
-
-<style>
-	.support-logo {
-		animation: support-logo-pulse 1.4s ease-in-out infinite;
-	}
-
-	@keyframes support-logo-pulse {
-		0%,
-		100% {
-			opacity: 0.65;
-			transform: scale(1);
-		}
-		50% {
-			opacity: 1;
-			transform: scale(1.08);
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.support-logo {
-			animation: none;
-		}
-	}
-</style>

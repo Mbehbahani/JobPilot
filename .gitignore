@@ -65,3 +65,4 @@ evals/**/__pycache__/
 RUN/README.md
 animation-demo/
 docs/product-capabilities-marketing.md
+docs/technical-architecture-image-prompt.md
