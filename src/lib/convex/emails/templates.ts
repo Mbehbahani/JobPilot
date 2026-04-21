@@ -71,20 +71,24 @@ function getBaseUrl(): string {
  * Render verification email with magic link
  * @param verificationUrl - URL to verify email
  * @param expiryMinutes - Minutes until link expires
+ * @param userName - User's name for personalization
  * @returns Rendered HTML and plain text email
  */
 export function renderVerificationEmail(
 	verificationUrl: VerificationEmailData['verificationUrl'],
-	expiryMinutes: VerificationEmailData['expiryMinutes']
+	expiryMinutes: VerificationEmailData['expiryMinutes'],
+	userName?: VerificationEmailData['userName']
 ): RenderedEmail {
 	const baseUrl = getBaseUrl();
+	const name = userName || 'there';
 
 	const data = {
 		verificationUrl: escapeHtml(verificationUrl),
 		expiryMinutes: expiryMinutes,
-		baseUrl: escapeHtml(baseUrl)
+		baseUrl: escapeHtml(baseUrl),
+		userName: escapeHtml(name)
 	};
-	const textData = { verificationUrl, expiryMinutes, baseUrl };
+	const textData = { verificationUrl, expiryMinutes, baseUrl, userName: name };
 
 	return {
 		html: renderTemplate(VERIFICATION_HTML, data),

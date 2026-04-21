@@ -33,10 +33,12 @@ type RequiredProps<T> = {
  * Data required to render a verification email (magic link)
  * @property verificationUrl - URL to verify email
  * @property expiryMinutes - Minutes until the link expires
+ * @property userName - User's name for personalization (optional, defaults to "there")
  */
 export type VerificationEmailData = {
 	verificationUrl: string;
 	expiryMinutes: number;
+	userName?: string;
 };
 
 /**

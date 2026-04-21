@@ -71,7 +71,15 @@ export const sendVerificationEmail = internalMutation({
 		if (shouldSkipTestEmail('sendVerificationEmail', email)) return;
 
 		const locale = await getLocaleForEmail(ctx, email);
-		const { html, text } = renderVerificationEmail(verificationUrl, expiryMinutes);
+
+		// Look up user's name for personalization
+		const userRecord = await ctx.runQuery(components.betterAuth.adapter.findOne, {
+			model: 'user',
+			where: [{ field: 'email', operator: 'eq', value: email }]
+		});
+		const userName = (userRecord as { name?: string } | null)?.name || undefined;
+
+		const { html, text } = renderVerificationEmail(verificationUrl, expiryMinutes, userName);
 
 		await resend.sendEmail(ctx, {
 			from: getAuthEmail(),
