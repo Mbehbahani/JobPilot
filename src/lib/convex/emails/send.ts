@@ -63,22 +63,15 @@ export const sendVerificationEmail = internalMutation({
 	args: {
 		email: v.string(),
 		verificationUrl: v.string(),
-		expiryMinutes: v.optional(v.number())
+		expiryMinutes: v.optional(v.number()),
+		userName: v.optional(v.string())
 	},
 	handler: async (ctx, args) => {
-		const { email, verificationUrl, expiryMinutes = 20 } = args;
+		const { email, verificationUrl, expiryMinutes = 20, userName } = args;
 
 		if (shouldSkipTestEmail('sendVerificationEmail', email)) return;
 
 		const locale = await getLocaleForEmail(ctx, email);
-
-		// Look up user's name for personalization
-		const userRecord = await ctx.runQuery(components.betterAuth.adapter.findOne, {
-			model: 'user',
-			where: [{ field: 'email', operator: 'eq', value: email }]
-		});
-		const userName = (userRecord as { name?: string } | null)?.name || undefined;
-
 		const { html, text } = renderVerificationEmail(verificationUrl, expiryMinutes, userName);
 
 		await resend.sendEmail(ctx, {
