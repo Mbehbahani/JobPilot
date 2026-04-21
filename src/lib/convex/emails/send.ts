@@ -90,6 +90,55 @@ export const sendVerificationEmail = internalMutation({
 });
 
 /**
+ * Send a welcome email for social signups (already-verified emails).
+ *
+ * This complements verification emails for email/password signups so
+ * Google/GitHub users receive the same founder-style welcome message.
+ */
+export const sendSignupWelcomeEmail = internalMutation({
+	args: {
+		email: v.string(),
+		userName: v.optional(v.string())
+	},
+	handler: async (ctx, args) => {
+		const { email, userName } = args;
+
+		if (shouldSkipTestEmail('sendSignupWelcomeEmail', email)) return;
+
+		const name = userName?.trim() || 'there';
+
+		const html = `
+			<div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; color: #111;">
+				<p style="margin: 0 0 14px 0;">Hey ${name},</p>
+				<p style="margin: 0 0 14px 0;">
+					I'm Moha, Creator of JobPilot. I wanted to say thanks for giving us a try.
+				</p>
+				<p style="margin: 0 0 14px 0;">
+					Thanks for signing up! Please verify your email address to complete your registration. If anything feels confusing or missing, I genuinely want to know. This is the kind of feedback that shapes what we build next.
+				</p>
+				<p style="margin: 0 0 2px 0;">Reply anytime :)</p>
+				<p style="margin: 0 0 2px 0;">Moha</p>
+				<p style="margin: 0;">github: <a href="https://github.com/Mbehbahani">https://github.com/Mbehbahani</a></p>
+			</div>
+		`;
+
+		const text = `Hey ${name},\n\nI'm Moha, Creator of JobPilot. I wanted to say thanks for giving us a try.\n\nThanks for signing up! Please verify your email address to complete your registration. If anything feels confusing or missing, I genuinely want to know. This is the kind of feedback that shapes what we build next.\n\nReply anytime :)\n\nMoha\ngithub: https://github.com/Mbehbahani`;
+
+		await resend.sendEmail(ctx, {
+			from: getAuthEmail(),
+			to: email,
+			subject: 'Welcome to JobPilot',
+			html,
+			text,
+			headers: [
+				{ name: 'X-Email-Category', value: 'authentication' },
+				{ name: 'X-Email-Template', value: 'signup-welcome' }
+			]
+		});
+	}
+});
+
+/**
  * Send password reset email with reset link
  *
  * Uses pre-rendered HTML templates with template placeholders for dynamic content.

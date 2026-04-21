@@ -37,7 +37,10 @@
 					<p class="mb-4 text-sm text-foreground">
 						Please verify your email address to complete your registration. If anything feels
 						confusing or missing, I genuinely want to know — this is the kind of feedback that
-						shapes what we build next.
+						shapes what we build next. Email me anytime at <a
+							href="mailto:info@oploy.eu"
+							class="text-muted-foreground underline">info@oploy.eu</a
+						>.
 					</p>
 
 					<Button class="mb-4" href={verificationUrl}>Verify Email</Button>

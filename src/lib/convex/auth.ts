@@ -68,6 +68,16 @@ const scheduleNewUserSignupNotification = async (
 	});
 };
 
+const scheduleSignupWelcomeEmail = async (
+	ctx: GenericMutationCtx<DataModel>,
+	user: SignupNotificationUser
+): Promise<void> => {
+	await ctx.scheduler.runAfter(0, internal.emails.send.sendSignupWelcomeEmail, {
+		email: user.email,
+		userName: user.name ?? undefined
+	});
+};
+
 // The component client has methods needed for integrating Convex with Better Auth,
 // as well as helper methods for general use.
 // Using local schema to include admin plugin fields (role, banned, etc.)
@@ -92,6 +102,7 @@ export const authComponent = createClient<DataModel, typeof authSchema>(componen
 				// Send signup stats email immediately only for already-verified users
 				// (e.g. OAuth providers with verified emails)
 				if (user.emailVerified) {
+					await scheduleSignupWelcomeEmail(ctx, user);
 					await scheduleNewUserSignupNotification(ctx, user);
 				}
 

@@ -166,6 +166,56 @@ PUBLIC_CONVEX_SITE_URL = PUBLIC_CONVEX_SITE_URL_PLACEHOLDER
 > `onboarding@resend.dev` is Resend's built-in test domain — no verification needed, but
 > emails can only be sent to the email address registered with your Resend account.
 
+### 3D. Incident Note (Apr 2026): Verification Emails Not Sending
+
+This issue happened in production and is documented here to avoid repeat outages.
+
+**Symptoms:**
+
+- User signup worked, but no verification email was delivered.
+- Resend logs showed `403 validation_error` with: `The domain send.oploy.eu is not verified`.
+- Email HTML used `http://localhost:5173` for logo/footer links in production emails.
+
+**Root Causes:**
+
+- `AUTH_EMAIL` used an unverified sender subdomain (`noreply@send.oploy.eu`).
+- `EMAIL_ASSET_URL` was left on localhost in production (`http://localhost:5173`).
+- Frontend redeploy confusion: Netlify env changes do not fix Convex email env values.
+
+**Fix Applied:**
+
+```bash
+# Convex env changes apply immediately; no Convex redeploy needed for env updates.
+bun convex env set AUTH_EMAIL noreply@oploy.eu
+bun convex env set EMAIL_ASSET_URL https://jobpilot.oploy.eu
+bun convex env set SITE_URL https://jobpilot.oploy.eu/
+```
+
+**Verification Checklist:**
+
+1. Confirm current Convex env values:
+
+```bash
+bun convex env list
+```
+
+Expected:
+
+- `AUTH_EMAIL=noreply@oploy.eu`
+- `EMAIL_ASSET_URL=https://jobpilot.oploy.eu`
+- `SITE_URL=https://jobpilot.oploy.eu/`
+
+2. Confirm the sender domain is verified in Resend (Domains page).
+
+3. Re-test signup with a fresh user (or delete and recreate test account).
+
+4. Check Resend logs for `POST /emails/batch` success and delivery events.
+
+**Important Deployment Note:**
+
+- Netlify env updates require a new Netlify deploy to affect frontend runtime.
+- Convex env updates via `bun convex env set` apply immediately to backend email flow.
+
 ---
 
 ## 4. Running Locally
