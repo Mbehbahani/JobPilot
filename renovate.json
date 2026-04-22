@@ -1,9 +1,11 @@
 {
 	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
 	"extends": ["config:best-practices"],
-	"schedule": ["before 6am on Monday"],
+	"schedule": ["at any time"],
 	"lockFileMaintenance": {
-		"enabled": false
+		"enabled": true,
+		"schedule": ["at any time"],
+		"commitMessageAction": "refresh lock files"
 	},
 	"vulnerabilityAlerts": {
 		"enabled": true,

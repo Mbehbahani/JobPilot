@@ -1,0 +1,70 @@
+name: Maintenance Pull Request
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 9 * * 1'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  maintenance-pr:
+    name: Open maintenance PR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Generate maintenance report
+        shell: bash
+        run: |
+          mkdir -p docs/automation
+          cat > docs/automation/repository-maintenance.md <<EOF_REPORT
+          # Repository maintenance report
+
+          This file is updated by GitHub Actions to keep a lightweight maintenance trail for JobPilot.
+
+          - Last automated review (UTC): $(date -u +"%Y-%m-%d %H:%M:%S")
+          - Active branch target: main
+          - Maintenance scope: workflow health, automation readiness, and repository hygiene
+
+          ## Checklist
+
+          - [x] GitHub Actions workflow can open a maintenance PR
+          - [x] Repository includes Renovate configuration for dependency PRs
+          - [x] Static checks remain available for normal push validation
+
+          ## Notes
+
+          This report is intentionally lightweight so automated maintenance changes stay reviewable.
+          EOF_REPORT
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: refresh repository maintenance report'
+          title: 'chore: refresh repository maintenance report'
+          body: |
+            ## Summary
+
+            This automated maintenance PR refreshes the repository maintenance report for JobPilot.
+
+            ## Why
+
+            - keeps automation health visible in the repository
+            - provides a lightweight GitHub Actions maintenance change that is easy to review
+            - complements Renovate-driven dependency PRs with a separate bot-generated maintenance PR
+
+            ## Notes
+
+            - generated automatically by GitHub Actions
+            - safe to merge if the content looks correct
+          branch: github-actions/maintenance-report
+          delete-branch: true
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          labels: automation, maintenance

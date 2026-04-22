@@ -1,6 +1,12 @@
 # JobPilot
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/940d4565-dee8-42a6-a04b-b5fc4a16ea6c/deploy-status)](https://app.netlify.com/projects/jobpilot-eu/deploys)
+
 **AI-powered job orchestration system with production-oriented full-stack architecture.**
+
+[![Watch the JobPilot tutorial](https://img.youtube.com/vi/N92yHginPRw/maxresdefault.jpg)](https://youtu.be/N92yHginPRw)
+
+▶️ **Watch the product tutorial:** https://youtu.be/N92yHginPRw
 
 JobPilot is an open-source platform for managing job applications, running personalized job search workflows, and integrating AI into real user operations without reducing the system to prompt-only automation.
 
