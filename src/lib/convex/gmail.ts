@@ -402,7 +402,7 @@ function extractBodyTextFromPayload(payload?: GmailPayloadPart): string | undefi
 	return htmlCandidate;
 }
 
-function scoreTaskMatch(message: GmailMessageSummary, task: MatchableTask): number {
+export function scoreTaskMatch(message: GmailMessageSummary, task: MatchableTask): number {
 	const subjectText = normalizeEmailText(message.subject);
 	const _senderText = normalizeEmailText(message.from);
 	const _snippetText = normalizeEmailText(message.snippet);
@@ -534,6 +534,35 @@ function scoreTaskMatch(message: GmailMessageSummary, task: MatchableTask): numb
 	}
 
 	return score - penalty;
+}
+
+export function getHeuristicBestTaskMatch(
+	message: GmailMessageSummary,
+	candidateTasks: MatchableTask[],
+	touchedTaskIds: Set<string> = new Set()
+): { task: MatchableTask; score: number } | null {
+	const scoredTasks = candidateTasks
+		.filter((task) => !touchedTaskIds.has(task.id))
+		.map((task) => ({ task, score: scoreTaskMatch(message, task) }))
+		.sort((a, b) => b.score - a.score);
+
+	const best = scoredTasks[0];
+	const runnerUp = scoredTasks[1];
+	const bestHasStrongCompanyEvidence = best ? hasStrongCompanyEvidence(message, best.task) : false;
+	const bestHasStrongPositionEvidence = best
+		? hasStrongPositionEvidence(message, best.task)
+		: false;
+
+	if (
+		best &&
+		best.score >= 10 &&
+		(!runnerUp || best.score >= runnerUp.score + 4) &&
+		(bestHasStrongCompanyEvidence || bestHasStrongPositionEvidence)
+	) {
+		return best;
+	}
+
+	return null;
 }
 
 function classifyEmailOutcome(
@@ -1211,7 +1240,7 @@ export const readRecentEmails = action({
 				.sort((a, b) => b.score - a.score);
 
 			const best = scoredTasks[0];
-			const runnerUp = scoredTasks[1];
+			const heuristicBest = getHeuristicBestTaskMatch(message, candidateTasks, touchedTaskIds);
 
 			let matchedTask: MatchableTask | null = null;
 			let classification: EmailClassification | null = null;
@@ -1223,18 +1252,16 @@ export const readRecentEmails = action({
 				: false;
 
 			// Gate 1: Heuristic confident match
-			if (
-				best &&
-				best.score >= 10 &&
-				(!runnerUp || best.score >= runnerUp.score + 4) &&
-				(bestHasStrongCompanyEvidence || bestHasStrongPositionEvidence)
-			) {
-				if (best.task.emailSignalMessageId === message.id && best.task.hasUnreadEmailSignal) {
+			if (heuristicBest) {
+				if (
+					heuristicBest.task.emailSignalMessageId === message.id &&
+					heuristicBest.task.hasUnreadEmailSignal
+				) {
 					continue;
 				}
-				classification = classifyEmailOutcome(message, best.task);
+				classification = classifyEmailOutcome(message, heuristicBest.task);
 				if (classification) {
-					matchedTask = best.task;
+					matchedTask = heuristicBest.task;
 				}
 			}
 
