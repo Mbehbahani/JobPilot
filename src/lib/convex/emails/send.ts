@@ -116,13 +116,13 @@ export const sendSignupWelcomeEmail = internalMutation({
 				<p style="margin: 0 0 14px 0;">
 					Thanks for signing up! Please verify your email address to complete your registration. If anything feels confusing or missing, I genuinely want to know. This is the kind of feedback that shapes what we build next.
 				</p>
-				<p style="margin: 0 0 2px 0;">Reply anytime :)</p>
+				<p style="margin: 0 0 2px 0;">Reply anytime: info@oploy.eu</p>
 				<p style="margin: 0 0 2px 0;">Moha</p>
 				<p style="margin: 0;">github: <a href="https://github.com/Mbehbahani">https://github.com/Mbehbahani</a></p>
 			</div>
 		`;
 
-		const text = `Hey ${name},\n\nI'm Moha, Creator of JobPilot. I wanted to say thanks for giving us a try.\n\nThanks for signing up! Please verify your email address to complete your registration. If anything feels confusing or missing, I genuinely want to know. This is the kind of feedback that shapes what we build next.\n\nReply anytime :)\n\nMoha\ngithub: https://github.com/Mbehbahani`;
+		const text = `Hey ${name},\n\nI'm Moha, Creator of JobPilot. I wanted to say thanks for giving us a try.\n\nThanks for signing up! Please verify your email address to complete your registration. If anything feels confusing or missing, I genuinely want to know. This is the kind of feedback that shapes what we build next.\n\nReply anytime: info@oploy.eu \n\nMoha\ngithub: https://github.com/Mbehbahani`;
 
 		await resend.sendEmail(ctx, {
 			from: getAuthEmail(),

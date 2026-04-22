@@ -37,10 +37,7 @@
 					<p class="mb-4 text-sm text-foreground">
 						Please verify your email address to complete your registration. If anything feels
 						confusing or missing, I genuinely want to know — this is the kind of feedback that
-						shapes what we build next. Email me anytime at <a
-							href="mailto:info@oploy.eu"
-							class="text-muted-foreground underline">info@oploy.eu</a
-						>.
+						shapes what we build next.
 					</p>
 
 					<Button class="mb-4" href={verificationUrl}>Verify Email</Button>
@@ -51,7 +48,6 @@
 						</Alert.Description>
 					</Alert.Root>
 
-					<p class="mb-1 text-sm text-muted-foreground">Reply anytime :)</p>
 					<p class="mb-1 text-sm text-foreground font-medium">Moha</p>
 					<p class="text-sm text-muted-foreground">
 						GitHub: <a href="https://github.com/Mbehbahani" class="text-muted-foreground underline"
