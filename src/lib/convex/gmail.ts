@@ -191,9 +191,12 @@ function extractMentionedCompany(message: GmailMessageSummary): string | undefin
 		[message.subject, message.bodyText, message.snippet, message.from].join(' ')
 	);
 	const patterns = [
+		/application at ([a-z0-9.&\- ]{2,100}?)(?: as | for |\(|$)/,
+		/position at ([a-z0-9.&\- ]{2,100}?)(?: as | for |\(|$)/,
 		/here at ([a-z0-9.&\- ]{2,100}?)(?: and | we | your cv | your application | your profile | however | unfortunately | best |$)/,
 		/talent acquisition at ([a-z0-9.&\- ]{2,100}?)(?:$| we | your )/,
-		/recruiting team at ([a-z0-9.&\- ]{2,100}?)(?:$| we | your )/
+		/recruiting team at ([a-z0-9.&\- ]{2,100}?)(?:$| we | your )/,
+		/from ([a-z0-9.&\- ]{2,100}?)(?: recruiting team| talent acquisition| hiring team| hr team|$)/
 	];
 
 	for (const pattern of patterns) {
@@ -203,6 +206,79 @@ function extractMentionedCompany(message: GmailMessageSummary): string | undefin
 	}
 
 	return undefined;
+}
+
+function hasStrongCompanyEvidence(message: GmailMessageSummary, task: MatchableTask): boolean {
+	const combinedText = normalizeEmailText(
+		[message.subject, message.from, message.snippet, message.bodyText].filter(Boolean).join(' ')
+	);
+	const subjectText = normalizeEmailText(message.subject);
+	const company = normalizeEmailText(task.companyName);
+	const companyTokens = tokenizeCompanyWords(task.companyName);
+	const mentionedCompany = extractMentionedCompany(message);
+	const mentionedCompanyTokens = tokenizeCompanyWords(mentionedCompany);
+
+	if (company && (subjectText.includes(company) || combinedText.includes(company))) {
+		return true;
+	}
+
+	const tokenMatches = countContainedTokens(companyTokens, combinedText);
+	if (companyTokens.length >= 2 && tokenMatches >= Math.min(2, companyTokens.length)) {
+		return true;
+	}
+
+	const mentionedMatches = countContainedTokens(mentionedCompanyTokens, company);
+	if (
+		mentionedCompanyTokens.length >= 2 &&
+		mentionedMatches >= Math.min(2, mentionedCompanyTokens.length)
+	) {
+		return true;
+	}
+
+	const senderDomain = extractEmailDomain(message.from);
+	if (
+		senderDomain &&
+		!isGenericRecruitingDomain(senderDomain) &&
+		companyTokens.some((token) => senderDomain.includes(token))
+	) {
+		return true;
+	}
+
+	return false;
+}
+
+function hasStrongPositionEvidence(message: GmailMessageSummary, task: MatchableTask): boolean {
+	const combinedText = normalizeEmailText(
+		[message.subject, message.from, message.snippet, message.bodyText].filter(Boolean).join(' ')
+	);
+	const subjectText = normalizeEmailText(message.subject);
+	const positionPhrase = normalizeEmailText(task.position || task.title);
+	const positionTokens = tokenizeMatchWords(task.position || task.title);
+	const mentionedPosition = extractMentionedPosition(message);
+	const mentionedPositionText = normalizeEmailText(mentionedPosition);
+	const mentionedPositionTokens = tokenizeMatchWords(mentionedPositionText);
+
+	if (containsPhrase(subjectText, positionPhrase) || containsPhrase(combinedText, positionPhrase)) {
+		return true;
+	}
+
+	const positionMatches = countContainedTokens(positionTokens, combinedText);
+	if (positionTokens.length >= 3 && positionMatches >= Math.min(3, positionTokens.length)) {
+		return true;
+	}
+
+	const mentionedMatches = countContainedTokens(mentionedPositionTokens, positionPhrase);
+	if (
+		mentionedPositionText &&
+		(containsPhrase(positionPhrase, mentionedPositionText) ||
+			containsPhrase(mentionedPositionText, positionPhrase) ||
+			(mentionedPositionTokens.length >= 2 &&
+				mentionedMatches >= Math.min(2, mentionedPositionTokens.length)))
+	) {
+		return true;
+	}
+
+	return false;
 }
 
 function extractInterviewLink(message: GmailMessageSummary): string | undefined {
@@ -427,8 +503,19 @@ function scoreTaskMatch(message: GmailMessageSummary, task: MatchableTask): numb
 		}
 	}
 
-	if (senderDomain && companyTokens.some((token) => senderDomain.includes(token))) {
+	if (
+		senderDomain &&
+		!isGenericRecruitingDomain(senderDomain) &&
+		companyTokens.some((token) => senderDomain.includes(token))
+	) {
 		score += 5;
+	}
+
+	if (!hasStrongCompanyEvidence(message, task) && !hasStrongPositionEvidence(message, task)) {
+		penalty += 12;
+	}
+	if (!hasStrongCompanyEvidence(message, task) && task.companyName) {
+		penalty += 8;
 	}
 
 	if (
@@ -1128,9 +1215,20 @@ export const readRecentEmails = action({
 
 			let matchedTask: MatchableTask | null = null;
 			let classification: EmailClassification | null = null;
+			const bestHasStrongCompanyEvidence = best
+				? hasStrongCompanyEvidence(message, best.task)
+				: false;
+			const bestHasStrongPositionEvidence = best
+				? hasStrongPositionEvidence(message, best.task)
+				: false;
 
 			// Gate 1: Heuristic confident match
-			if (best && best.score >= 5 && (!runnerUp || best.score >= runnerUp.score + 2)) {
+			if (
+				best &&
+				best.score >= 10 &&
+				(!runnerUp || best.score >= runnerUp.score + 4) &&
+				(bestHasStrongCompanyEvidence || bestHasStrongPositionEvidence)
+			) {
 				if (best.task.emailSignalMessageId === message.id && best.task.hasUnreadEmailSignal) {
 					continue;
 				}
@@ -1141,21 +1239,38 @@ export const readRecentEmails = action({
 			}
 
 			// Gate 2: LLM fallback when heuristic had signal but couldn't fully resolve
-			if (!matchedTask && best && best.score >= 3 && chatGptModel) {
+			if (
+				!matchedTask &&
+				best &&
+				best.score >= 4 &&
+				chatGptModel &&
+				(bestHasStrongCompanyEvidence || bestHasStrongPositionEvidence)
+			) {
 				try {
 					const llmResult = await llmMatchAndClassify(
 						chatGptModel,
 						message,
-						candidateTasks.filter((t) => !touchedTaskIds.has(t.id))
+						scoredTasks
+							.filter((entry) => entry.score >= 2)
+							.slice(0, 5)
+							.map((entry) => entry.task)
 					);
 					if (llmResult) {
 						const matched = candidateTasks.find((t) => t.id === llmResult.taskId);
 						if (matched && !touchedTaskIds.has(matched.id)) {
+							const matchedScore = scoreTaskMatch(message, matched);
+							const matchedHasStrongCompanyEvidence = hasStrongCompanyEvidence(message, matched);
+							const matchedHasStrongPositionEvidence = hasStrongPositionEvidence(message, matched);
 							if (matched.emailSignalMessageId === message.id && matched.hasUnreadEmailSignal) {
 								continue;
 							}
-							matchedTask = matched;
-							classification = llmResult.classification;
+							if (
+								matchedScore >= 4 &&
+								(matchedHasStrongCompanyEvidence || matchedHasStrongPositionEvidence)
+							) {
+								matchedTask = matched;
+								classification = llmResult.classification;
+							}
 						}
 					}
 				} catch (e) {
