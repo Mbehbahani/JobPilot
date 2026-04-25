@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { getHeuristicBestTaskMatch } from './gmail';
+import { classifyEmailOutcome, getHeuristicBestTaskMatch } from './gmail';
 
 const greenFusionEmail = {
 	id: 'green-fusion-rejection',
@@ -75,5 +75,19 @@ describe('getHeuristicBestTaskMatch', () => {
 
 		expect(match?.task.id).toBe('philips-task');
 		expect(match?.score).toBeGreaterThanOrEqual(10);
+	});
+
+	it('classifies the Philips email as a rejection once matched', () => {
+		const task = {
+			id: 'philips-task',
+			title: 'Integrated Supply chain Strategy Leader',
+			columnId: 'applied' as const,
+			companyName: 'Philips',
+			position: 'Integrated Supply chain Strategy Leader'
+		};
+
+		const classification = classifyEmailOutcome(philipsRejectionEmail, task);
+
+		expect(classification?.type).toBe('rejection');
 	});
 });

@@ -33,3 +33,13 @@ bun run dev
 # C:\Users\Mohammad\.bun\bin\bun.exe run build
 # C:\Users\Mohammad\.bun\bin\bun.exe run check
 # C:\Users\Mohammad\.bun\bin\bun.exe x convex deploy
+
+
+
+# Backend:
+# bun run generate
+# bunx convex deploy
+
+# If `bunx convex deploy` still gives trouble, try:
+# `bun run convex deploy`
+

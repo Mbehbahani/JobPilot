@@ -565,7 +565,7 @@ export function getHeuristicBestTaskMatch(
 	return null;
 }
 
-function classifyEmailOutcome(
+export function classifyEmailOutcome(
 	message: GmailMessageSummary,
 	task: MatchableTask
 ): {
@@ -603,6 +603,15 @@ function classifyEmailOutcome(
 			'not been selected',
 			'not been successful',
 			'application was not successful',
+			'not to proceed with your candidacy',
+			'not proceed with your candidacy',
+			'won t be moving forward with your application',
+			'wont be moving forward with your application',
+			'won t be moving forward with your candidacy',
+			'wont be moving forward with your candidacy',
+			'we have decided not to proceed',
+			'we ve decided not to proceed',
+			'weve decided not to proceed',
 			'we will not be proceeding',
 			'decided to proceed with other',
 			'decided to move forward with other',

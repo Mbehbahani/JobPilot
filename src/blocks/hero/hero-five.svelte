@@ -195,20 +195,55 @@
 		</div>
 	</section>
 
+	<!-- ── Verification-friendly legal links section ─────────────────────────── -->
+	<section class="pb-24 lg:pb-32" aria-labelledby="legal-links-heading">
+		<div class="mx-auto max-w-6xl px-6 lg:px-12">
+			<div class="rounded-3xl border bg-card p-6 text-center shadow-sm md:p-8">
+				<h2 id="legal-links-heading" class="font-serif text-2xl font-bold md:text-3xl">
+					Privacy and Terms
+				</h2>
+				<p class="mt-3 mx-auto max-w-2xl text-sm text-muted-foreground md:text-base">
+					JobPilot uses Gmail access only to help organize job applications, application status
+					updates, and interview invitations. Read our public policies before connecting your Google
+					account.
+				</p>
+				<div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+					<a
+						href="https://www.oploy.eu/privacy/"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="inline-flex items-center justify-center rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+					>
+						Privacy Policy
+					</a>
+					<a
+						href="https://www.oploy.eu/terms/"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="inline-flex items-center justify-center rounded-full border px-5 py-2.5 text-sm font-medium transition-colors hover:bg-muted"
+					>
+						Terms of Service
+					</a>
+				</div>
+			</div>
+		</div>
+	</section>
+
 	<!-- ── Video lightbox ──────────────────────────────────────────────────── -->
 	{#if activeVideo}
-		<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
 		<div
 			class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
 			onclick={closeVideo}
+			onkeydown={(e) => e.key === 'Escape' && closeVideo()}
 			role="dialog"
 			aria-modal="true"
 			aria-label={activeVideo.title}
+			tabindex="-1"
 		>
-			<!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
 			<div
 				class="relative w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10"
 				onclick={(e) => e.stopPropagation()}
+				role="presentation"
 			>
 				<!-- Header bar -->
 				<div class="flex items-center justify-between gap-2 bg-zinc-900 px-4 py-2.5">

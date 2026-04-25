@@ -40,6 +40,22 @@
 
 				<!-- Desktop Actions -->
 				<div class="hidden items-center gap-3 lg:flex">
+					<a
+						href="https://www.oploy.eu/privacy/"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:underline underline-offset-4"
+					>
+						Privacy Policy
+					</a>
+					<a
+						href="https://www.oploy.eu/terms/"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground hover:underline underline-offset-4"
+					>
+						Terms
+					</a>
 					<LightSwitch variant="ghost" />
 					<LanguageSwitcher variant="ghost" />
 					{#if isAuthenticated}
@@ -115,6 +131,24 @@
 						<T keyName="nav.get_started" />
 					</Button>
 				{/if}
+				<div class="mt-3 grid grid-cols-2 gap-3 border-t pt-4">
+					<a
+						href="https://www.oploy.eu/privacy/"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="rounded-md px-3 py-2 text-center text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+					>
+						Privacy Policy
+					</a>
+					<a
+						href="https://www.oploy.eu/terms/"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="rounded-md px-3 py-2 text-center text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+					>
+						Terms
+					</a>
+				</div>
 			</div>
 		</div>
 	{/if}
