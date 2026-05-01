@@ -9,7 +9,8 @@ const MIN_ACCEPTABLE_LENGTH = 80;
 const PDFJS_TIMEOUT_MS = 20_000;
 const RAW_EXTRACTION_TIMEOUT_MS = 12_000;
 
-export const runtime = 'nodejs';
+// Pin to Node.js runtime on Vercel (prevents edge runtime missing node:zlib)
+export const config = { runtime: 'nodejs22.x' };
 
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
 	let timeoutId: ReturnType<typeof setTimeout> | undefined;
