@@ -912,8 +912,21 @@
 						{/if}
 					</p>
 				</div>
-				<!-- POWER_MODE_FORCE_ALL=true: reference code field hidden. To restore: set POWER_MODE_FORCE_ALL=false in script and server. -->
-				{#if !POWER_MODE_FORCE_ALL}
+				<!-- When POWER_MODE_FORCE_ALL=true the Search button occupies the 4th grid column. -->
+				<!-- To restore: set POWER_MODE_FORCE_ALL=false in script and server. -->
+				{#if POWER_MODE_FORCE_ALL}
+					<div class="flex items-end">
+						<Button onclick={startSearch} disabled={searching}>
+							{#if searching}
+								<LoaderIcon class="mr-2 h-4 w-4 animate-spin" />
+								Searching…
+							{:else}
+								<SearchIcon class="mr-2 h-4 w-4" />
+								Start Search
+							{/if}
+						</Button>
+					</div>
+				{:else}
 					<div>
 						<div class="flex items-center gap-2">
 							<label for="reference-code" class="text-sm font-medium">Reference (optional)</label>
@@ -949,25 +962,27 @@
 									<li>LinkedIn expands from 2 to 4 query variations.</li>
 									<li>LinkedIn expands from 10 to 20 results per query.</li>
 									<li>
-										Activate Bonus mode with a reference code after supporting “Help keep it
-										running”.
+										Activate Bonus mode with a reference code after supporting "Help keep it
+										running".
 									</li>
 								</ul>
 							</div>
 						{/if}
 					</div>
 				{/if}
-				<div class="flex items-end">
-					<Button onclick={startSearch} disabled={searching}>
-						{#if searching}
-							<LoaderIcon class="mr-2 h-4 w-4 animate-spin" />
-							Searching…
-						{:else}
-							<SearchIcon class="mr-2 h-4 w-4" />
-							Start Search
-						{/if}
-					</Button>
-				</div>
+				{#if !POWER_MODE_FORCE_ALL}
+					<div class="flex items-end">
+						<Button onclick={startSearch} disabled={searching}>
+							{#if searching}
+								<LoaderIcon class="mr-2 h-4 w-4 animate-spin" />
+								Searching…
+							{:else}
+								<SearchIcon class="mr-2 h-4 w-4" />
+								Start Search
+							{/if}
+						</Button>
+					</div>
+				{/if}
 				<div class="flex items-end gap-4">
 					<label class="flex items-center gap-2">
 						<input type="checkbox" bind:checked={useIndeed} class="accent-primary" />

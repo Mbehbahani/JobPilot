@@ -42,11 +42,7 @@
 
 	const ACCEPTED_TYPES = '.txt,.pdf';
 	const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-	const MIN_ACCEPTABLE_PDF_TEXT_LENGTH = 80;
-	const SERVER_EXTRACTION_TIMEOUT_MS = 20_000;
-	const CLIENT_EXTRACTION_TIMEOUT_MS = 20_000;
-	const TOTAL_EXTRACTION_TIMEOUT_MS = 45_000;
-	type PositionedTextItem = { str: string; x: number; y: number };
+	const PDF_EXTRACTION_TIMEOUT_MS = 30_000;
 
 	function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
 		let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -55,7 +51,6 @@
 				reject(new Error(`${label} timed out after ${Math.round(timeoutMs / 1000)}s`));
 			}, timeoutMs);
 		});
-
 		return Promise.race([promise, timeoutPromise]).finally(() => {
 			if (timeoutId) clearTimeout(timeoutId);
 		});
@@ -70,141 +65,47 @@
 			.trim();
 	}
 
-	function readPageText(content: any): string {
-		const rawItems = Array.isArray(content?.items) ? content.items : [];
-		const textItems = rawItems
-			.filter((item: any) => typeof item?.str === 'string' && item.str.trim().length > 0)
-			.map((item: any) => {
-				const x = Array.isArray(item.transform) ? Number(item.transform[4] ?? 0) : 0;
-				const y = Array.isArray(item.transform) ? Number(item.transform[5] ?? 0) : 0;
-				return { str: String(item.str), x, y };
-			}) as PositionedTextItem[];
-
-		if (textItems.length === 0) return '';
-
-		textItems.sort((a: PositionedTextItem, b: PositionedTextItem) => {
-			if (Math.abs(a.y - b.y) > 2) return b.y - a.y;
-			return a.x - b.x;
-		});
-
-		const parts: string[] = [];
-		let prevY: number | null = null;
-		for (const item of textItems) {
-			if (prevY !== null && Math.abs(item.y - prevY) > 6) {
-				parts.push('\n');
-			}
-			parts.push(item.str);
-			parts.push(' ');
-			prevY = item.y;
-		}
-
-		return normalizeExtractedText(parts.join(''));
-	}
-
-	async function extractPdfText(arrayBuffer: ArrayBuffer, disableWorker: boolean): Promise<string> {
+	async function extractPdfText(file: File): Promise<string> {
+		// Always use the bundled worker — set once before getDocument
 		const pdfjsLib = await import('pdfjs-dist');
+		pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerSrc;
 
-		if (!disableWorker) {
-			pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerSrc;
-		}
-
+		const buffer = await file.arrayBuffer();
 		const pdf = await pdfjsLib.getDocument({
-			data: new Uint8Array(arrayBuffer),
+			data: new Uint8Array(buffer),
 			useSystemFonts: true,
-			disableWorker,
 			stopAtErrors: false
-		} as any).promise;
+		}).promise;
 
-		try {
-			const pages: string[] = [];
-			for (let i = 1; i <= pdf.numPages; i++) {
-				const page = await pdf.getPage(i);
-				const content = await page.getTextContent();
-				const pageText = readPageText(content);
-				if (pageText) pages.push(pageText);
+		const pages: string[] = [];
+		for (let i = 1; i <= pdf.numPages; i++) {
+			const page = await pdf.getPage(i);
+			const content = await page.getTextContent();
+			let pageText = '';
+			for (const item of content.items) {
+				if ('str' in item) {
+					pageText += item.str;
+					// hasEOL marks the end of a visual line in the PDF
+					if ((item as any).hasEOL) pageText += '\n';
+					else if (item.str && !item.str.endsWith(' ')) pageText += ' ';
+				}
 			}
-			return normalizeExtractedText(pages.join('\n\n'));
-		} finally {
-			pdf.destroy();
+			if (pageText.trim()) pages.push(pageText.trim());
 		}
-	}
+		pdf.destroy();
 
-	async function extractPdfViaServer(file: File): Promise<string> {
-		const formData = new FormData();
-		formData.append('file', file);
-
-		const controller = new AbortController();
-		const timer = setTimeout(() => controller.abort(), SERVER_EXTRACTION_TIMEOUT_MS);
-		const res = await fetch('/api/extract-pdf', {
-			method: 'POST',
-			body: formData,
-			signal: controller.signal
-		}).finally(() => {
-			clearTimeout(timer);
-		});
-
-		if (!res.ok) throw new Error(`Server extraction failed: ${res.status}`);
-		const data = await res.json();
-		return typeof data.text === 'string' ? data.text : '';
-	}
-
-	async function extractTextFromFile(file: File): Promise<string> {
-		const ext = file.name.split('.').pop()?.toLowerCase();
-
-		if (ext === 'txt') {
-			return await file.text();
-		}
-
-		if (ext === 'pdf') {
-			// Strategy 1: Server-side extraction (most reliable, no browser worker/WASM issues)
-			try {
-				const serverText = await withTimeout(
-					extractPdfViaServer(file),
-					SERVER_EXTRACTION_TIMEOUT_MS,
-					'Server PDF extraction'
-				);
-				if (serverText.length >= MIN_ACCEPTABLE_PDF_TEXT_LENGTH) return serverText;
-			} catch {
-				// Server extraction failed, try client-side
-			}
-
-			// Strategy 2: Client-side pdfjs without worker (more deploy-stable)
-			const arrayBuffer = await file.arrayBuffer();
-			let primaryText = '';
-			try {
-				primaryText = await withTimeout(
-					extractPdfText(arrayBuffer, true),
-					CLIENT_EXTRACTION_TIMEOUT_MS,
-					'Client PDF extraction'
-				);
-			} catch {
-				// No-worker extraction failed
-			}
-			if (primaryText.length >= MIN_ACCEPTABLE_PDF_TEXT_LENGTH) return primaryText;
-
-			// Strategy 3: Client-side pdfjs with worker (fallback)
-			try {
-				const fallbackText = await withTimeout(
-					extractPdfText(arrayBuffer, false),
-					CLIENT_EXTRACTION_TIMEOUT_MS,
-					'Client PDF worker extraction'
-				);
-				if (fallbackText.length >= MIN_ACCEPTABLE_PDF_TEXT_LENGTH) return fallbackText;
-				if (fallbackText.length > primaryText.length) primaryText = fallbackText;
-			} catch {
-				// Fallback also failed
-			}
-
-			if (primaryText.length > 0) return primaryText;
-			throw new Error('No selectable text found in PDF');
-		}
-
-		throw new Error(`Unsupported file type: .${ext}`);
+		const text = normalizeExtractedText(pages.join('\n\n'));
+		if (!text)
+			throw new Error(
+				'No selectable text found. If this is a scanned PDF, please paste your CV text manually.'
+			);
+		return text;
 	}
 
 	async function handleFileUpload(event: Event) {
 		const input = event.target as HTMLInputElement;
 		const file = input.files?.[0];
+		input.value = ''; // reset immediately so same file can be re-selected
 		if (!file) return;
 
 		if (file.size > MAX_FILE_SIZE) {
@@ -217,14 +118,15 @@
 		uploadedFileName = '';
 
 		try {
-			const text = await withTimeout(
-				extractTextFromFile(file),
-				TOTAL_EXTRACTION_TIMEOUT_MS,
-				'File text extraction'
-			);
+			const ext = file.name.split('.').pop()?.toLowerCase();
+			const text =
+				ext === 'txt'
+					? await file.text()
+					: await withTimeout(extractPdfText(file), PDF_EXTRACTION_TIMEOUT_MS, 'PDF extraction');
+
 			if (!text.trim()) {
 				extractError =
-					'Could not extract readable text from this file. If this is a scanned/image-only PDF, please paste text manually.';
+					'No text found. If this is a scanned PDF, please paste your CV text manually.';
 			} else {
 				editResume = text.trim();
 				uploadedFileName = file.name;
@@ -232,11 +134,9 @@
 				toast.success(`Extracted text from ${file.name}`);
 			}
 		} catch (err) {
-			extractError = `Failed to read file: ${err instanceof Error ? err.message : 'Unknown error'}`;
+			extractError = err instanceof Error ? err.message : 'Failed to read file. Please try again.';
 		} finally {
 			extracting = false;
-			// Reset input so the same file can be re-selected
-			input.value = '';
 		}
 	}
 
