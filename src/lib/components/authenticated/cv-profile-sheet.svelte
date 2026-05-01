@@ -13,7 +13,6 @@
 	import { api } from '$lib/convex/_generated/api';
 	import { toast } from 'svelte-sonner';
 	import { haptic } from '$lib/hooks/use-haptic.svelte';
-	import pdfWorkerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 	let { open = $bindable(false) }: { open: boolean } = $props();
 
@@ -66,35 +65,27 @@
 	}
 
 	async function extractPdfText(file: File): Promise<string> {
-		// Always use the bundled worker — set once before getDocument
-		const pdfjsLib = await import('pdfjs-dist');
-		pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerSrc;
+		const formData = new FormData();
+		formData.append('file', file);
 
-		const buffer = await file.arrayBuffer();
-		const pdf = await pdfjsLib.getDocument({
-			data: new Uint8Array(buffer),
-			useSystemFonts: true,
-			stopAtErrors: false
-		}).promise;
+		const response = await fetch('/api/extract-pdf', {
+			method: 'POST',
+			body: formData
+		});
 
-		const pages: string[] = [];
-		for (let i = 1; i <= pdf.numPages; i++) {
-			const page = await pdf.getPage(i);
-			const content = await page.getTextContent();
-			let pageText = '';
-			for (const item of content.items) {
-				if ('str' in item) {
-					pageText += item.str;
-					// hasEOL marks the end of a visual line in the PDF
-					if ((item as any).hasEOL) pageText += '\n';
-					else if (item.str && !item.str.endsWith(' ')) pageText += ' ';
-				}
+		if (!response.ok) {
+			let message = 'Failed to extract PDF text. Please paste your CV text manually.';
+			try {
+				const errorBody = await response.json();
+				if (typeof errorBody?.message === 'string') message = errorBody.message;
+			} catch {
+				// Keep generic message for non-JSON errors.
 			}
-			if (pageText.trim()) pages.push(pageText.trim());
+			throw new Error(message);
 		}
-		pdf.destroy();
 
-		const text = normalizeExtractedText(pages.join('\n\n'));
+		const data = await response.json();
+		const text = normalizeExtractedText(typeof data.text === 'string' ? data.text : '');
 		if (!text)
 			throw new Error(
 				'No selectable text found. If this is a scanned PDF, please paste your CV text manually.'

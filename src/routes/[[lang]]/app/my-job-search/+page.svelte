@@ -904,29 +904,9 @@
 						bind:value={daysBack}
 						class="mt-1"
 					/>
-					<p class="text-muted-foreground mt-1 text-xs">
-						{#if powerModeEnabled}
-							Power mode doubles the time window from 7 to 14 days for this run.
-						{:else}
-							Standard mode searches up to 7 days. Apply Power mode to extend this to 14 days.
-						{/if}
-					</p>
 				</div>
-				<!-- When POWER_MODE_FORCE_ALL=true the Search button occupies the 4th grid column. -->
-				<!-- To restore: set POWER_MODE_FORCE_ALL=false in script and server. -->
-				{#if POWER_MODE_FORCE_ALL}
-					<div class="flex items-end">
-						<Button onclick={startSearch} disabled={searching}>
-							{#if searching}
-								<LoaderIcon class="mr-2 h-4 w-4 animate-spin" />
-								Searching…
-							{:else}
-								<SearchIcon class="mr-2 h-4 w-4" />
-								Start Search
-							{/if}
-						</Button>
-					</div>
-				{:else}
+				<!-- To restore the reference code field: set POWER_MODE_FORCE_ALL=false in script and server. -->
+				{#if !POWER_MODE_FORCE_ALL}
 					<div>
 						<div class="flex items-center gap-2">
 							<label for="reference-code" class="text-sm font-medium">Reference (optional)</label>
@@ -970,19 +950,6 @@
 						{/if}
 					</div>
 				{/if}
-				{#if !POWER_MODE_FORCE_ALL}
-					<div class="flex items-end">
-						<Button onclick={startSearch} disabled={searching}>
-							{#if searching}
-								<LoaderIcon class="mr-2 h-4 w-4 animate-spin" />
-								Searching…
-							{:else}
-								<SearchIcon class="mr-2 h-4 w-4" />
-								Start Search
-							{/if}
-						</Button>
-					</div>
-				{/if}
 				<div class="flex items-end gap-4">
 					<label class="flex items-center gap-2">
 						<input type="checkbox" bind:checked={useIndeed} class="accent-primary" />
@@ -998,6 +965,17 @@
 						<input type="checkbox" bind:checked={isRemote} class="accent-primary" />
 						<span class="text-sm">Remote preferred</span>
 					</label>
+				</div>
+				<div class="flex justify-end sm:col-span-2 lg:col-span-4">
+					<Button onclick={startSearch} disabled={searching} class="w-full sm:w-auto">
+						{#if searching}
+							<LoaderIcon class="mr-2 h-4 w-4 animate-spin" />
+							Searching…
+						{:else}
+							<SearchIcon class="mr-2 h-4 w-4" />
+							Start Search
+						{/if}
+					</Button>
 				</div>
 			</div>
 		</Card.Content>

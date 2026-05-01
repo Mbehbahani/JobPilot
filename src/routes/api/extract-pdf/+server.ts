@@ -84,7 +84,9 @@ function normalize(text: string): string {
 }
 
 async function extractWithPdfjs(data: Uint8Array): Promise<string> {
-	const pdfjsLib = await import('pdfjs-dist');
+	// Use the legacy build on the server. The default pdfjs build targets browsers and
+	// crashes in Node/Vercel with `DOMMatrix is not defined` before extraction starts.
+	const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
 
 	const pdf = await pdfjsLib.getDocument({
 		data,
