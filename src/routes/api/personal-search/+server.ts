@@ -23,8 +23,13 @@ const SEARCH_API = env.PUBLIC_PERSONAL_SEARCH_API_URL || 'http://localhost:8000'
 const STANDARD_MAX_DAYS_BACK = 7;
 const POWER_MAX_DAYS_BACK = 14;
 const POWER_SEARCH_CODE = env.PUBLIC_PERSONAL_SEARCH_POWER_CODE?.trim() || '';
+// Toggle to false (and remove client-side counterpart) to re-enable the reference code gate.
+const POWER_MODE_FORCE_ALL = true;
 
 function isPowerModeReferenceCode(referenceCode: unknown): boolean {
+	// POWER_MODE_FORCE_ALL: grant power mode to every request regardless of reference code.
+	if (POWER_MODE_FORCE_ALL) return true;
+
 	if (!POWER_SEARCH_CODE || typeof referenceCode !== 'string') {
 		return false;
 	}

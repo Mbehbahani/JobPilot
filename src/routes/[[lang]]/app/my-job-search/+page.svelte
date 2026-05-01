@@ -30,6 +30,8 @@
 	const POWER_SEARCH_CODE = (publicEnv.PUBLIC_PERSONAL_SEARCH_POWER_CODE ?? '').trim();
 	const STANDARD_MAX_DAYS_BACK = 7;
 	const POWER_MAX_DAYS_BACK = 14;
+	// Toggle to false (and remove server-side counterpart) to re-enable the reference code field.
+	const POWER_MODE_FORCE_ALL = true;
 	const POWER_MODE_STORAGE_KEY = 'JobPilot:personal-search-power-code';
 	const powerModeHoverSummary =
 		'Power mode expands the search window to 14 days, extends the backend runtime budget to 6 minutes, and increases LinkedIn coverage to 4 query variations with up to 20 results per query.';
@@ -147,8 +149,10 @@
 	let progressSteps = $state<ProgressStep[]>([]);
 
 	const powerModeAvailable = $derived(POWER_SEARCH_CODE.length > 0);
+	// POWER_MODE_FORCE_ALL bypasses the code check — all users get power mode.
+	// To restore the field: set POWER_MODE_FORCE_ALL = false above and on the server.
 	const powerModeEnabled = $derived(
-		powerModeAvailable && referenceCode.trim() === POWER_SEARCH_CODE
+		POWER_MODE_FORCE_ALL || (powerModeAvailable && referenceCode.trim() === POWER_SEARCH_CODE)
 	);
 	const effectiveMaxDaysBack = $derived(
 		powerModeEnabled ? POWER_MAX_DAYS_BACK : STANDARD_MAX_DAYS_BACK
@@ -908,47 +912,51 @@
 						{/if}
 					</p>
 				</div>
-				<div>
-					<div class="flex items-center gap-2">
-						<label for="reference-code" class="text-sm font-medium">Reference (optional)</label>
-						{#if powerModeAvailable}
-							<button
-								type="button"
-								class="cursor-pointer rounded-full"
-								title={powerModeHoverSummary}
-								onclick={() => {
-									powerDetailsOpen = !powerDetailsOpen;
-								}}
-							>
-								<Badge variant={powerModeEnabled ? 'default' : 'outline'} class="text-xs">
-									{powerModeEnabled ? 'Power' : 'Bonus'}
-								</Badge>
-							</button>
+				<!-- POWER_MODE_FORCE_ALL=true: reference code field hidden. To restore: set POWER_MODE_FORCE_ALL=false in script and server. -->
+				{#if !POWER_MODE_FORCE_ALL}
+					<div>
+						<div class="flex items-center gap-2">
+							<label for="reference-code" class="text-sm font-medium">Reference (optional)</label>
+							{#if powerModeAvailable}
+								<button
+									type="button"
+									class="cursor-pointer rounded-full"
+									title={powerModeHoverSummary}
+									onclick={() => {
+										powerDetailsOpen = !powerDetailsOpen;
+									}}
+								>
+									<Badge variant={powerModeEnabled ? 'default' : 'outline'} class="text-xs">
+										{powerModeEnabled ? 'Power' : 'Bonus'}
+									</Badge>
+								</button>
+							{/if}
+						</div>
+						<div class="mt-1 flex gap-2">
+							<Input
+								id="reference-code"
+								bind:value={referenceCode}
+								placeholder="Optional"
+								class="flex-1"
+							/>
+						</div>
+						{#if powerDetailsOpen}
+							<div class="bg-muted/40 mt-3 space-y-2 rounded-lg border p-3 text-xs">
+								<p class="font-medium">Technical upgrades in Power mode</p>
+								<ul class="text-muted-foreground list-disc space-y-1 pl-4">
+									<li>Search window increases from 7 days to 14 days.</li>
+									<li>Backend search runtime budget increases from 3 minutes to 6 minutes.</li>
+									<li>LinkedIn expands from 2 to 4 query variations.</li>
+									<li>LinkedIn expands from 10 to 20 results per query.</li>
+									<li>
+										Activate Bonus mode with a reference code after supporting “Help keep it
+										running”.
+									</li>
+								</ul>
+							</div>
 						{/if}
 					</div>
-					<div class="mt-1 flex gap-2">
-						<Input
-							id="reference-code"
-							bind:value={referenceCode}
-							placeholder="Optional"
-							class="flex-1"
-						/>
-					</div>
-					{#if powerDetailsOpen}
-						<div class="bg-muted/40 mt-3 space-y-2 rounded-lg border p-3 text-xs">
-							<p class="font-medium">Technical upgrades in Power mode</p>
-							<ul class="text-muted-foreground list-disc space-y-1 pl-4">
-								<li>Search window increases from 7 days to 14 days.</li>
-								<li>Backend search runtime budget increases from 3 minutes to 6 minutes.</li>
-								<li>LinkedIn expands from 2 to 4 query variations.</li>
-								<li>LinkedIn expands from 10 to 20 results per query.</li>
-								<li>
-									Activate Bonus mode with a reference code after supporting “Help keep it running”.
-								</li>
-							</ul>
-						</div>
-					{/if}
-				</div>
+				{/if}
 				<div class="flex items-end">
 					<Button onclick={startSearch} disabled={searching}>
 						{#if searching}

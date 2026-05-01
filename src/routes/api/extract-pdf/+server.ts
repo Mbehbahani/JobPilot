@@ -6,6 +6,23 @@ import { promisify } from 'node:util';
 const inflateAsync = promisify(inflate);
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MIN_ACCEPTABLE_LENGTH = 80;
+const PDFJS_TIMEOUT_MS = 20_000;
+const RAW_EXTRACTION_TIMEOUT_MS = 12_000;
+
+export const runtime = 'nodejs';
+
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
+	let timeoutId: ReturnType<typeof setTimeout> | undefined;
+	const timeoutPromise = new Promise<never>((_, reject) => {
+		timeoutId = setTimeout(() => {
+			reject(new Error(`${label} timed out after ${Math.round(timeoutMs / 1000)}s`));
+		}, timeoutMs);
+	});
+
+	return Promise.race([promise, timeoutPromise]).finally(() => {
+		if (timeoutId) clearTimeout(timeoutId);
+	});
+}
 
 export const POST: RequestHandler = async ({ request }) => {
 	const formData = await request.formData();
@@ -19,7 +36,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	// Strategy 1: pdfjs-dist server-side (no worker, Node mode)
 	let pdfjsText = '';
 	try {
-		pdfjsText = await extractWithPdfjs(uint8);
+		pdfjsText = await withTimeout(extractWithPdfjs(uint8), PDFJS_TIMEOUT_MS, 'pdfjs extraction');
 	} catch {
 		// pdfjs failed, continue to fallback
 	}
@@ -31,7 +48,11 @@ export const POST: RequestHandler = async ({ request }) => {
 	// Strategy 2: Raw binary text extraction (decompresses FlateDecode streams)
 	let rawText = '';
 	try {
-		rawText = await extractRawPdfText(uint8);
+		rawText = await withTimeout(
+			extractRawPdfText(uint8),
+			RAW_EXTRACTION_TIMEOUT_MS,
+			'raw PDF extraction'
+		);
 	} catch {
 		// raw extraction failed
 	}

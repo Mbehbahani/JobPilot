@@ -43,7 +43,23 @@
 	const ACCEPTED_TYPES = '.txt,.pdf';
 	const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 	const MIN_ACCEPTABLE_PDF_TEXT_LENGTH = 80;
+	const SERVER_EXTRACTION_TIMEOUT_MS = 20_000;
+	const CLIENT_EXTRACTION_TIMEOUT_MS = 20_000;
+	const TOTAL_EXTRACTION_TIMEOUT_MS = 45_000;
 	type PositionedTextItem = { str: string; x: number; y: number };
+
+	function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
+		let timeoutId: ReturnType<typeof setTimeout> | undefined;
+		const timeoutPromise = new Promise<never>((_, reject) => {
+			timeoutId = setTimeout(() => {
+				reject(new Error(`${label} timed out after ${Math.round(timeoutMs / 1000)}s`));
+			}, timeoutMs);
+		});
+
+		return Promise.race([promise, timeoutPromise]).finally(() => {
+			if (timeoutId) clearTimeout(timeoutId);
+		});
+	}
 
 	function normalizeExtractedText(text: string): string {
 		return text
@@ -116,7 +132,17 @@
 	async function extractPdfViaServer(file: File): Promise<string> {
 		const formData = new FormData();
 		formData.append('file', file);
-		const res = await fetch('/api/extract-pdf', { method: 'POST', body: formData });
+
+		const controller = new AbortController();
+		const timer = setTimeout(() => controller.abort(), SERVER_EXTRACTION_TIMEOUT_MS);
+		const res = await fetch('/api/extract-pdf', {
+			method: 'POST',
+			body: formData,
+			signal: controller.signal
+		}).finally(() => {
+			clearTimeout(timer);
+		});
+
 		if (!res.ok) throw new Error(`Server extraction failed: ${res.status}`);
 		const data = await res.json();
 		return typeof data.text === 'string' ? data.text : '';
@@ -132,25 +158,37 @@
 		if (ext === 'pdf') {
 			// Strategy 1: Server-side extraction (most reliable, no browser worker/WASM issues)
 			try {
-				const serverText = await extractPdfViaServer(file);
+				const serverText = await withTimeout(
+					extractPdfViaServer(file),
+					SERVER_EXTRACTION_TIMEOUT_MS,
+					'Server PDF extraction'
+				);
 				if (serverText.length >= MIN_ACCEPTABLE_PDF_TEXT_LENGTH) return serverText;
 			} catch {
 				// Server extraction failed, try client-side
 			}
 
-			// Strategy 2: Client-side pdfjs with worker
+			// Strategy 2: Client-side pdfjs without worker (more deploy-stable)
 			const arrayBuffer = await file.arrayBuffer();
 			let primaryText = '';
 			try {
-				primaryText = await extractPdfText(arrayBuffer, false);
+				primaryText = await withTimeout(
+					extractPdfText(arrayBuffer, true),
+					CLIENT_EXTRACTION_TIMEOUT_MS,
+					'Client PDF extraction'
+				);
 			} catch {
-				// Worker failed
+				// No-worker extraction failed
 			}
 			if (primaryText.length >= MIN_ACCEPTABLE_PDF_TEXT_LENGTH) return primaryText;
 
-			// Strategy 3: Client-side pdfjs without worker
+			// Strategy 3: Client-side pdfjs with worker (fallback)
 			try {
-				const fallbackText = await extractPdfText(arrayBuffer, true);
+				const fallbackText = await withTimeout(
+					extractPdfText(arrayBuffer, false),
+					CLIENT_EXTRACTION_TIMEOUT_MS,
+					'Client PDF worker extraction'
+				);
 				if (fallbackText.length >= MIN_ACCEPTABLE_PDF_TEXT_LENGTH) return fallbackText;
 				if (fallbackText.length > primaryText.length) primaryText = fallbackText;
 			} catch {
@@ -179,7 +217,11 @@
 		uploadedFileName = '';
 
 		try {
-			const text = await extractTextFromFile(file);
+			const text = await withTimeout(
+				extractTextFromFile(file),
+				TOTAL_EXTRACTION_TIMEOUT_MS,
+				'File text extraction'
+			);
 			if (!text.trim()) {
 				extractError =
 					'Could not extract readable text from this file. If this is a scanned/image-only PDF, please paste text manually.';
@@ -284,6 +326,7 @@
 							type="file"
 							accept={ACCEPTED_TYPES}
 							onchange={handleFileUpload}
+							disabled={extracting}
 							class="hidden"
 						/>
 
