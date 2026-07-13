@@ -29,6 +29,8 @@ if ($backendPath) {
 bun run dev
 
 
+
+
 # ── Useful one-off commands (reference) ──────────────────────────────────────
 # C:\Users\Mohammad\.bun\bin\bun.exe run build
 # C:\Users\Mohammad\.bun\bin\bun.exe run check
@@ -43,3 +45,6 @@ bun run dev
 # If `bunx convex deploy` still gives trouble, try:
 # `bun run convex deploy`
 
+##############3 convex deployment ############
+# $env:PATH = "C:\Users\Mohammad\.bun\bin;" + $env:PATH
+# bun convex deploy --typecheck enable

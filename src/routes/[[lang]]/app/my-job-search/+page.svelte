@@ -25,6 +25,7 @@
 	import { browser } from '$app/environment';
 	import { Debounced } from 'runed';
 	import { env as publicEnv } from '$env/dynamic/public';
+	import { toast } from 'svelte-sonner';
 
 	let { data }: { data: PageData } = $props();
 	const POWER_SEARCH_CODE = (publicEnv.PUBLIC_PERSONAL_SEARCH_POWER_CODE ?? '').trim();
@@ -119,11 +120,15 @@
 			const result = await res.json();
 			if (res.ok && result.ok && Array.isArray(result.keywords) && result.keywords.length > 0) {
 				keywords = result.keywords.join(', ');
-			} else if (result?.error) {
-				searchResult = { status: 'failed', error: result.error };
+			} else {
+				const message = result?.error || 'Could not generate keywords from your profile.';
+				searchResult = { status: 'failed', error: message };
+				toast.error(message);
 			}
 		} catch {
-			searchResult = { status: 'failed', error: 'Could not generate keywords from your profile.' };
+			const message = 'Could not generate keywords from your profile.';
+			searchResult = { status: 'failed', error: message };
+			toast.error(message);
 		} finally {
 			generatingKeywords = false;
 		}
@@ -934,9 +939,9 @@
 							/>
 						</div>
 						{#if powerDetailsOpen}
-							<div class="bg-muted/40 mt-3 space-y-2 rounded-lg border p-3 text-xs">
+							<div class="mt-3 space-y-2 rounded-lg border bg-muted/40 p-3 text-xs">
 								<p class="font-medium">Technical upgrades in Power mode</p>
-								<ul class="text-muted-foreground list-disc space-y-1 pl-4">
+								<ul class="list-disc space-y-1 pl-4 text-muted-foreground">
 									<li>Search window increases from 7 days to 14 days.</li>
 									<li>Backend search runtime budget increases from 3 minutes to 6 minutes.</li>
 									<li>LinkedIn expands from 2 to 4 query variations.</li>
@@ -1020,7 +1025,7 @@
 					</span>
 				{/if}
 				{#if searchResult.error}
-					<span class="text-destructive text-sm">{searchResult.error}</span>
+					<span class="text-sm text-destructive">{searchResult.error}</span>
 				{/if}
 			</div>
 			{#if searchResult.llm_summary}
@@ -1073,14 +1078,14 @@
 							{latestRun.total_new ?? 0} new / {latestRun.total_found ?? 0} total
 						</span>
 						<Badge variant="outline" class="text-xs">{latestRun.days_back}d</Badge>
-						<span class="text-muted-foreground text-xs">{formatDateTime(latestRun.created_at)}</span
+						<span class="text-xs text-muted-foreground">{formatDateTime(latestRun.created_at)}</span
 						>
 					</div>
 					{#if latestRun.llm_summary}
-						<p class="text-muted-foreground mt-1.5 text-sm">{latestRun.llm_summary}</p>
+						<p class="mt-1.5 text-sm text-muted-foreground">{latestRun.llm_summary}</p>
 					{/if}
 					{#if latestRun.error_message}
-						<p class="text-destructive mt-1.5 text-xs">Error: {latestRun.error_message}</p>
+						<p class="mt-1.5 text-xs text-destructive">Error: {latestRun.error_message}</p>
 					{/if}
 					{#if latestRun.source_summary_json}
 						{@const sourceErrors = Object.entries(
@@ -1089,7 +1094,7 @@
 						{#if sourceErrors.length > 0}
 							<div class="mt-1.5 flex flex-wrap gap-2">
 								{#each sourceErrors as [src, s] (src)}
-									<span class="text-destructive text-xs capitalize">{src}: {s.error}</span>
+									<span class="text-xs text-destructive capitalize">{src}: {s.error}</span>
 								{/each}
 							</div>
 						{/if}
@@ -1130,7 +1135,7 @@
 											<Badge variant="outline" class="text-xs">{run.days_back}d</Badge>
 											<span class="text-muted-foreground">{formatDateTime(run.created_at)}</span>
 											{#if run.llm_summary}
-												<span class="text-muted-foreground basis-full pl-0">
+												<span class="basis-full pl-0 text-muted-foreground">
 													{run.llm_summary}
 												</span>
 											{/if}
@@ -1180,7 +1185,7 @@
 							{#each levelOptions as option (option)}
 								<button
 									type="button"
-									class={`rounded-full border px-2 py-1 text-xs ${levelFilter.includes(option) ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-foreground border-border'}`}
+									class={`rounded-full border px-2 py-1 text-xs ${levelFilter.includes(option) ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background text-foreground'}`}
 									onclick={() => toggleLevelFilter(option)}
 								>
 									{option}
@@ -1195,7 +1200,7 @@
 							{#each functionOptions as option (option)}
 								<button
 									type="button"
-									class={`rounded-full border px-2 py-1 text-xs ${functionFilter.includes(option) ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-foreground border-border'}`}
+									class={`rounded-full border px-2 py-1 text-xs ${functionFilter.includes(option) ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background text-foreground'}`}
 									onclick={() => toggleFunctionFilter(option)}
 								>
 									{option}
@@ -1210,7 +1215,7 @@
 							{#each educationOptions as option (option)}
 								<button
 									type="button"
-									class={`rounded-full border px-2 py-1 text-xs ${educationFilter.includes(option) ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-foreground border-border'}`}
+									class={`rounded-full border px-2 py-1 text-xs ${educationFilter.includes(option) ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background text-foreground'}`}
 									onclick={() => toggleEducationFilter(option)}
 								>
 									{option}
@@ -1225,7 +1230,7 @@
 							{#each countryOptions as option (option)}
 								<button
 									type="button"
-									class={`rounded-full border px-2 py-1 text-xs ${countryFilter.includes(option) ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-foreground border-border'}`}
+									class={`rounded-full border px-2 py-1 text-xs ${countryFilter.includes(option) ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background text-foreground'}`}
 									onclick={() => toggleCountryFilter(option)}
 								>
 									{option}
@@ -1240,7 +1245,7 @@
 							{#each sourceOptions as option (option)}
 								<button
 									type="button"
-									class={`rounded-full border px-2 py-1 text-xs ${sourceFilter.includes(option) ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-foreground border-border'}`}
+									class={`rounded-full border px-2 py-1 text-xs ${sourceFilter.includes(option) ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background text-foreground'}`}
 									onclick={() => toggleSourceFilter(option)}
 								>
 									{option}
@@ -1255,7 +1260,7 @@
 							{#each remoteOptions as option (option)}
 								<button
 									type="button"
-									class={`rounded-full border px-2 py-1 text-xs ${remoteFilter.includes(option) ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-foreground border-border'}`}
+									class={`rounded-full border px-2 py-1 text-xs ${remoteFilter.includes(option) ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background text-foreground'}`}
 									onclick={() => toggleRemoteFilter(option)}
 								>
 									{option}
@@ -1270,7 +1275,7 @@
 							{#each searchTermOptions as option (option)}
 								<button
 									type="button"
-									class={`rounded-full border px-2 py-1 text-xs ${searchTermFilter.includes(option) ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-foreground border-border'}`}
+									class={`rounded-full border px-2 py-1 text-xs ${searchTermFilter.includes(option) ? 'border-primary bg-primary text-primary-foreground' : 'border-border bg-background text-foreground'}`}
 									onclick={() => toggleSearchTermFilter(option)}
 								>
 									{option}
@@ -1316,7 +1321,7 @@
 		<Card.Content>
 			{#if data.jobs.length === 0}
 				<div
-					class="text-muted-foreground flex flex-col items-center justify-center py-12 text-center"
+					class="flex flex-col items-center justify-center py-12 text-center text-muted-foreground"
 				>
 					<SearchIcon class="mb-3 h-10 w-10 opacity-40" />
 					<p class="text-lg font-medium">No jobs yet</p>
@@ -1399,7 +1404,7 @@
 									>
 										<div class="truncate font-medium">{getActualRole(job)}</div>
 										<div class="mt-0.5 flex items-center gap-2 text-xs">
-											<div class="text-muted-foreground truncate" title={job?.company_name ?? '—'}>
+											<div class="truncate text-muted-foreground" title={job?.company_name ?? '—'}>
 												{job?.company_name ?? '—'}
 											</div>
 											{#if job?.is_remote}
@@ -1429,7 +1434,7 @@
 												{/each}
 											</div>
 										{:else}
-											<span class="text-muted-foreground text-xs">—</span>
+											<span class="text-xs text-muted-foreground">—</span>
 										{/if}
 									</Table.Cell>
 									<Table.Cell class="max-w-[160px]">
@@ -1439,7 +1444,7 @@
 										</div>
 									</Table.Cell>
 									<Table.Cell>
-										<span class="text-muted-foreground text-xs">{getSearchTerm(match)}</span>
+										<span class="text-xs text-muted-foreground">{getSearchTerm(match)}</span>
 									</Table.Cell>
 									<Table.Cell>
 										<Badge variant={platformColor(job?.source ?? '')}>
@@ -1483,7 +1488,7 @@
 													target="_blank"
 													rel="noopener noreferrer"
 													onclick={(e) => e.stopPropagation()}
-													class="text-muted-foreground rounded p-1 hover:bg-muted hover:text-foreground"
+													class="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
 													title="View on {job.source}"
 												>
 													<ExternalLinkIcon class="h-4 w-4" />
@@ -1520,7 +1525,7 @@
 				<!-- Pagination -->
 				{#if totalPages > 1}
 					<div class="flex items-center justify-between border-t pt-4">
-						<span class="text-muted-foreground text-sm">
+						<span class="text-sm text-muted-foreground">
 							Page {currentPage} of {totalPages} ({data.jobCount} jobs)
 						</span>
 						<div class="flex items-center gap-2">
@@ -1625,7 +1630,7 @@
 				{/if}
 
 				<!-- Date info -->
-				<div class="text-muted-foreground flex gap-4 text-sm">
+				<div class="flex gap-4 text-sm text-muted-foreground">
 					<span>Posted: {formatDate(job?.posted_date)}</span>
 					<span>Scraped: {formatDateTime(job?.scraped_at)}</span>
 				</div>

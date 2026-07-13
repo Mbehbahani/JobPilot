@@ -3,6 +3,8 @@ import { openrouter } from '@openrouter/ai-sdk-provider';
 import { internal } from '../_generated/api';
 import { CODEX_API_ENDPOINT } from '../openai';
 
+const DEFAULT_CODEX_MODEL = 'gpt-5.3-codex';
+
 export function getSupportLanguageModel(): any {
 	return openrouter('qwen/qwen3-vl-30b-a3b-thinking');
 }
@@ -24,7 +26,7 @@ export async function getTaskLanguageModelForUser(
 			'OpenAI account not connected. Connect your ChatGPT account in Settings → Connections to use the task agent.'
 		);
 	}
-	return getOpenAILanguageModel(result.accessToken, result.accountId, 'gpt-5.4');
+	return getOpenAILanguageModel(result.accessToken, result.accountId, DEFAULT_CODEX_MODEL);
 }
 
 /**
@@ -34,7 +36,7 @@ export async function getTaskLanguageModelForUser(
 export function getOpenAILanguageModel(
 	accessToken: string,
 	accountId?: string,
-	modelId: string = 'gpt-5.4'
+	modelId: string = DEFAULT_CODEX_MODEL
 ): any {
 	const openai = createOpenAI({
 		apiKey: 'codex-oauth', // Placeholder — overridden by custom fetch

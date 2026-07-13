@@ -44,6 +44,40 @@ async function getModel(ctx: any): Promise<any> {
 	return getSupportLanguageModel();
 }
 
+async function generateProfileKeywords(model: any, profileResume: string): Promise<string[]> {
+	const result = streamText({
+		model,
+		system: `You extract job-search keyword suggestions from a user's CV/profile.
+Return ONLY valid JSON with this shape:
+{
+  "keywords": ["keyword 1", "keyword 2", "keyword 3"]
+}
+
+Rules:
+- Suggest 5 to 8 concise keywords.
+- Focus on job titles, specialties, and core skill clusters useful for job search.
+- Do not include cities, countries, or long phrases.
+- Do not include explanations or markdown.`,
+		prompt: `CV / Profile:\n${profileResume}`,
+		temperature: 0.2
+	});
+	const text = await result.text;
+	const cleaned = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+	const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+	if (!jsonMatch) throw new Error('Keyword response did not contain JSON.');
+
+	const parsed = JSON.parse(jsonMatch[0]);
+	const keywords = Array.isArray(parsed.keywords)
+		? parsed.keywords
+				.map((item: unknown) => (typeof item === 'string' ? item.trim() : ''))
+				.filter(Boolean)
+				.slice(0, 8)
+		: [];
+
+	if (keywords.length === 0) throw new Error('Keyword response was empty.');
+	return keywords;
+}
+
 export const standardizeInputs = action({
 	args: {
 		keywords: v.array(v.string()),
@@ -153,44 +187,33 @@ export const suggestKeywordsFromProfile = action({
 				return { ok: false, error: 'missing_profile' as const };
 			}
 
-			const model = await getModel(ctx);
-			const result = streamText({
-				model,
-				system: `You extract job-search keyword suggestions from a user's CV/profile.
-Return ONLY valid JSON with this shape:
-{
-  "keywords": ["keyword 1", "keyword 2", "keyword 3"]
-}
-
-Rules:
-- Suggest 5 to 8 concise keywords.
-- Focus on job titles, specialties, and core skill clusters useful for job search.
-- Do not include cities, countries, or long phrases.
-- Do not include explanations or markdown.`,
-				prompt: `CV / Profile:\n${profileResume}`,
-				temperature: 0.2
-			});
-			const text = await result.text;
-			const cleaned = text.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-			const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-			if (!jsonMatch) {
-				return { ok: false, error: 'parse_failed' as const };
+			let model: any;
+			let canFallback = false;
+			try {
+				model = await getTaskLanguageModelForUser(ctx, user._id);
+				canFallback = true;
+			} catch {
+				model = getSupportLanguageModel();
 			}
-			const parsed = JSON.parse(jsonMatch[0]);
-			const keywords = Array.isArray(parsed.keywords)
-				? parsed.keywords
-						.map((item: unknown) => (typeof item === 'string' ? item.trim() : ''))
-						.filter(Boolean)
-						.slice(0, 8)
-				: [];
 
-			if (keywords.length === 0) {
-				return { ok: false, error: 'parse_failed' as const };
+			let keywords: string[];
+			try {
+				keywords = await generateProfileKeywords(model, profileResume);
+			} catch (primaryError) {
+				if (!canFallback) throw primaryError;
+				console.warn(
+					'[personalSearchLlm] ChatGPT keyword generation failed; using support fallback:',
+					primaryError instanceof Error ? primaryError.message : String(primaryError)
+				);
+				keywords = await generateProfileKeywords(getSupportLanguageModel(), profileResume);
 			}
 
 			return { ok: true, keywords };
 		} catch (e) {
-			console.error('[personalSearchLlm] suggest keywords error:', e);
+			console.error(
+				'[personalSearchLlm] suggest keywords error:',
+				e instanceof Error ? e.message : String(e)
+			);
 			return { ok: false, error: 'failed' as const };
 		}
 	}

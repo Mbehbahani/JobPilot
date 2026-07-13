@@ -13,6 +13,7 @@
 	import { api } from '$lib/convex/_generated/api';
 	import { toast } from 'svelte-sonner';
 	import { haptic } from '$lib/hooks/use-haptic.svelte';
+	import pdfWorkerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 	let { open = $bindable(false) }: { open: boolean } = $props();
 
@@ -65,32 +66,42 @@
 	}
 
 	async function extractPdfText(file: File): Promise<string> {
-		const formData = new FormData();
-		formData.append('file', file);
+		const pdfjsLib = await import('pdfjs-dist');
+		pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerSrc;
 
-		const response = await fetch('/api/extract-pdf', {
-			method: 'POST',
-			body: formData
-		});
+		const buffer = await file.arrayBuffer();
+		const pdf = await pdfjsLib.getDocument({
+			data: new Uint8Array(buffer),
+			useSystemFonts: true,
+			stopAtErrors: false
+		}).promise;
 
-		if (!response.ok) {
-			let message = 'Failed to extract PDF text. Please paste your CV text manually.';
-			try {
-				const errorBody = await response.json();
-				if (typeof errorBody?.message === 'string') message = errorBody.message;
-			} catch {
-				// Keep generic message for non-JSON errors.
+		try {
+			const pages: string[] = [];
+			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+				const page = await pdf.getPage(pageNumber);
+				const content = await page.getTextContent();
+				const parts: string[] = [];
+
+				for (const item of content.items) {
+					if (!('str' in item)) continue;
+					parts.push(item.str);
+					if (item.hasEOL) parts.push('\n');
+					else if (item.str && !item.str.endsWith(' ')) parts.push(' ');
+				}
+
+				const pageText = parts.join('').trim();
+				if (pageText) pages.push(pageText);
 			}
-			throw new Error(message);
-		}
 
-		const data = await response.json();
-		const text = normalizeExtractedText(typeof data.text === 'string' ? data.text : '');
-		if (!text)
-			throw new Error(
-				'No selectable text found. If this is a scanned PDF, please paste your CV text manually.'
-			);
-		return text;
+			const text = normalizeExtractedText(pages.join('\n\n'));
+			if (!text) {
+				throw new Error('No selectable text found. Please paste your CV text manually.');
+			}
+			return text;
+		} finally {
+			await pdf.destroy();
+		}
 	}
 
 	async function handleFileUpload(event: Event) {

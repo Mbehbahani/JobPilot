@@ -1,6 +1,6 @@
 # Internationalization (i18n) Setup Guide
 
-This project uses **Tolgee** for cloud-hosted translation management with SEO-friendly URL-based localization.
+This project uses **Tolgee** for cloud-hosted translation management with SEO-friendly URL-based localization. - i18n is not important in my project.
 
 ## ⚠️ Tolgee Free Tier Limitations
 
