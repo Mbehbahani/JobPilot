@@ -42,12 +42,19 @@
 
 	const ACCEPTED_TYPES = '.txt,.pdf';
 	const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-	const PDF_EXTRACTION_TIMEOUT_MS = 30_000;
+	const PDF_LOCAL_EXTRACTION_TIMEOUT_MS = 30_000;
+	const PDF_SERVER_EXTRACTION_TIMEOUT_MS = 75_000;
 
-	function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
+	function withTimeout<T>(
+		promise: Promise<T>,
+		timeoutMs: number,
+		label: string,
+		onTimeout?: () => void | Promise<void>
+	): Promise<T> {
 		let timeoutId: ReturnType<typeof setTimeout> | undefined;
 		const timeoutPromise = new Promise<never>((_, reject) => {
 			timeoutId = setTimeout(() => {
+				void onTimeout?.();
 				reject(new Error(`${label} timed out after ${Math.round(timeoutMs / 1000)}s`));
 			}, timeoutMs);
 		});
@@ -65,6 +72,34 @@
 			.trim();
 	}
 
+	type PdfJsLib = typeof import('pdfjs-dist');
+	type PdfDocument = Awaited<ReturnType<PdfJsLib['getDocument']>['promise']>;
+
+	async function readPdfPages(pdf: PdfDocument): Promise<string> {
+		const pages: string[] = [];
+		for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+			const page = await pdf.getPage(pageNumber);
+			const content = await page.getTextContent();
+			const parts: string[] = [];
+
+			for (const item of content.items) {
+				if (!('str' in item)) continue;
+				parts.push(item.str);
+				if (item.hasEOL) parts.push('\n');
+				else if (item.str && !item.str.endsWith(' ')) parts.push(' ');
+			}
+
+			const pageText = parts.join('').trim();
+			if (pageText) pages.push(pageText);
+		}
+
+		const text = normalizeExtractedText(pages.join('\n\n'));
+		if (!text) {
+			throw new Error('No selectable text found. Please paste your CV text manually.');
+		}
+		return text;
+	}
+
 	async function extractPdfText(file: File): Promise<string> {
 		const pdfjsLib = await import('pdfjs-dist');
 		pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerSrc;
@@ -77,30 +112,43 @@
 		}).promise;
 
 		try {
-			const pages: string[] = [];
-			for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-				const page = await pdf.getPage(pageNumber);
-				const content = await page.getTextContent();
-				const parts: string[] = [];
-
-				for (const item of content.items) {
-					if (!('str' in item)) continue;
-					parts.push(item.str);
-					if (item.hasEOL) parts.push('\n');
-					else if (item.str && !item.str.endsWith(' ')) parts.push(' ');
-				}
-
-				const pageText = parts.join('').trim();
-				if (pageText) pages.push(pageText);
-			}
-
-			const text = normalizeExtractedText(pages.join('\n\n'));
-			if (!text) {
-				throw new Error('No selectable text found. Please paste your CV text manually.');
-			}
-			return text;
+			return await readPdfPages(pdf);
 		} finally {
 			await pdf.destroy();
+		}
+	}
+
+	async function extractPdfTextOnServer(file: File): Promise<string> {
+		const formData = new FormData();
+		formData.set('file', file, file.name);
+
+		const response = await withTimeout(
+			fetch('/api/pdf-extract', {
+				method: 'POST',
+				body: formData
+			}),
+			PDF_SERVER_EXTRACTION_TIMEOUT_MS,
+			'PDF extraction fallback'
+		);
+		const payload = (await response.json()) as { text?: string; error?: string };
+		if (!response.ok || !payload.text) {
+			throw new Error(
+				payload.error ?? 'Failed to extract PDF text. Please paste your CV text manually.'
+			);
+		}
+		return payload.text;
+	}
+
+	async function extractPdfTextWithFallback(file: File): Promise<string> {
+		try {
+			return await withTimeout(
+				extractPdfText(file),
+				PDF_LOCAL_EXTRACTION_TIMEOUT_MS,
+				'PDF extraction'
+			);
+		} catch (err) {
+			if (!(err instanceof Error) || !err.message.includes('timed out')) throw err;
+			return await extractPdfTextOnServer(file);
 		}
 	}
 
@@ -121,10 +169,7 @@
 
 		try {
 			const ext = file.name.split('.').pop()?.toLowerCase();
-			const text =
-				ext === 'txt'
-					? await file.text()
-					: await withTimeout(extractPdfText(file), PDF_EXTRACTION_TIMEOUT_MS, 'PDF extraction');
+			const text = ext === 'txt' ? await file.text() : await extractPdfTextWithFallback(file);
 
 			if (!text.trim()) {
 				extractError =

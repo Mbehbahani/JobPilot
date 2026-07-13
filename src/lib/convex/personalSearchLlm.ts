@@ -78,6 +78,44 @@ Rules:
 	return keywords;
 }
 
+const FALLBACK_KEYWORD_PATTERNS: { keyword: string; patterns: RegExp[] }[] = [
+	{ keyword: 'Data Scientist', patterns: [/\bdata scientist\b/i] },
+	{ keyword: 'Applied Data Scientist', patterns: [/\bapplied data scientist\b/i] },
+	{ keyword: 'AI Engineer', patterns: [/\bai engineer\b/i, /\bai engineering\b/i] },
+	{ keyword: 'Machine Learning Engineer', patterns: [/\bmachine learning\b/i, /\bml\b/i] },
+	{ keyword: 'Operations Research', patterns: [/\boperations research\b/i] },
+	{ keyword: 'Optimization', patterns: [/\boptimization\b/i, /\boptimisation\b/i, /\bmilp\b/i] },
+	{ keyword: 'Supply Chain Analytics', patterns: [/\bsupply chain\b/i, /\blogistics\b/i] },
+	{
+		keyword: 'Decision Intelligence',
+		patterns: [/\bdecision intelligence\b/i, /\bdecision systems\b/i]
+	},
+	{
+		keyword: 'Forecasting',
+		patterns: [/\bforecasting\b/i, /\btime-series\b/i, /\btime series\b/i]
+	},
+	{ keyword: 'MLOps', patterns: [/\bmlops\b/i, /\bmlflow\b/i] },
+	{ keyword: 'Python Developer', patterns: [/\bpython\b/i, /\bfastapi\b/i] },
+	{
+		keyword: 'Cloud AI Engineer',
+		patterns: [/\baws\b/i, /\bcloud-native\b/i, /\blambda\b/i, /\becs\b/i]
+	},
+	{ keyword: 'NLP Engineer', patterns: [/\bnlp\b/i, /\bllm\b/i, /\brag\b/i] },
+	{ keyword: 'Data Analyst', patterns: [/\bdata analyst\b/i, /\banalytics\b/i] },
+	{
+		keyword: 'Research Scientist',
+		patterns: [/\bresearch scientist\b/i, /\bresearch data scientist\b/i]
+	}
+];
+
+function generateProfileKeywordsFallback(profileResume: string): string[] {
+	const keywords = FALLBACK_KEYWORD_PATTERNS.filter(({ patterns }) =>
+		patterns.some((pattern) => pattern.test(profileResume))
+	).map(({ keyword }) => keyword);
+
+	return Array.from(new Set(keywords)).slice(0, 8);
+}
+
 export const standardizeInputs = action({
 	args: {
 		keywords: v.array(v.string()),
@@ -196,16 +234,30 @@ export const suggestKeywordsFromProfile = action({
 				model = getSupportLanguageModel();
 			}
 
-			let keywords: string[];
+			let keywords: string[] = [];
 			try {
 				keywords = await generateProfileKeywords(model, profileResume);
 			} catch (primaryError) {
-				if (!canFallback) throw primaryError;
 				console.warn(
-					'[personalSearchLlm] ChatGPT keyword generation failed; using support fallback:',
+					canFallback
+						? '[personalSearchLlm] ChatGPT keyword generation failed; using support fallback:'
+						: '[personalSearchLlm] Support keyword generation failed; using local fallback:',
 					primaryError instanceof Error ? primaryError.message : String(primaryError)
 				);
-				keywords = await generateProfileKeywords(getSupportLanguageModel(), profileResume);
+				if (canFallback) {
+					try {
+						keywords = await generateProfileKeywords(getSupportLanguageModel(), profileResume);
+					} catch (fallbackError) {
+						console.warn(
+							'[personalSearchLlm] Support keyword generation failed; using local fallback:',
+							fallbackError instanceof Error ? fallbackError.message : String(fallbackError)
+						);
+					}
+				}
+				if (keywords.length === 0) {
+					keywords = generateProfileKeywordsFallback(profileResume);
+				}
+				if (keywords.length === 0) throw primaryError;
 			}
 
 			return { ok: true, keywords };
