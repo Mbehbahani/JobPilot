@@ -24,6 +24,7 @@ interface IdTokenClaims {
 	email?: string;
 	'https://api.openai.com/auth'?: {
 		chatgpt_account_id?: string;
+		chatgpt_plan_type?: string;
 	};
 }
 
@@ -65,6 +66,20 @@ function extractEmail(tokens: { id_token?: string; access_token: string }): stri
 	return undefined;
 }
 
+/**
+ * Extract the ChatGPT plan type (e.g. 'free', 'plus', 'pro', 'team') from JWT claims.
+ * The Codex API rejects ALL models for 'free' plan accounts — see getTaskLanguageModelForUser.
+ */
+function extractPlanType(tokens: { id_token?: string; access_token: string }): string | undefined {
+	for (const token of [tokens.id_token, tokens.access_token]) {
+		if (!token) continue;
+		const claims = parseJwtClaims(token);
+		const planType = claims?.['https://api.openai.com/auth']?.chatgpt_plan_type;
+		if (planType) return planType;
+	}
+	return undefined;
+}
+
 // =============================================================================
 // Queries
 // =============================================================================
@@ -87,7 +102,10 @@ export const getConnection = query({
 			email: connection.email,
 			accountId: connection.accountId,
 			connectedAt: connection.connectedAt,
-			isExpired: connection.expiresAt < Date.now()
+			isExpired: connection.expiresAt < Date.now(),
+			planType: connection.planType,
+			// Codex is only available on paid ChatGPT plans — free accounts are rejected for every model.
+			isFreePlan: connection.planType === 'free'
 		};
 	}
 });
@@ -104,7 +122,8 @@ export const storeTokens = internalMutation({
 		refreshToken: v.string(),
 		expiresAt: v.number(),
 		accountId: v.optional(v.string()),
-		email: v.optional(v.string())
+		email: v.optional(v.string()),
+		planType: v.optional(v.string())
 	},
 	handler: async (ctx, args) => {
 		const existing = await ctx.db
@@ -121,6 +140,7 @@ export const storeTokens = internalMutation({
 				expiresAt: args.expiresAt,
 				accountId: args.accountId ?? existing.accountId,
 				email: args.email ?? existing.email,
+				planType: args.planType ?? existing.planType,
 				updatedAt: now
 			});
 		} else {
@@ -131,6 +151,7 @@ export const storeTokens = internalMutation({
 				expiresAt: args.expiresAt,
 				accountId: args.accountId,
 				email: args.email,
+				planType: args.planType,
 				connectedAt: now,
 				updatedAt: now
 			});
@@ -283,6 +304,7 @@ export const pollDeviceAuth = action({
 
 		const accountId = extractAccountId(tokens);
 		const email = extractEmail(tokens);
+		const planType = extractPlanType(tokens);
 
 		// Store tokens in Convex
 		await ctx.runMutation(internal.openai.storeTokens, {
@@ -291,7 +313,8 @@ export const pollDeviceAuth = action({
 			refreshToken: tokens.refresh_token,
 			expiresAt: Date.now() + (tokens.expires_in ?? 3600) * 1000,
 			accountId,
-			email
+			email,
+			planType
 		});
 
 		return 'success';
@@ -305,7 +328,10 @@ export const pollDeviceAuth = action({
 /** Get a valid access token for a user, refreshing if needed */
 export const getValidAccessToken = internalAction({
 	args: { userId: v.string() },
-	handler: async (ctx, { userId }): Promise<{ accessToken: string; accountId?: string } | null> => {
+	handler: async (
+		ctx,
+		{ userId }
+	): Promise<{ accessToken: string; accountId?: string; planType?: string } | null> => {
 		const connection = await ctx.runQuery(internal.openai.getConnectionInternal, {
 			userId
 		});
@@ -316,7 +342,8 @@ export const getValidAccessToken = internalAction({
 		if (connection.expiresAt > Date.now() + 60_000) {
 			return {
 				accessToken: connection.accessToken,
-				accountId: connection.accountId ?? undefined
+				accountId: connection.accountId ?? undefined,
+				planType: connection.planType ?? undefined
 			};
 		}
 
@@ -345,6 +372,7 @@ export const getValidAccessToken = internalAction({
 
 		const accountId = extractAccountId(tokens) ?? connection.accountId ?? undefined;
 		const email = extractEmail(tokens) ?? connection.email ?? undefined;
+		const planType = extractPlanType(tokens) ?? connection.planType ?? undefined;
 
 		// Update stored tokens
 		await ctx.runMutation(internal.openai.storeTokens, {
@@ -353,12 +381,14 @@ export const getValidAccessToken = internalAction({
 			refreshToken: tokens.refresh_token,
 			expiresAt: Date.now() + (tokens.expires_in ?? 3600) * 1000,
 			accountId,
-			email
+			email,
+			planType
 		});
 
 		return {
 			accessToken: tokens.access_token,
-			accountId
+			accountId,
+			planType
 		};
 	}
 });

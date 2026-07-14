@@ -13,7 +13,11 @@ crons.interval('cleanupExpiredFiles', { hours: 1 }, internal.files.cleanup.clean
 // Runs every 6 hours to delete threads older than 24h with no messages
 crons.interval('deleteEmptyThreads', { hours: 6 }, internal.support.threads.deleteEmptyThreads, {});
 
-// Recover tasks stuck in 'working' status due to agent failures
-crons.interval('recoverStaleTasks', { minutes: 15 }, internal.todo.cleanup.recoverStaleTasks, {});
+// Recover tasks stuck in 'working' status due to agent failures.
+// This is a last-resort backstop — most failures are now caught immediately by
+// withAgentStuckGuard in src/lib/convex/todo/messages.ts. Runs every 5 minutes
+// (down from 15) so any task that slips through (e.g. a hard-killed action) is
+// recovered quickly instead of sitting in "Processing…" for up to 25 minutes.
+crons.interval('recoverStaleTasks', { minutes: 5 }, internal.todo.cleanup.recoverStaleTasks, {});
 
 export default crons;

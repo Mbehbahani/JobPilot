@@ -13,6 +13,14 @@ export function getSupportLanguageModel(): any {
  * Get the task agent language model for a specific user.
  * Uses the user's connected ChatGPT account (OAuth access token).
  * Throws if the user has not connected their OpenAI account.
+ *
+ * IMPORTANT: OpenAI's Codex Responses API (chatgpt.com/backend-api/codex/responses)
+ * rejects EVERY model for ChatGPT accounts on the Free plan — confirmed empirically,
+ * the API returns 400 "The '<model>' model is not supported when using Codex with a
+ * ChatGPT account" regardless of which model is requested. We fail fast here with a
+ * clear, actionable message instead of letting the request hit the API (which crashes
+ * the underlying agent component's stream-reconstruction logic and leaves the task
+ * stuck in "working" — see src/lib/convex/todo/messages.ts trigger action try/catch).
  */
 export async function getTaskLanguageModelForUser(
 	ctx: {
@@ -24,6 +32,11 @@ export async function getTaskLanguageModelForUser(
 	if (!result) {
 		throw new Error(
 			'OpenAI account not connected. Connect your ChatGPT account in Settings → Connections to use the task agent.'
+		);
+	}
+	if (result.planType === 'free') {
+		throw new Error(
+			"Your ChatGPT account is on the Free plan, which does not support Nova's AI model (Codex). Upgrade to ChatGPT Plus, Pro, Team, Business, or Enterprise, or connect a different account in Settings → Connections."
 		);
 	}
 	return getOpenAILanguageModel(result.accessToken, result.accountId, DEFAULT_CODEX_MODEL);

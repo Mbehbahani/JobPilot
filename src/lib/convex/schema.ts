@@ -266,6 +266,7 @@ export default defineSchema({
 		expiresAt: v.number(), // ms timestamp
 		accountId: v.optional(v.string()), // ChatGPT account ID from JWT
 		email: v.optional(v.string()), // from id_token claims
+		planType: v.optional(v.string()), // chatgpt_plan_type from JWT (e.g. 'free', 'plus', 'pro', 'team')
 		connectedAt: v.number(),
 		updatedAt: v.number()
 	}).index('by_user', ['userId']),

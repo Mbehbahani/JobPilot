@@ -193,6 +193,12 @@
 											Connected since {formatTimestamp(openaiConnection.data.connectedAt)}
 										</span>
 									</span>
+									{#if openaiConnection.data.isFreePlan}
+										<span class="text-xs text-amber-600 dark:text-amber-400">
+											Free plan doesn't support Nova's AI model. Upgrade to Plus, Pro, Team,
+											Business, or Enterprise.
+										</span>
+									{/if}
 								</DropdownMenu.Label>
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item

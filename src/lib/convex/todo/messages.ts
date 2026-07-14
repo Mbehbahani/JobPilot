@@ -401,7 +401,7 @@ async function runTodoAgentForTask(
 
 	const debug = debugParts.join('\n---\n');
 
-	// Check if agent deferred (task still in todo) — set idle so cascade picks it up
+	// Check if agent deferred (task still in preparing) — set idle so cascade picks it up
 	const taskInfo = await ctx.runQuery(internal.todos.getTaskThreadInfo, {
 		userId: args.userId,
 		taskId: args.taskId
@@ -457,6 +457,41 @@ async function runTodoAgentForTask(
 	}
 
 	return effective;
+}
+
+/**
+ * Safety net around agent trigger actions: guarantees a task never gets stuck at
+ * agentStatus 'working' forever. Some failures (e.g. a rejected model/provider
+ * request that crashes the agent component's internal stream-reconstruction logic)
+ * escape as errors that occur outside runTodoAgentForTask's own try/catch. Without
+ * this wrapper those tasks would sit in "Processing…" until the recoverStaleTasks
+ * cron catches up (up to ~15 minutes later). Wrapping every trigger action's body
+ * here surfaces the error immediately with a clear summary instead.
+ */
+async function withAgentStuckGuard(
+	ctx: {
+		runMutation: (fn: any, args: any) => Promise<any>;
+	},
+	args: { userId: string; taskId: string },
+	fn: () => Promise<void>
+): Promise<void> {
+	try {
+		await fn();
+	} catch (error) {
+		const message = getErrorMessage(error);
+		console.error(`Agent trigger failed for task ${args.taskId}:`, error);
+		await ctx.runMutation(internal.todos.updateTaskAgentStatusInternal, {
+			userId: args.userId,
+			taskId: args.taskId,
+			agentStatus: 'error',
+			agentSummary: truncateText(`Nova hit an error: ${message}`, 120)
+		});
+		await ctx.runMutation(internal.todos.updateTaskAgentLogsInternal, {
+			userId: args.userId,
+			taskId: args.taskId,
+			agentLogs: `[trigger-error] ${message}`.slice(0, 4000)
+		});
+	}
 }
 
 /**
@@ -605,124 +640,126 @@ export const triggerAgentForNewTask = internalAction({
 		)
 	},
 	handler: async (ctx, args) => {
-		// 0. Mark task as working
-		await ctx.runMutation(internal.todos.updateTaskAgentStatusInternal, {
-			userId: args.userId,
-			taskId: args.taskId,
-			agentStatus: 'working'
-		});
+		await withAgentStuckGuard(ctx, args, async () => {
+			// 0. Mark task as working
+			await ctx.runMutation(internal.todos.updateTaskAgentStatusInternal, {
+				userId: args.userId,
+				taskId: args.taskId,
+				agentStatus: 'working'
+			});
 
-		// 1. Create a thread for this task
-		const { threadId } = await todoAgent.createThread(ctx, {
-			userId: args.userId,
-			title: args.taskTitle
-		});
+			// 1. Create a thread for this task
+			const { threadId } = await todoAgent.createThread(ctx, {
+				userId: args.userId,
+				title: args.taskTitle
+			});
 
-		// 2. Persist threadId on the task
-		await ctx.runMutation(internal.todos.updateTaskThreadIdInternal, {
-			userId: args.userId,
-			taskId: args.taskId,
-			threadId
-		});
+			// 2. Persist threadId on the task
+			await ctx.runMutation(internal.todos.updateTaskThreadIdInternal, {
+				userId: args.userId,
+				taskId: args.taskId,
+				threadId
+			});
 
-		// 3. Build board context
-		const { otherTasks, columnInfo, currentDateTime } = await buildBoardContext(
-			ctx,
-			args.userId,
-			args.taskId
-		);
+			// 3. Build board context
+			const { otherTasks, columnInfo, currentDateTime } = await buildBoardContext(
+				ctx,
+				args.userId,
+				args.taskId
+			);
 
-		// 4. Build prompt
-		const truncatedNotes =
-			args.taskNotes && args.taskNotes.length > 300
-				? args.taskNotes.slice(0, 300) + '... (truncated — use readTaskNotes to see full notes)'
-				: args.taskNotes;
-		const promptParts: (string | null)[] = [
-			`Current date/time: ${currentDateTime}`,
-			`You are now the dedicated agent for this task: "${args.taskTitle}"`,
-			`Current column: ${args.taskColumn}`,
-			truncatedNotes ? `Notes: ${truncatedNotes}` : null,
-			'',
-			columnInfo.join('\n'),
-			''
-		];
+			// 4. Build prompt
+			const truncatedNotes =
+				args.taskNotes && args.taskNotes.length > 300
+					? args.taskNotes.slice(0, 300) + '... (truncated — use readTaskNotes to see full notes)'
+					: args.taskNotes;
+			const promptParts: (string | null)[] = [
+				`Current date/time: ${currentDateTime}`,
+				`You are now the dedicated agent for this task: "${args.taskTitle}"`,
+				`Current column: ${args.taskColumn}`,
+				truncatedNotes ? `Notes: ${truncatedNotes}` : null,
+				'',
+				columnInfo.join('\n'),
+				''
+			];
 
-		// Include parent notification (from createTask)
-		if (args.parentNotification) {
+			// Include parent notification (from createTask)
+			if (args.parentNotification) {
+				promptParts.push(
+					'Context from the agent that created this task:',
+					args.parentNotification,
+					''
+				);
+			}
+
+			// Include incoming notification (from notifyTask to threadless task)
+			if (args.incomingNotification) {
+				promptParts.push(
+					'Incoming notification from another task:',
+					`From task: ${args.incomingNotification.fromTaskId}`,
+					`Priority: ${args.incomingNotification.priority}`,
+					`Message: ${args.incomingNotification.message}`,
+					''
+				);
+			}
+
 			promptParts.push(
-				'Context from the agent that created this task:',
-				args.parentNotification,
+				otherTasks.length > 0
+					? `Other tasks on the board (for awareness — you can notify them but NOT modify them):\n${otherTasks.join('\n')}`
+					: null,
 				''
 			);
-		}
 
-		// Include incoming notification (from notifyTask to threadless task)
-		if (args.incomingNotification) {
-			promptParts.push(
-				'Incoming notification from another task:',
-				`From task: ${args.incomingNotification.fromTaskId}`,
-				`Priority: ${args.incomingNotification.priority}`,
-				`Message: ${args.incomingNotification.message}`,
-				''
-			);
-		}
+			if (args.taskColumn === 'targeted') {
+				promptParts.push(
+					'You are in ANALYSIS MODE for this job opportunity.',
+					'',
+					'Your task:',
+					'1. Review the task title and any notes/URL provided.',
+					'2. If a job URL is present, use webSearch to retrieve the job posting and extract available details.',
+					'3. Use updateJobFields to fill ONLY MISSING fields (company name, position, skills, job level, job type, country, job description, etc.) — do NOT overwrite fields that already have a value.',
+					'4. Write a structured consultation summary to the task notes using updateMyNotes. Include:',
+					'   - What information you found and extracted',
+					'   - What fields are still missing and what the user should add',
+					'   - A brief assessment of the opportunity (role, company fit, any notable requirements)',
+					'   - A recommendation on whether to proceed to the Preparing stage',
+					'',
+					'Do NOT write a motivation letter.',
+					'Do NOT move this task to any other column.',
+					'Stay in the Targeted column — this is analysis and field extraction only.'
+				);
+			} else {
+				promptParts.push(
+					'Analyze this task and take action immediately. Do NOT ask questions or create clarifying sub-tasks — make reasonable assumptions and proceed.',
+					'',
+					'Steps:',
+					'1. If the task has existing notes (e.g. from the Targeted stage), read them first with readTaskNotes for full context.',
+					'2. Use getUserProfile to read the user resume.',
+					'3. Parse the job description (use webSearch if a URL is available and jobDescription is empty).',
+					'4. Use updateJobFields to fill ONLY MISSING fields — do NOT overwrite fields that already have a value.',
+					'5. Generate a motivation letter ONLY if the motivationLetter field is currently empty.',
+					'6. Update your task notes with findings using updateMyNotes.'
+				);
+			}
 
-		promptParts.push(
-			otherTasks.length > 0
-				? `Other tasks on the board (for awareness — you can notify them but NOT modify them):\n${otherTasks.join('\n')}`
-				: null,
-			''
-		);
+			const prompt = promptParts.filter(Boolean).join('\n');
 
-		if (args.taskColumn === 'targeted') {
-			promptParts.push(
-				'You are in ANALYSIS MODE for this job opportunity.',
-				'',
-				'Your task:',
-				'1. Review the task title and any notes/URL provided.',
-				'2. If a job URL is present, use webSearch to retrieve the job posting and extract available details.',
-				'3. Use updateJobFields to fill ONLY MISSING fields (company name, position, skills, job level, job type, country, job description, etc.) — do NOT overwrite fields that already have a value.',
-				'4. Write a structured consultation summary to the task notes using updateMyNotes. Include:',
-				'   - What information you found and extracted',
-				'   - What fields are still missing and what the user should add',
-				'   - A brief assessment of the opportunity (role, company fit, any notable requirements)',
-				'   - A recommendation on whether to proceed to the Preparing stage',
-				'',
-				'Do NOT write a motivation letter.',
-				'Do NOT move this task to any other column.',
-				'Stay in the Targeted column — this is analysis and field extraction only.'
-			);
-		} else {
-			promptParts.push(
-				'Analyze this task and take action immediately. Do NOT ask questions or create clarifying sub-tasks — make reasonable assumptions and proceed.',
-				'',
-				'Steps:',
-				'1. If the task has existing notes (e.g. from the Targeted stage), read them first with readTaskNotes for full context.',
-				'2. Use getUserProfile to read the user resume.',
-				'3. Parse the job description (use webSearch if a URL is available and jobDescription is empty).',
-				'4. Use updateJobFields to fill ONLY MISSING fields — do NOT overwrite fields that already have a value.',
-				'5. Generate a motivation letter ONLY if the motivationLetter field is currently empty.',
-				'6. Update your task notes with findings using updateMyNotes.'
-			);
-		}
+			// 5. Save the prompt as a user message
+			const { messageId } = await todoAgent.saveMessage(ctx, {
+				threadId,
+				prompt,
+				skipEmbeddings: true
+			});
 
-		const prompt = promptParts.filter(Boolean).join('\n');
-
-		// 5. Save the prompt as a user message
-		const { messageId } = await todoAgent.saveMessage(ctx, {
-			threadId,
-			prompt,
-			skipEmbeddings: true
-		});
-
-		// 6. Run the agent with guarded execution
-		await runTodoAgentForTask(ctx, {
-			userId: args.userId,
-			taskId: args.taskId,
-			threadId,
-			promptMessageId: messageId,
-			trigger: 'newTask',
-			defaultSummary: 'Nova finished processing.'
+			// 6. Run the agent with guarded execution
+			await runTodoAgentForTask(ctx, {
+				userId: args.userId,
+				taskId: args.taskId,
+				threadId,
+				promptMessageId: messageId,
+				trigger: 'newTask',
+				defaultSummary: 'Nova finished processing.'
+			});
 		});
 	}
 });
@@ -740,48 +777,50 @@ export const triggerAgentForTaskUpdate = internalAction({
 		prompt: v.string()
 	},
 	handler: async (ctx, args) => {
-		// 0. Mark task as working
-		await ctx.runMutation(internal.todos.updateTaskAgentStatusInternal, {
-			userId: args.userId,
-			taskId: args.taskId,
-			agentStatus: 'working'
-		});
+		await withAgentStuckGuard(ctx, args, async () => {
+			// 0. Mark task as working
+			await ctx.runMutation(internal.todos.updateTaskAgentStatusInternal, {
+				userId: args.userId,
+				taskId: args.taskId,
+				agentStatus: 'working'
+			});
 
-		// 1. Build board context
-		const { otherTasks, columnInfo, currentDateTime } = await buildBoardContext(
-			ctx,
-			args.userId,
-			args.taskId
-		);
+			// 1. Build board context
+			const { otherTasks, columnInfo, currentDateTime } = await buildBoardContext(
+				ctx,
+				args.userId,
+				args.taskId
+			);
 
-		const fullPrompt = [
-			`Current date/time: ${currentDateTime}`,
-			args.prompt,
-			'',
-			columnInfo.join('\n'),
-			'',
-			otherTasks.length > 0
-				? `Other tasks on the board (for awareness — you can notify them but NOT modify them):\n${otherTasks.join('\n')}`
-				: null
-		]
-			.filter(Boolean)
-			.join('\n');
+			const fullPrompt = [
+				`Current date/time: ${currentDateTime}`,
+				args.prompt,
+				'',
+				columnInfo.join('\n'),
+				'',
+				otherTasks.length > 0
+					? `Other tasks on the board (for awareness — you can notify them but NOT modify them):\n${otherTasks.join('\n')}`
+					: null
+			]
+				.filter(Boolean)
+				.join('\n');
 
-		// 2. Save user message to existing thread
-		const { messageId } = await todoAgent.saveMessage(ctx, {
-			threadId: args.threadId,
-			prompt: fullPrompt,
-			skipEmbeddings: true
-		});
+			// 2. Save user message to existing thread
+			const { messageId } = await todoAgent.saveMessage(ctx, {
+				threadId: args.threadId,
+				prompt: fullPrompt,
+				skipEmbeddings: true
+			});
 
-		// 3. Run agent with guarded execution
-		await runTodoAgentForTask(ctx, {
-			userId: args.userId,
-			taskId: args.taskId,
-			threadId: args.threadId,
-			promptMessageId: messageId,
-			trigger: 'taskUpdate',
-			defaultSummary: 'Nova finished processing.'
+			// 3. Run agent with guarded execution
+			await runTodoAgentForTask(ctx, {
+				userId: args.userId,
+				taskId: args.taskId,
+				threadId: args.threadId,
+				promptMessageId: messageId,
+				trigger: 'taskUpdate',
+				defaultSummary: 'Nova finished processing.'
+			});
 		});
 	}
 });
@@ -801,7 +840,8 @@ export const triggerAgentForNotification = internalAction({
 		priority: v.string()
 	},
 	handler: async (ctx, args) => {
-		// 0. Check if agent is already working on this task
+		// 0. Check if agent is already working on this task (outside the guard —
+		// this is a legitimate early return, not a failure).
 		const currentStatus = await ctx.runQuery(internal.todos.getTaskAgentStatus, {
 			userId: args.userId,
 			taskId: args.taskId
@@ -820,82 +860,84 @@ export const triggerAgentForNotification = internalAction({
 			return;
 		}
 
-		// 1. Mark task as working
-		await ctx.runMutation(internal.todos.updateTaskAgentStatusInternal, {
-			userId: args.userId,
-			taskId: args.taskId,
-			agentStatus: 'working'
-		});
+		await withAgentStuckGuard(ctx, args, async () => {
+			// 1. Mark task as working
+			await ctx.runMutation(internal.todos.updateTaskAgentStatusInternal, {
+				userId: args.userId,
+				taskId: args.taskId,
+				agentStatus: 'working'
+			});
 
-		// 2. Fetch any queued pending notifications
-		const pendingNotifications = await ctx.runQuery(
-			internal.todo.notifications.getPendingNotifications,
-			{ userId: args.userId, taskId: args.taskId }
-		);
+			// 2. Fetch any queued pending notifications
+			const pendingNotifications = await ctx.runQuery(
+				internal.todo.notifications.getPendingNotifications,
+				{ userId: args.userId, taskId: args.taskId }
+			);
 
-		// 3. Build notification prompt
-		const allNotifications = [
-			{ from: args.fromTaskId, message: args.message, priority: args.priority },
-			...pendingNotifications.map(
-				(n: { fromTaskId: string; message: string; priority: string }) => ({
-					from: n.fromTaskId,
-					message: n.message,
-					priority: n.priority
-				})
-			)
-		];
+			// 3. Build notification prompt
+			const allNotifications = [
+				{ from: args.fromTaskId, message: args.message, priority: args.priority },
+				...pendingNotifications.map(
+					(n: { fromTaskId: string; message: string; priority: string }) => ({
+						from: n.fromTaskId,
+						message: n.message,
+						priority: n.priority
+					})
+				)
+			];
 
-		const notifLines = allNotifications.map(
-			(n) => `  [${n.priority.toUpperCase()}] From task ${n.from}: ${n.message}`
-		);
+			const notifLines = allNotifications.map(
+				(n) => `  [${n.priority.toUpperCase()}] From task ${n.from}: ${n.message}`
+			);
 
-		// 4. Build board context
-		const { otherTasks, columnInfo, currentDateTime } = await buildBoardContext(
-			ctx,
-			args.userId,
-			args.taskId
-		);
+			// 4. Build board context
+			const { otherTasks, columnInfo, currentDateTime } = await buildBoardContext(
+				ctx,
+				args.userId,
+				args.taskId
+			);
 
-		const prompt = [
-			`Current date/time: ${currentDateTime}`,
-			`Notification received for your task: "${args.taskTitle}"`,
-			'',
-			'Incoming notification(s):',
-			...notifLines,
-			'',
-			'Review these notifications and decide if your task needs updating.',
-			'You may update your own notes, move your task, or take no action if irrelevant.',
-			'If you need to notify other tasks in response, use notifyTask.',
-			'',
-			columnInfo.join('\n'),
-			'',
-			otherTasks.length > 0
-				? `Other tasks on the board (for awareness only):\n${otherTasks.join('\n')}`
-				: null
-		]
-			.filter(Boolean)
-			.join('\n');
+			const prompt = [
+				`Current date/time: ${currentDateTime}`,
+				`Notification received for your task: "${args.taskTitle}"`,
+				'',
+				'Incoming notification(s):',
+				...notifLines,
+				'',
+				'Review these notifications and decide if your task needs updating.',
+				'You may update your own notes, move your task, or take no action if irrelevant.',
+				'If you need to notify other tasks in response, use notifyTask.',
+				'',
+				columnInfo.join('\n'),
+				'',
+				otherTasks.length > 0
+					? `Other tasks on the board (for awareness only):\n${otherTasks.join('\n')}`
+					: null
+			]
+				.filter(Boolean)
+				.join('\n');
 
-		// 5. Save prompt and run agent
-		const { messageId } = await todoAgent.saveMessage(ctx, {
-			threadId: args.threadId,
-			prompt,
-			skipEmbeddings: true
-		});
+			// 5. Save prompt and run agent
+			const { messageId } = await todoAgent.saveMessage(ctx, {
+				threadId: args.threadId,
+				prompt,
+				skipEmbeddings: true
+			});
 
-		await runTodoAgentForTask(ctx, {
-			userId: args.userId,
-			taskId: args.taskId,
-			threadId: args.threadId,
-			promptMessageId: messageId,
-			trigger: 'notification',
-			defaultSummary: 'Nova finished processing.',
-			onDone: async () => {
-				await ctx.runMutation(internal.todo.notifications.clearPendingNotifications, {
-					userId: args.userId,
-					taskId: args.taskId
-				});
-			}
+			await runTodoAgentForTask(ctx, {
+				userId: args.userId,
+				taskId: args.taskId,
+				threadId: args.threadId,
+				promptMessageId: messageId,
+				trigger: 'notification',
+				defaultSummary: 'Nova finished processing.',
+				onDone: async () => {
+					await ctx.runMutation(internal.todo.notifications.clearPendingNotifications, {
+						userId: args.userId,
+						taskId: args.taskId
+					});
+				}
+			});
 		});
 	}
 });
