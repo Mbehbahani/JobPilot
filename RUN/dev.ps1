@@ -25,8 +25,12 @@ if ($backendPath) {
     Write-Host "[dev] job-personal-search not found, skipping FastAPI backend." -ForegroundColor Yellow
 }
 
-# ── SvelteKit + Convex dev ────────────────────────────────────────────────────
-bun run dev
+# ── SvelteKit dev ──────────────────────────────────────────────────────────────
+# Convex has been migrated to the Railway self-hosted backend, and `.env.local`
+# points the frontend at that Railway URL. Do not start `convex dev` here: it
+# targets a separate local/anonymous Convex backend and fails unless all backend
+# secrets are configured there too.
+bun run dev:frontend
 
 
 
