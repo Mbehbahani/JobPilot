@@ -14,13 +14,14 @@ export function getSupportLanguageModel(): any {
  * Uses the user's connected ChatGPT account (OAuth access token).
  * Throws if the user has not connected their OpenAI account.
  *
- * IMPORTANT: OpenAI's Codex Responses API (chatgpt.com/backend-api/codex/responses)
- * rejects EVERY model for ChatGPT accounts on the Free plan — confirmed empirically,
- * the API returns 400 "The '<model>' model is not supported when using Codex with a
- * ChatGPT account" regardless of which model is requested. We fail fast here with a
- * clear, actionable message instead of letting the request hit the API (which crashes
- * the underlying agent component's stream-reconstruction logic and leaves the task
- * stuck in "working" — see src/lib/convex/todo/messages.ts trigger action try/catch).
+ * NOTE: the Codex Responses API (chatgpt.com/backend-api/codex/responses) rejects
+ * requests with 400 "The '<model>' model is not supported when using Codex with a
+ * ChatGPT account" when the required `Originator` header is missing — this is NOT
+ * necessarily a plan-tier restriction (confirmed: a Plus-plan account got the same
+ * error before the Originator header was added in getOpenAILanguageModel). We still
+ * fail fast on `planType === 'free'` below since OpenAI's docs state Codex requires
+ * Plus/Pro/Business/Edu/Enterprise, but don't treat this API error message alone as
+ * proof of a free-plan account.
  */
 export async function getTaskLanguageModelForUser(
 	ctx: {
@@ -65,6 +66,15 @@ export function getOpenAILanguageModel(
 			if (accountId) {
 				headers.set('ChatGPT-Account-Id', accountId);
 			}
+
+			// The Codex backend (chatgpt.com/backend-api/codex/responses) requires an
+			// `Originator` header identifying the caller as a legitimate Codex client.
+			// Without it, the backend rejects EVERY model with a generic "model is not
+			// supported when using Codex with a ChatGPT account" error, regardless of
+			// plan tier or model name — this was previously misdiagnosed as a free-plan
+			// restriction. `codex_cli_rs` is the default originator used by the official
+			// Codex CLI (see openai/codex login/src/auth/default_client.rs).
+			headers.set('Originator', 'codex_cli_rs');
 
 			// Rewrite URL to Codex endpoint
 			const parsed =
