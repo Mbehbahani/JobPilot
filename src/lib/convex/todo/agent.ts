@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { components, internal } from '../_generated/api';
 import { getSupportLanguageModel } from '../support/llmProvider';
 import type { ToolCtx } from '@convex-dev/agent';
+import { extractLinkedInJobId } from './jobInput';
 
 const MAX_RESULT = 4096;
 const MAX_NOTIFICATIONS_PER_MINUTE = 5;
@@ -286,7 +287,17 @@ export const readTaskNotes = createTool({
 			taskId: input.taskId,
 			title: info.title,
 			notes: info.notes ?? '(no notes)',
-			columnId: info.columnId
+			columnId: info.columnId,
+			companyName: info.companyName,
+			position: info.position,
+			jobUrl: info.jobUrl,
+			jobDescription: info.jobDescription,
+			skills: info.skills,
+			country: info.country,
+			jobLevel: info.jobLevel,
+			jobType: info.jobType,
+			platform: info.platform,
+			motivationLetterPresent: Boolean(info.motivationLetter)
 		};
 	}
 });
@@ -311,7 +322,11 @@ export const webSearch = createTool({
 			};
 		}
 
-		const res = await fetch(url, {
+		const linkedinJobId = extractLinkedInJobId(url);
+		const fetchUrl = linkedinJobId
+			? `https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/${linkedinJobId}`
+			: url;
+		const res = await fetch(fetchUrl, {
 			headers: {
 				'User-Agent':
 					'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
@@ -327,10 +342,14 @@ export const webSearch = createTool({
 		const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
 		const title = titleMatch?.[1]?.trim() || url;
 		const text = stripHtmlToText(html);
+		if (!text || text.length < 80) {
+			return { success: false, error: 'The page did not return a readable job posting.' };
+		}
 
 		return {
 			success: true,
 			url,
+			fetchedFrom: fetchUrl,
 			title,
 			content: truncate(text, MAX_RESULT)
 		};

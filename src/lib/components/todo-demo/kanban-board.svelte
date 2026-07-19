@@ -302,7 +302,11 @@
 		items = move(items, event as any) as KanbanData;
 	}
 
-	async function persistBoard(nextBoard: KanbanData, rollbackBoard: KanbanData): Promise<void> {
+	async function persistBoard(
+		nextBoard: KanbanData,
+		rollbackBoard: KanbanData,
+		agentInputTaskIds?: string[]
+	): Promise<void> {
 		const nextSnapshot = cloneBoard(nextBoard);
 		const rollbackSnapshot = cloneBoard(rollbackBoard);
 		pendingSaveCount += 1;
@@ -310,7 +314,7 @@
 		try {
 			await convexClient.mutation(
 				api.todos.saveBoard,
-				{ board: nextSnapshot },
+				{ board: nextSnapshot, agentInputTaskIds },
 				{
 					optimisticUpdate: (store) => {
 						store.setQuery(api.todos.getBoard, {}, nextSnapshot);
@@ -469,10 +473,14 @@
 	async function handleTaskSave(id: string, updates: Partial<TodoItem>) {
 		const rollbackBoard = cloneBoard(items);
 		const nextBoard = cloneBoard(items);
+		let agentInputChanged = false;
 		for (const colId of columnIds) {
 			const idx = nextBoard[colId].findIndex((t) => t.id === id);
 			if (idx !== -1) {
 				const currentTask = nextBoard[colId][idx];
+				agentInputChanged = (['title', 'notes', 'jobUrl', 'jobDescription'] as const).some(
+					(key) => (updates[key] ?? '') !== (currentTask[key] ?? '')
+				);
 				nextBoard[colId][idx] = currentTask.hasUnreadEmailSignal
 					? { ...clearEmailSignal(currentTask), ...updates }
 					: { ...currentTask, ...updates };
@@ -480,7 +488,7 @@
 			}
 		}
 		items = nextBoard;
-		await persistBoard(nextBoard, rollbackBoard);
+		await persistBoard(nextBoard, rollbackBoard, agentInputChanged ? [id] : undefined);
 	}
 
 	async function handleTaskDelete(id: string) {
@@ -886,7 +894,7 @@
 									<div class={getEmailSignalBannerClass(banner.type)}>
 										<div class="flex items-start justify-between gap-3">
 											<div class="min-w-0 flex-1">
-												<p class="text-[11px] font-semibold uppercase tracking-wide">
+												<p class="text-[11px] font-semibold tracking-wide uppercase">
 													{banner.taskTitle}
 												</p>
 												<p class="mt-1 text-xs">{banner.summary}</p>
@@ -941,7 +949,7 @@
 										<div class={getEmailSignalBannerClass(banner.type)}>
 											<div class="flex items-start justify-between gap-3">
 												<div class="min-w-0 flex-1">
-													<p class="text-[11px] font-semibold uppercase tracking-wide">
+													<p class="text-[11px] font-semibold tracking-wide uppercase">
 														{banner.taskTitle}
 													</p>
 													<p class="mt-1 text-xs">{banner.summary}</p>

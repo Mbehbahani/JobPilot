@@ -4,7 +4,6 @@ import {
 	applyColumnGuard,
 	formatTodoAgentDebug,
 	resolveTodoRunOutcome,
-	shouldContinueAfterOther,
 	shouldInjectTodoNearLimitReminder
 } from './messages';
 
@@ -139,10 +138,9 @@ describe('applyColumnGuard', () => {
 		summary: 'Something went wrong.'
 	};
 
-	it('overrides done to error when task is stuck in working-on', () => {
+	it('passes through done regardless of the current column', () => {
 		const result = applyColumnGuard(doneResolution, 'working-on');
-		expect(result).toMatchObject({ outcome: 'error', status: 'error' });
-		expect(result.summary).toContain('finished without completing');
+		expect(result).toEqual(doneResolution);
 	});
 
 	it('passes through done when task moved to done', () => {
@@ -163,28 +161,6 @@ describe('applyColumnGuard', () => {
 	it('handles undefined columnId gracefully', () => {
 		const result = applyColumnGuard(doneResolution, undefined);
 		expect(result).toEqual(doneResolution);
-	});
-});
-
-describe('shouldContinueAfterOther', () => {
-	it('returns true for finishReason=other with progress', () => {
-		expect(shouldContinueAfterOther('other', 3)).toBe(true);
-	});
-
-	it('returns false for finishReason=other with no steps', () => {
-		expect(shouldContinueAfterOther('other', 0)).toBe(false);
-	});
-
-	it('returns false for finishReason=stop', () => {
-		expect(shouldContinueAfterOther('stop', 5)).toBe(false);
-	});
-
-	it('returns false for finishReason=error', () => {
-		expect(shouldContinueAfterOther('error', 2)).toBe(false);
-	});
-
-	it('returns false for undefined finishReason', () => {
-		expect(shouldContinueAfterOther(undefined, 3)).toBe(false);
 	});
 });
 

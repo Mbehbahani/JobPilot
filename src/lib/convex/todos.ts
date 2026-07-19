@@ -2,6 +2,7 @@ import { v } from 'convex/values';
 import { internalMutation, internalQuery } from './_generated/server';
 import { internal } from './_generated/api';
 import { authedMutation, authedQuery } from './functions';
+import { normalizeJobInput } from './todo/jobInput';
 
 const COLUMN_IDS = ['targeted', 'preparing', 'applied', 'interviewing', 'done'] as const;
 const _DEFAULT_COLUMN_IDS = [...COLUMN_IDS];
@@ -267,8 +268,9 @@ function sanitizeAndFlattenBoard(
 
 	for (const columnId of COLUMN_IDS) {
 		for (const [index, rawTask] of board[columnId].entries()) {
-			const id = rawTask.id.trim();
-			const title = rawTask.title.trim();
+			const normalizedTask = normalizeJobInput(rawTask);
+			const id = normalizedTask.id.trim();
+			const title = normalizedTask.title;
 			if (!id) {
 				throw new Error('Task id is required');
 			}
@@ -281,14 +283,15 @@ function sanitizeAndFlattenBoard(
 			seenIds.add(id);
 
 			const existing = existingTasksById.get(id);
-			const notes = rawTask.notes?.trim() || undefined;
-			const agentLogs = rawTask.agentLogs?.trim() || existing?.agentLogs || undefined;
-			const threadId = rawTask.threadId || existing?.threadId || undefined;
-			const agentStatus = rawTask.agentStatus || existing?.agentStatus || undefined;
-			const agentSummary = rawTask.agentSummary?.trim() || existing?.agentSummary || undefined;
-			const agentDraft = rawTask.agentDraft?.trim() || existing?.agentDraft || undefined;
-			const agentDraftType = rawTask.agentDraftType || existing?.agentDraftType || undefined;
-			const hasUnreadNotes = rawTask.hasUnreadNotes ?? existing?.hasUnreadNotes ?? undefined;
+			const notes = normalizedTask.notes?.trim() || undefined;
+			const agentLogs = normalizedTask.agentLogs?.trim() || existing?.agentLogs || undefined;
+			const threadId = normalizedTask.threadId || existing?.threadId || undefined;
+			const agentStatus = normalizedTask.agentStatus || existing?.agentStatus || undefined;
+			const agentSummary =
+				normalizedTask.agentSummary?.trim() || existing?.agentSummary || undefined;
+			const agentDraft = normalizedTask.agentDraft?.trim() || existing?.agentDraft || undefined;
+			const agentDraftType = normalizedTask.agentDraftType || existing?.agentDraftType || undefined;
+			const hasUnreadNotes = normalizedTask.hasUnreadNotes ?? existing?.hasUnreadNotes ?? undefined;
 			const hasUnreadEmailSignal =
 				rawTask.hasUnreadEmailSignal ?? existing?.hasUnreadEmailSignal ?? undefined;
 			const isNewTask = rawTask.isNewTask ?? existing?.isNewTask ?? undefined;
@@ -304,9 +307,9 @@ function sanitizeAndFlattenBoard(
 			// Job fields
 			const companyName = rawTask.companyName?.trim() || existing?.companyName || undefined;
 			const position = rawTask.position?.trim() || existing?.position || undefined;
-			const jobUrl = rawTask.jobUrl?.trim() || existing?.jobUrl || undefined;
+			const jobUrl = normalizedTask.jobUrl?.trim() || existing?.jobUrl || undefined;
 			const jobDescription =
-				rawTask.jobDescription?.trim() || existing?.jobDescription || undefined;
+				normalizedTask.jobDescription?.trim() || existing?.jobDescription || undefined;
 			const skills = rawTask.skills?.trim() || existing?.skills || undefined;
 			const country = rawTask.country?.trim() || existing?.country || undefined;
 			const jobLevel = rawTask.jobLevel?.trim() || existing?.jobLevel || undefined;
@@ -391,7 +394,8 @@ export const getBoard = authedQuery({
 
 export const saveBoard = authedMutation({
 	args: {
-		board: boardValidator
+		board: boardValidator,
+		agentInputTaskIds: v.optional(v.array(v.string()))
 	},
 	returns: boardValidator,
 	handler: async (ctx, args) => {
@@ -404,6 +408,7 @@ export const saveBoard = authedMutation({
 		const existingTasksById = new Map(
 			(existing?.tasks as StoredTask[] | undefined)?.map((task) => [task.id, task]) ?? []
 		);
+		const agentInputTaskIds = new Set(args.agentInputTaskIds ?? []);
 		const sanitizedTasks = sanitizeAndFlattenBoard(parsedBoard, existingTasksById);
 		const now = Date.now();
 
@@ -459,7 +464,9 @@ export const saveBoard = authedMutation({
 				const oldTask = existingTasksById.get(task.id)!;
 
 				const columnChanged = task.columnId !== oldTask.columnId;
-				const notesChanged = (task.notes ?? '') !== (oldTask.notes ?? '');
+				const agentInputChanged = agentInputTaskIds.has(task.id);
+				const interruptedWorkingRun =
+					oldTask.agentStatus === 'working' && task.columnId !== oldTask.columnId;
 
 				if (task.columnId === 'done') {
 					task.agentStatus = 'idle';
@@ -467,10 +474,10 @@ export const saveBoard = authedMutation({
 				}
 
 				if (!oldTask.threadId) {
-					// No thread yet — create one on any meaningful change.
-					// Notes-only change on a targeted task is skipped: the agent writes notes itself,
-					// and stale client state can cause false notesChanged positives after a drag.
-					const shouldTrigger = columnChanged || (notesChanged && task.columnId !== 'targeted');
+					// Only explicit user input saves and column moves may create a thread.
+					// Generic board saves can contain stale data after Nova writes fields/notes,
+					// so deriving triggers from field differences here can create repeated runs.
+					const shouldTrigger = !interruptedWorkingRun && (columnChanged || agentInputChanged);
 					if (shouldTrigger) {
 						await ctx.scheduler.runAfter(0, internal.todo.messages.triggerAgentForNewTask, {
 							userId: ctx.user._id,
@@ -480,7 +487,7 @@ export const saveBoard = authedMutation({
 							taskColumn: task.columnId
 						});
 					}
-				} else {
+				} else if (!interruptedWorkingRun) {
 					// Has thread — notify agent of user-initiated changes
 					const retryRequested = oldTask.agentStatus === 'error' && task.agentStatus !== 'error';
 
@@ -516,16 +523,13 @@ export const saveBoard = authedMutation({
 							taskTitle: task.title,
 							prompt: columnMovePrompt
 						});
-					} else if (notesChanged && task.columnId !== 'targeted') {
-						// Targeted tasks: never re-trigger on notes-only change.
-						// The agent writes its own notes there, and stale client state from
-						// a drag can cause false positives that re-run the analysis.
+					} else if (agentInputChanged) {
 						await ctx.scheduler.runAfter(0, internal.todo.messages.triggerAgentForTaskUpdate, {
 							userId: ctx.user._id,
 							threadId: oldTask.threadId,
 							taskId: task.id,
 							taskTitle: task.title,
-							prompt: `User updated notes on your task "${task.title}". New notes: ${task.notes ?? '(cleared)'}. Acknowledge and adjust your plan if needed.`
+							prompt: `The user updated the task inputs for "${task.title}". Re-read the current task snapshot, fetch the job URL if present, and fill only missing job fields. Do not overwrite existing fields or move the task.`
 						});
 					}
 				}
@@ -871,7 +875,17 @@ export const getTaskThreadInfo = internalQuery({
 			threadId: task.threadId,
 			title: task.title,
 			notes: task.notes,
-			columnId: task.columnId
+			columnId: task.columnId,
+			companyName: task.companyName,
+			position: task.position,
+			jobUrl: task.jobUrl,
+			jobDescription: task.jobDescription,
+			skills: task.skills,
+			country: task.country,
+			jobLevel: task.jobLevel,
+			jobType: task.jobType,
+			platform: task.platform,
+			motivationLetter: task.motivationLetter
 		};
 	}
 });
@@ -887,6 +901,33 @@ export const getTaskAgentStatus = internalQuery({
 		if (!board) return null;
 		const task = (board.tasks as StoredTask[]).find((t) => t.id === args.taskId);
 		return task?.agentStatus ?? null;
+	}
+});
+
+/** Atomically claim a task before starting Nova so duplicate scheduled actions cannot overlap. */
+export const beginTaskAgentRunInternal = internalMutation({
+	args: { userId: v.string(), taskId: v.string() },
+	returns: v.boolean(),
+	handler: async (ctx, args) => {
+		const board = await ctx.db
+			.query('todoBoards')
+			.withIndex('by_user', (q: any) => q.eq('userId', args.userId))
+			.first();
+		if (!board) return false;
+
+		const tasks = [...(board.tasks as StoredTask[])];
+		const taskIndex = tasks.findIndex((task) => task.id === args.taskId);
+		if (taskIndex === -1 || tasks[taskIndex].agentStatus === 'working') return false;
+
+		const now = Date.now();
+		tasks[taskIndex] = {
+			...tasks[taskIndex],
+			agentStatus: 'working',
+			agentStartedAt: now,
+			updatedAt: now
+		};
+		await ctx.db.patch(board._id, { tasks, updatedAt: now });
+		return true;
 	}
 });
 
@@ -1134,25 +1175,6 @@ export const getColumnMetaInternal = internalQuery({
 	}
 });
 
-export const getTasksForCascade = internalQuery({
-	args: { userId: v.string() },
-	handler: async (ctx, args) => {
-		const board = await ctx.db
-			.query('todoBoards')
-			.withIndex('by_user', (q: any) => q.eq('userId', args.userId))
-			.first();
-		if (!board) return [];
-		return (board.tasks as StoredTask[]).map((t) => ({
-			id: t.id,
-			title: t.title,
-			notes: t.notes,
-			columnId: t.columnId,
-			agentStatus: t.agentStatus,
-			threadId: t.threadId
-		}));
-	}
-});
-
 // ── One-time migration: strip legacy fields from existing tasks ─────────────
 
 const LEGACY_TASK_FIELDS = [
@@ -1185,5 +1207,34 @@ export const stripLegacyTaskFields = internalMutation({
 			}
 		}
 		return { patched, total: boards.length };
+	}
+});
+
+/** One-time/safe rerunnable repair for cards created by pasting a URL or description as title. */
+export const normalizeStoredJobInputs = internalMutation({
+	args: {},
+	handler: async (ctx) => {
+		const boards = await ctx.db.query('todoBoards').collect();
+		let normalizedTasks = 0;
+
+		for (const board of boards) {
+			const tasks = (board.tasks as StoredTask[]).map((task) => {
+				const normalized = normalizeJobInput(task);
+				if (
+					normalized.jobUrl === task.jobUrl &&
+					normalized.jobDescription === task.jobDescription
+				) {
+					return task;
+				}
+				normalizedTasks += 1;
+				return { ...normalized, updatedAt: Date.now() };
+			});
+
+			if (tasks.some((task, index) => task !== (board.tasks as StoredTask[])[index])) {
+				await ctx.db.patch(board._id, { tasks, updatedAt: Date.now() });
+			}
+		}
+
+		return { boards: boards.length, normalizedTasks };
 	}
 });

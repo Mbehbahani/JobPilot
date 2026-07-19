@@ -3,7 +3,7 @@ import { openrouter } from '@openrouter/ai-sdk-provider';
 import { internal } from '../_generated/api';
 import { CODEX_API_ENDPOINT } from '../openai';
 
-const DEFAULT_CODEX_MODEL = 'gpt-5.3-codex';
+const DEFAULT_CODEX_MODEL = 'gpt-5.4';
 
 export function getSupportLanguageModel(): any {
 	return openrouter('qwen/qwen3-vl-30b-a3b-thinking');

@@ -26,13 +26,8 @@ const TODO_AGENT_CONTENT_FILTER_SUMMARY =
 	'Nova was stopped by a content filter. Review the task and retry with different wording.';
 const TODO_AGENT_OTHER_FINISH_SUMMARY =
 	'Nova stopped unexpectedly without completing the task. Review notes and retry if needed.';
-const TODO_AGENT_CONTINUE_PROMPT = 'Complete the task.';
-const TODO_AGENT_MAX_CONTINUATIONS = 1;
 const TODO_AGENT_NEAR_LIMIT_REMINDER =
 	'System reminder: you are close to the runtime limit. Wrap up now. Record concrete findings, move the task to the right column, and send your final one-sentence summary. Do not start new exploratory work unless it is required to finish.';
-
-const TODO_AGENT_STUCK_WORKING_SUMMARY =
-	'Nova finished without completing the task. Review notes and retry.';
 
 type TodoRunOutcome = 'done' | 'timeout' | 'step_limit' | 'error';
 
@@ -245,23 +240,12 @@ export function shouldInjectTodoNearLimitReminder(args: {
 }
 
 /**
- * Check if a run ended with finishReason=other and made progress,
- * meaning a continuation retry is likely to succeed.
- */
-export function shouldContinueAfterOther(
-	finishReason: FinishReason | undefined,
-	stepCount: number
-): boolean {
-	return finishReason === 'other' && stepCount > 0;
-}
-
-/**
- * Apply post-run column guard: if the agent reported "done" but the task
- * is still in preparing, that's normal — just return the resolution as-is.
+ * Intentional passthrough. Column-specific behavior is enforced by prompts/tools,
+ * not by rewriting a completed run after the fact.
  */
 export function applyColumnGuard(
 	resolution: TodoRunResolution,
-	columnId: string | undefined
+	_columnId: string | undefined
 ): TodoRunResolution {
 	return resolution;
 }
@@ -309,99 +293,62 @@ async function runTodoAgentForTask(
 	const model = await getTaskLanguageModelForUser(ctx as any, args.userId);
 	const startedAt = Date.now();
 	let nearLimitReminderSent = false;
-	let promptMessageId = args.promptMessageId;
 	let metadata: TodoRunMetadata = { steps: [], text: '' };
 	let resolution!: TodoRunResolution;
-	let totalSteps = 0;
-	const debugParts: string[] = [];
-
-	for (let attempt = 0; attempt <= TODO_AGENT_MAX_CONTINUATIONS; attempt++) {
-		const result = await todoAgent.streamText(
-			ctx as any,
-			{ threadId: args.threadId, userId: args.userId },
-			{
-				promptMessageId,
-				model,
-				providerOptions: { openai: { store: false, reasoningEffort: 'medium' } },
-				abortSignal: AbortSignal.timeout(TODO_AGENT_ABORT_MS - (Date.now() - startedAt)),
-				stopWhen: stepCountIs(TODO_AGENT_MAX_STEPS - totalSteps),
-				prepareStep: async (options) => {
-					if (
-						!shouldInjectTodoNearLimitReminder({
-							elapsedMs: Date.now() - startedAt,
-							stepCount: totalSteps + options.stepNumber,
-							reminderSent: nearLimitReminderSent
-						})
-					) {
-						return undefined;
-					}
-
-					nearLimitReminderSent = true;
-					return {
-						messages: [...options.messages, createTodoNearLimitReminderMessage()]
-					};
+	const result = await todoAgent.streamText(
+		ctx as any,
+		{ threadId: args.threadId, userId: args.userId },
+		{
+			promptMessageId: args.promptMessageId,
+			model,
+			providerOptions: { openai: { store: false, reasoningEffort: 'medium' } },
+			abortSignal: AbortSignal.timeout(TODO_AGENT_ABORT_MS),
+			stopWhen: stepCountIs(TODO_AGENT_MAX_STEPS),
+			prepareStep: async (options) => {
+				if (
+					!shouldInjectTodoNearLimitReminder({
+						elapsedMs: Date.now() - startedAt,
+						stepCount: options.stepNumber,
+						reminderSent: nearLimitReminderSent
+					})
+				) {
+					return undefined;
 				}
-			},
-			{
-				saveStreamDeltas: {
-					chunking: 'line',
-					throttleMs: 100
-				}
+
+				nearLimitReminderSent = true;
+				return { messages: [...options.messages, createTodoNearLimitReminderMessage()] };
 			}
-		);
+		},
+		{ saveStreamDeltas: { chunking: 'line', throttleMs: 100 } }
+	);
 
-		try {
-			await result.consumeStream();
-			metadata = await collectTodoRunMetadata(result);
-			resolution = resolveTodoRunOutcome({
-				defaultSummary: args.defaultSummary,
-				finishReason: metadata.finishReason,
-				steps: metadata.steps,
-				text: metadata.text
-			});
-		} catch (error) {
-			console.error(`Agent failed for task ${args.taskId}:`, error);
-			metadata = await collectTodoRunMetadata(result);
-			resolution = resolveTodoRunOutcome({
-				defaultSummary: args.defaultSummary,
-				error,
-				finishReason: metadata.finishReason,
-				steps: metadata.steps,
-				text: metadata.text
-			});
-		}
-
-		totalSteps += metadata.steps.length;
-
-		const debug = await extractAgentDebug(result, {
-			taskId: args.taskId,
-			trigger: attempt === 0 ? args.trigger : `continuation-${attempt}`
+	try {
+		await result.consumeStream();
+		metadata = await collectTodoRunMetadata(result);
+		resolution = resolveTodoRunOutcome({
+			defaultSummary: args.defaultSummary,
+			finishReason: metadata.finishReason,
+			steps: metadata.steps,
+			text: metadata.text
 		});
-		debugParts.push(debug);
-
-		// Retry if finishReason=other and model made progress
-		if (
-			attempt < TODO_AGENT_MAX_CONTINUATIONS &&
-			shouldContinueAfterOther(metadata.finishReason, metadata.steps.length)
-		) {
-			console.log(
-				`[agent-continue] task=${args.taskId} attempt=${attempt} finishReason=other steps=${metadata.steps.length} — sending continuation`
-			);
-			const { messageId } = await todoAgent.saveMessage(ctx as any, {
-				threadId: args.threadId,
-				prompt: TODO_AGENT_CONTINUE_PROMPT,
-				skipEmbeddings: true
-			});
-			promptMessageId = messageId;
-			continue;
-		}
-
-		break;
+	} catch (error) {
+		console.error(`Agent failed for task ${args.taskId}:`, error);
+		metadata = await collectTodoRunMetadata(result);
+		resolution = resolveTodoRunOutcome({
+			defaultSummary: args.defaultSummary,
+			error,
+			finishReason: metadata.finishReason,
+			steps: metadata.steps,
+			text: metadata.text
+		});
 	}
 
-	const debug = debugParts.join('\n---\n');
+	const debug = await extractAgentDebug(result, {
+		taskId: args.taskId,
+		trigger: args.trigger
+	});
 
-	// Check if agent deferred (task still in preparing) — set idle so cascade picks it up
+	// Targeted analysis remains idle after completion by design.
 	const taskInfo = await ctx.runQuery(internal.todos.getTaskThreadInfo, {
 		userId: args.userId,
 		taskId: args.taskId
@@ -436,25 +383,8 @@ async function runTodoAgentForTask(
 		userId: args.userId,
 		taskId: args.taskId,
 		agentStatus,
-		agentSummary: deferred
-			? 'Waiting for a related task to finish.'
-			: effective.summary.slice(0, 120)
+		agentSummary: effective.summary.slice(0, 120)
 	});
-
-	// Only cascade if task actually completed (not deferred)
-	if (!deferred) {
-		try {
-			await ctx.scheduler.runAfter(2000, internal.todo.messages.triggerPostCompletionCascade, {
-				userId: args.userId,
-				completedTaskId: args.taskId,
-				completedTaskTitle: taskInfo?.title ?? args.taskId,
-				completedTaskSummary: effective.summary.slice(0, 200),
-				completedTaskStatus: effective.status
-			});
-		} catch (e) {
-			console.error(`Failed to schedule cascade for task ${args.taskId}:`, e);
-		}
-	}
 
 	return effective;
 }
@@ -588,6 +518,7 @@ async function buildBoardContext(
 	otherTasks: string[];
 	columnInfo: string[];
 	currentDateTime: string;
+	currentTaskContext: string;
 }> {
 	const [board, columns] = await Promise.all([
 		ctx.runQuery(internal.todos.getBoardInternal, { userId }),
@@ -595,14 +526,39 @@ async function buildBoardContext(
 	]);
 
 	const otherTasks: string[] = [];
+	let currentTask: Record<string, unknown> | undefined;
 	for (const [col, tasks] of Object.entries(board)) {
-		for (const t of tasks as { id: string; title: string; agentStatus?: string }[]) {
+		for (const t of tasks as Array<Record<string, unknown> & { id: string; title: string }>) {
 			if (t.id !== excludeTaskId) {
-				const statusTag = t.agentStatus ? ` [${t.agentStatus}]` : '';
-				otherTasks.push(`  - [${col}] ${t.title} (id: ${t.id})${statusTag}`);
+				const statusTag = t.agentStatus ? ` [${String(t.agentStatus)}]` : '';
+				otherTasks.push(`  - [${col}] ${truncateText(t.title, 160)} (id: ${t.id})${statusTag}`);
+			} else {
+				currentTask = { ...t, columnId: col };
 			}
 		}
 	}
+
+	const currentTaskContext = currentTask
+		? [
+				'Current task snapshot (authoritative; use this URL and preserve filled fields):',
+				JSON.stringify({
+					id: currentTask.id,
+					title: truncateText(currentTask.title, 300),
+					columnId: currentTask.columnId,
+					notes: truncateText(currentTask.notes, 1200) || undefined,
+					companyName: currentTask.companyName,
+					position: currentTask.position,
+					jobUrl: currentTask.jobUrl,
+					jobDescription: truncateText(currentTask.jobDescription, 6000) || undefined,
+					skills: currentTask.skills,
+					country: currentTask.country,
+					jobLevel: currentTask.jobLevel,
+					jobType: currentTask.jobType,
+					platform: currentTask.platform,
+					motivationLetterPresent: Boolean(currentTask.motivationLetter)
+				})
+			].join('\n')
+		: 'Current task snapshot unavailable.';
 
 	const columnMeta = columns as { id: string; name?: string; instructions?: string }[];
 	const columnInfo: string[] = ['Lists on the board:'];
@@ -616,7 +572,7 @@ async function buildBoardContext(
 
 	const currentDateTime = new Date().toISOString();
 
-	return { otherTasks, columnInfo, currentDateTime };
+	return { otherTasks, columnInfo, currentDateTime, currentTaskContext };
 }
 
 /**
@@ -641,12 +597,12 @@ export const triggerAgentForNewTask = internalAction({
 	},
 	handler: async (ctx, args) => {
 		await withAgentStuckGuard(ctx, args, async () => {
-			// 0. Mark task as working
-			await ctx.runMutation(internal.todos.updateTaskAgentStatusInternal, {
+			// 0. Atomically claim the task. A duplicate scheduled action exits here.
+			const claimed = await ctx.runMutation(internal.todos.beginTaskAgentRunInternal, {
 				userId: args.userId,
-				taskId: args.taskId,
-				agentStatus: 'working'
+				taskId: args.taskId
 			});
+			if (!claimed) return;
 
 			// 1. Create a thread for this task
 			const { threadId } = await todoAgent.createThread(ctx, {
@@ -662,11 +618,8 @@ export const triggerAgentForNewTask = internalAction({
 			});
 
 			// 3. Build board context
-			const { otherTasks, columnInfo, currentDateTime } = await buildBoardContext(
-				ctx,
-				args.userId,
-				args.taskId
-			);
+			const { otherTasks, columnInfo, currentDateTime, currentTaskContext } =
+				await buildBoardContext(ctx, args.userId, args.taskId);
 
 			// 4. Build prompt
 			const truncatedNotes =
@@ -675,7 +628,8 @@ export const triggerAgentForNewTask = internalAction({
 					: args.taskNotes;
 			const promptParts: (string | null)[] = [
 				`Current date/time: ${currentDateTime}`,
-				`You are now the dedicated agent for this task: "${args.taskTitle}"`,
+				currentTaskContext,
+				`You are now the dedicated agent for this task: "${truncateText(args.taskTitle, 300)}"`,
 				`Current column: ${args.taskColumn}`,
 				truncatedNotes ? `Notes: ${truncatedNotes}` : null,
 				'',
@@ -716,8 +670,8 @@ export const triggerAgentForNewTask = internalAction({
 					'',
 					'Your task:',
 					'1. Review the task title and any notes/URL provided.',
-					'2. If a job URL is present, use webSearch to retrieve the job posting and extract available details.',
-					'3. Use updateJobFields to fill ONLY MISSING fields (company name, position, skills, job level, job type, country, job description, etc.) — do NOT overwrite fields that already have a value.',
+					'2. If jobDescription is present, parse it directly. If jobUrl is present and jobDescription is empty, call webSearch with that exact URL.',
+					'3. Use updateJobFields to fill ONLY MISSING fields (company name, position, skills, job level, job type, country, job description, platform, etc.) — do NOT overwrite fields that already have a value.',
 					'4. Write a structured consultation summary to the task notes using updateMyNotes. Include:',
 					'   - What information you found and extracted',
 					'   - What fields are still missing and what the user should add',
@@ -778,22 +732,20 @@ export const triggerAgentForTaskUpdate = internalAction({
 	},
 	handler: async (ctx, args) => {
 		await withAgentStuckGuard(ctx, args, async () => {
-			// 0. Mark task as working
-			await ctx.runMutation(internal.todos.updateTaskAgentStatusInternal, {
+			// 0. Atomically claim the task. A duplicate scheduled action exits here.
+			const claimed = await ctx.runMutation(internal.todos.beginTaskAgentRunInternal, {
 				userId: args.userId,
-				taskId: args.taskId,
-				agentStatus: 'working'
+				taskId: args.taskId
 			});
+			if (!claimed) return;
 
 			// 1. Build board context
-			const { otherTasks, columnInfo, currentDateTime } = await buildBoardContext(
-				ctx,
-				args.userId,
-				args.taskId
-			);
+			const { otherTasks, columnInfo, currentDateTime, currentTaskContext } =
+				await buildBoardContext(ctx, args.userId, args.taskId);
 
 			const fullPrompt = [
 				`Current date/time: ${currentDateTime}`,
+				currentTaskContext,
 				args.prompt,
 				'',
 				columnInfo.join('\n'),
@@ -840,14 +792,13 @@ export const triggerAgentForNotification = internalAction({
 		priority: v.string()
 	},
 	handler: async (ctx, args) => {
-		// 0. Check if agent is already working on this task (outside the guard —
-		// this is a legitimate early return, not a failure).
-		const currentStatus = await ctx.runQuery(internal.todos.getTaskAgentStatus, {
+		// 0. Atomically claim the task before reading queued notifications.
+		const claimed = await ctx.runMutation(internal.todos.beginTaskAgentRunInternal, {
 			userId: args.userId,
 			taskId: args.taskId
 		});
 
-		if (currentStatus === 'working') {
+		if (!claimed) {
 			// Agent is busy — queue notification for later delivery
 			await ctx.runMutation(internal.todo.notifications.createNotification, {
 				userId: args.userId,
@@ -861,14 +812,7 @@ export const triggerAgentForNotification = internalAction({
 		}
 
 		await withAgentStuckGuard(ctx, args, async () => {
-			// 1. Mark task as working
-			await ctx.runMutation(internal.todos.updateTaskAgentStatusInternal, {
-				userId: args.userId,
-				taskId: args.taskId,
-				agentStatus: 'working'
-			});
-
-			// 2. Fetch any queued pending notifications
+			// 1. Fetch any queued pending notifications
 			const pendingNotifications = await ctx.runQuery(
 				internal.todo.notifications.getPendingNotifications,
 				{ userId: args.userId, taskId: args.taskId }
@@ -891,14 +835,12 @@ export const triggerAgentForNotification = internalAction({
 			);
 
 			// 4. Build board context
-			const { otherTasks, columnInfo, currentDateTime } = await buildBoardContext(
-				ctx,
-				args.userId,
-				args.taskId
-			);
+			const { otherTasks, columnInfo, currentDateTime, currentTaskContext } =
+				await buildBoardContext(ctx, args.userId, args.taskId);
 
 			const prompt = [
 				`Current date/time: ${currentDateTime}`,
+				currentTaskContext,
 				`Notification received for your task: "${args.taskTitle}"`,
 				'',
 				'Incoming notification(s):',
@@ -939,72 +881,5 @@ export const triggerAgentForNotification = internalAction({
 				}
 			});
 		});
-	}
-});
-
-/**
- * Post-completion cascade: wakes idle tasks after a task finishes.
- * Deferred tasks (in `todo` with no agentStatus) get triggered here.
- */
-const MAX_CASCADE_TARGETS = 3;
-
-export const triggerPostCompletionCascade = internalAction({
-	args: {
-		userId: v.string(),
-		completedTaskId: v.string(),
-		completedTaskTitle: v.string(),
-		completedTaskSummary: v.string(),
-		completedTaskStatus: v.string()
-	},
-	handler: async (ctx, args) => {
-		const allTasks = await ctx.runQuery(internal.todos.getTasksForCascade, {
-			userId: args.userId
-		});
-
-		// Find candidates: todo column, no agentStatus or idle/error, not the completed task
-		const candidates = allTasks.filter(
-			(t: { id: string; columnId: string; agentStatus?: string }) =>
-				t.id !== args.completedTaskId &&
-				t.columnId === 'targeted' &&
-				(!t.agentStatus || t.agentStatus === 'idle' || t.agentStatus === 'error')
-		);
-
-		const targets = candidates.slice(0, MAX_CASCADE_TARGETS);
-
-		if (targets.length === 0) {
-			console.log(`[cascade] No cascade targets for completed task ${args.completedTaskId}`);
-			return;
-		}
-
-		console.log(`[cascade] Cascading from ${args.completedTaskId} to ${targets.length} task(s)`);
-
-		const notification = {
-			fromTaskId: args.completedTaskId,
-			message: `Task "${args.completedTaskTitle}" completed (${args.completedTaskStatus}): ${args.completedTaskSummary}`,
-			priority: 'normal'
-		};
-
-		for (const target of targets) {
-			if (target.threadId) {
-				await ctx.scheduler.runAfter(0, internal.todo.messages.triggerAgentForNotification, {
-					userId: args.userId,
-					threadId: target.threadId,
-					taskId: target.id,
-					taskTitle: target.title,
-					fromTaskId: args.completedTaskId,
-					message: notification.message,
-					priority: notification.priority
-				});
-			} else {
-				await ctx.scheduler.runAfter(0, internal.todo.messages.triggerAgentForNewTask, {
-					userId: args.userId,
-					taskId: target.id,
-					taskTitle: target.title,
-					taskNotes: target.notes,
-					taskColumn: target.columnId,
-					incomingNotification: notification
-				});
-			}
-		}
 	}
 });
