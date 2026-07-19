@@ -1,10 +1,9 @@
 @echo off
 :: ─────────────────────────────────────────────
-::  JobPilot – Start dev server (Vite + Convex)
+::  JobPilot – Start local frontend with Railway Convex
 ::  Double-click this file or run it from CMD.
 :: ─────────────────────────────────────────────
-set "PATH=C:\Users\Mohammad\.bun\bin;%PATH%"
 cd /d "%~dp0.."
 echo Starting dev server...
-bun run dev
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\RUN\dev.ps1"
 pause

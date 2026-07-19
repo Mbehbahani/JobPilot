@@ -5,14 +5,15 @@
 $env:PATH = "C:\Users\Mohammad\.bun\bin;" + $env:PATH
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
-# ── Convex env: point to localhost for local dev ──────────────────────────────
-# SITE_URL      → BetterAuth uses this for OAuth redirect URLs
-# EMAIL_ASSET_URL → Resend email templates use this for verification links
-# NOTE: This mutates the Convex cloud deployment (CONVEX_DEPLOYMENT_PLACEHOLDER).
-#       Run .\RUN\restore-prod.ps1 before deploying to production.
-Write-Host "[dev] Setting Convex env vars for local dev..." -ForegroundColor Cyan
-# bunx convex env set SITE_URL http://localhost:5173
-# bunx convex env set EMAIL_ASSET_URL http://localhost:5173
+# ── Convex backend ────────────────────────────────────────────────────────────
+# Local SvelteKit connects to the shared Railway-hosted Convex instance through
+# the URLs in `.env.local`. Do NOT change Convex SITE_URL to localhost: SITE_URL
+# is global to the shared backend and must remain the production HTTPS origin.
+#
+# Local auth works through `/api/auth/*`, which proxies to Railway. The proxy
+# translates Railway's secure auth cookies for localhost HTTP. Railway Better
+# Auth must include http://localhost:5173 in BETTER_AUTH_TRUSTED_ORIGINS.
+Write-Host "[dev] Using Railway Convex from .env.local (SITE_URL stays production)." -ForegroundColor Cyan
 
 # ── Personal Job Search backend (FastAPI on :8000) ────────────────────────────
 # Required for the My Job Search page (/app/my-job-search) to work.
@@ -26,10 +27,9 @@ if ($backendPath) {
 }
 
 # ── SvelteKit dev ──────────────────────────────────────────────────────────────
-# Convex has been migrated to the Railway self-hosted backend, and `.env.local`
-# points the frontend at that Railway URL. Do not start `convex dev` here: it
-# targets a separate local/anonymous Convex backend and fails unless all backend
-# secrets are configured there too.
+# Do not start `convex dev` here: it targets a separate local/anonymous Convex
+# backend and will not contain the Railway data, environment variables, or
+# component state.
 bun run dev:frontend
 
 
