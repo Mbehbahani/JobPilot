@@ -2,7 +2,7 @@
 
 This file is updated by GitHub Actions to keep a lightweight maintenance trail for JobPilot.
 
-- Last automated review (UTC): 2026-04-22 11:18:21
+- Last automated review (UTC): 2026-09-14 15:39:07
 - Active branch target: main
 - Maintenance scope: workflow health, automation readiness, and repository hygiene
 
