@@ -156,10 +156,47 @@ const authFirstPattern: Handle = async function authFirstPattern({ event, resolv
 	return resolve(event);
 };
 
+/**
+ * Never let a browser cache a dynamic API response.
+ *
+ * The hosting platform (Netlify) attaches `Cache-Control: max-age=86400` to
+ * every function response that does not set its own. For `/api/*` that is
+ * actively harmful: on 2026-09-11 a transient 403 from `/api/auth/convex/token`
+ * was cached by the browser for 24 hours, so the user stayed locked out long
+ * after the server was fixed. Auth tokens and session lookups must be
+ * `no-store`; any route that genuinely wants caching can still set its own
+ * header, which is respected here.
+ */
+const handleApiNoStore: Handle = async function handleApiNoStore({ event, resolve }) {
+	const response = await resolve(event);
+	const path = event.url.pathname;
+	if (!path.startsWith('/api/')) return response;
+
+	// Auth responses are always no-store, even if something upstream set a value.
+	// Other API routes keep an explicit header if they chose one.
+	const force = path.startsWith('/api/auth/');
+	if (force || !response.headers.has('cache-control')) {
+		try {
+			response.headers.set('Cache-Control', 'no-store');
+		} catch {
+			// Immutable headers (e.g. a bare proxied Response): rebuild once.
+			const headers = new Headers(response.headers);
+			headers.set('Cache-Control', 'no-store');
+			return new Response(response.body, {
+				status: response.status,
+				statusText: response.statusText,
+				headers
+			});
+		}
+	}
+	return response;
+};
+
 export const handle = sequence(
 	handleCsrfBypass,
 	handleDevOnlyRoutes,
 	handleAuth,
 	handleLanguage,
-	authFirstPattern
+	authFirstPattern,
+	handleApiNoStore
 );

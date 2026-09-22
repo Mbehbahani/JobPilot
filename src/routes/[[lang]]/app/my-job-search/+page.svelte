@@ -136,14 +136,16 @@
 
 	// ── Search state ──
 	let searching = $state(false);
-	let searchResult = $state<{
+	type SearchResult = {
 		status: string;
+		run_id?: string | null;
 		total_found?: number;
 		total_new?: number;
 		error?: string;
 		llm_summary?: string;
 		source_summary?: Record<string, { found: number; new: number; error?: string }>;
-	} | null>(null);
+	};
+	let searchResult = $state<SearchResult | null>(null);
 
 	// ── Progress steps ──
 	type ProgressStep = {
@@ -473,11 +475,21 @@
 		];
 
 		try {
+			// Capture which run was latest BEFORE starting, so polling can tell the new
+			// run apart from a previous one and never surfaces a stale result.
+			let previousRunId: string | null = null;
+			try {
+				const pre = await fetch('/api/personal-search/status');
+				if (pre.ok) previousRunId = (await pre.json())?.run_id ?? null;
+			} catch {
+				/* first ever search, or status briefly unavailable */
+			}
+
 			const res = await fetch('/api/personal-search', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					stream: true,
+					async: true,
 					keywords: kws,
 					city: city || null,
 					country: country || null,
@@ -488,56 +500,62 @@
 				})
 			});
 
-			if (res.headers.get('content-type')?.includes('text/event-stream') && res.body) {
-				// Read SSE stream
-				const reader = res.body.getReader();
-				const decoder = new TextDecoder();
-				let buffer = '';
+			const started = await res.json().catch(() => null);
+			if (!res.ok || !started || started.error) {
+				searchResult = {
+					status: 'failed',
+					error: started?.error ?? 'Could not start the search.'
+				};
+				return;
+			}
 
-				function drainBuffer() {
-					const lines = buffer.split('\n');
-					buffer = lines.pop() || '';
+			const warnings: string[] = started.standardized?.warnings ?? [];
+			pushStep(
+				'standardize',
+				warnings.length > 0 ? `Inputs refined: ${warnings.join('. ')}` : 'Search inputs validated.'
+			);
+			pushStep('searching', 'Searching job boards. This can take a few minutes...');
 
-					let currentEvent = '';
-					let currentData = '';
-					for (const line of lines) {
-						if (line.startsWith('event: ')) {
-							// If we had a pending event+data, flush it first
-							if (currentEvent && currentData) {
-								handleSSEEvent(currentEvent, currentData);
-							}
-							currentEvent = line.slice(7).trim();
-							currentData = '';
-						} else if (line.startsWith('data: ')) {
-							currentData = line.slice(6).trim();
-						} else if (line.trim() === '' && currentEvent && currentData) {
-							// Blank line = end of SSE event
-							handleSSEEvent(currentEvent, currentData);
-							currentEvent = '';
-							currentData = '';
+			const finalRun = await pollForRun(started.run_id ?? null, previousRunId);
+
+			if (!finalRun) {
+				progressSteps = progressSteps.map((s) => ({ ...s, done: true }));
+				searchResult = {
+					status: 'failed',
+					error:
+						'This search is taking longer than expected. It is still running in the background - reload this page in a few minutes to see the results.'
+				};
+				return;
+			}
+
+			progressSteps = progressSteps.map((s) => ({ ...s, done: true }));
+			searchResult = {
+				run_id: finalRun.run_id,
+				status: String(finalRun.status ?? 'completed'),
+				total_found: finalRun.total_found,
+				total_new: finalRun.total_new,
+				source_summary: finalRun.source_summary,
+				llm_summary: finalRun.llm_summary,
+				error: finalRun.error
+			};
+
+			// The summary used to be produced inside the stream. Ask for it once now.
+			if (!finalRun.llm_summary && finalRun.run_id) {
+				try {
+					const sres = await fetch('/api/personal-search/summarize', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ run_id: finalRun.run_id })
+					});
+					if (sres.ok) {
+						const s = await sres.json();
+						if (s.llm_summary && searchResult) {
+							searchResult = { ...searchResult, llm_summary: String(s.llm_summary) };
 						}
 					}
-					// Flush any remaining event+data pair (no trailing blank line)
-					if (currentEvent && currentData) {
-						handleSSEEvent(currentEvent, currentData);
-					}
+				} catch {
+					/* the summary is optional; totals are already shown */
 				}
-
-				while (true) {
-					const { done, value } = await reader.read();
-					if (done) break;
-					buffer += decoder.decode(value, { stream: true });
-					drainBuffer();
-				}
-				// Flush decoder and process any remaining buffered data
-				buffer += decoder.decode(new Uint8Array(), { stream: false });
-				if (buffer.trim()) {
-					buffer += '\n';
-					drainBuffer();
-				}
-			} else {
-				// Fallback: non-streaming JSON response
-				searchResult = await res.json();
 			}
 
 			// After search completes, refresh data without losing form state
@@ -552,30 +570,55 @@
 		}
 	}
 
-	function handleSSEEvent(event: string, dataStr: string) {
-		try {
-			const data = JSON.parse(dataStr);
-			if (event === 'step') {
-				// Mark previous steps as done
-				progressSteps = progressSteps.map((s) => ({ ...s, done: true }));
-				// Add new step
-				progressSteps = [...progressSteps, { id: data.step, message: data.message, done: false }];
-			} else if (event === 'complete') {
-				progressSteps = progressSteps.map((s) => ({ ...s, done: true }));
-				searchResult = data;
-			} else if (event === 'interpretation') {
-				// LLM summary from Convex arrives after backend stream completes
-				progressSteps = progressSteps.map((s) => ({ ...s, done: true }));
-				if (searchResult && data.summary) {
-					searchResult = { ...searchResult, llm_summary: data.summary };
-				}
-			} else if (event === 'error') {
-				progressSteps = progressSteps.map((s) => ({ ...s, done: true }));
-				searchResult = { status: 'failed', error: data.error };
+	function pushStep(id: string, message: string) {
+		progressSteps = progressSteps.map((s) => ({ ...s, done: true }));
+		progressSteps = [...progressSteps, { id, message, done: false }];
+	}
+
+	/**
+	 * Poll the search run until it reaches a terminal status.
+	 *
+	 * Replaces the old SSE stream. The stream had to be held open by a serverless
+	 * function for the whole search (30-260s), which Netlify terminates at ~10s -
+	 * the client then saw a clean end-of-stream and silently showed nothing. Each
+	 * poll here is a sub-second request, so the function timeout is never a factor.
+	 */
+	async function pollForRun(
+		knownRunId: string | null,
+		previousRunId: string | null
+	): Promise<Record<string, any> | null> {
+		const deadline = Date.now() + 10 * 60 * 1000;
+		const intervalMs = 4000;
+		let announcedRunning = false;
+
+		while (Date.now() < deadline) {
+			await new Promise((r) => setTimeout(r, intervalMs));
+
+			let s: Record<string, any> | null = null;
+			try {
+				const url = knownRunId
+					? `/api/personal-search/status?run_id=${encodeURIComponent(knownRunId)}`
+					: '/api/personal-search/status';
+				const r = await fetch(url);
+				if (!r.ok) continue;
+				s = await r.json();
+			} catch {
+				continue; // transient - keep polling
 			}
-		} catch {
-			// ignore parse errors
+
+			if (!s || !s.run_id) continue;
+
+			// Until the new run exists, ignore whatever was there before.
+			if (!knownRunId && previousRunId && s.run_id === previousRunId) continue;
+
+			if (!announcedRunning && !s.finished) {
+				announcedRunning = true;
+				pushStep('running', 'Collecting and de-duplicating results...');
+			}
+
+			if (s.finished) return s;
 		}
+		return null;
 	}
 
 	// ── Actions ──

@@ -10,8 +10,13 @@ import {
 	updateSearchRunSummary,
 	getRecentSearchRuns
 } from '$lib/server/personal-jobs/supabase';
+import { extractAuthUser } from '$lib/server/personal-jobs/auth';
 
-// Extend Vercel serverless function timeout for long-running searches (search + LLM).
+// NOTE: `maxDuration` is a Vercel directive. This site is deployed on Netlify,
+// which ignores it and terminates a synchronous function after ~10s on the
+// current plan. It is kept only so a future move back to Vercel still works --
+// it does nothing here. The supported path for long searches is the async start
+// mode below plus client polling of /api/personal-search/status.
 export const config = { maxDuration: 300 };
 
 const personalSearchLlm = {
@@ -68,23 +73,16 @@ function buildFallbackSummary(args: {
 	return `${primary} ${sourceParts.join(' | ')}`;
 }
 
-function decodeJwtPayload(token: string): { sub?: string } | null {
-	try {
-		const payload = token.split('.')[1];
-		if (!payload) return null;
-		return JSON.parse(atob(payload));
-	} catch {
-		return null;
-	}
-}
-
-function extractAuthUser(locals: App.Locals): { userId: string } | { error: string } {
-	const token = locals.token;
-	if (!token) return { error: 'Not authenticated' };
-	const payload = decodeJwtPayload(token);
-	const userId = payload?.sub;
-	if (!userId) return { error: 'Invalid token' };
-	return { userId };
+/**
+ * Race a promise against a deadline. Used on the async-start path so a slow
+ * dependency can never push this handler past the hosting platform's function
+ * timeout (~10s on Netlify's current plan for this site).
+ */
+function withTimeout<T>(p: Promise<T>, ms: number): Promise<T | null> {
+	return Promise.race([
+		p,
+		new Promise<null>((resolve) => setTimeout(() => resolve(null), ms))
+	]).catch(() => null);
 }
 
 function validateSearchBody(body: Record<string, unknown>, powerMode: boolean) {
@@ -186,6 +184,10 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	}
 
 	const useStream = body.stream === true;
+	// Async start mode: dispatch the search and return immediately, leaving the
+	// client to poll /api/personal-search/status. This is the mode that works on
+	// a platform with a short function timeout.
+	const useAsync = body.async === true;
 
 	// --- Persist search preferences ---
 	try {
@@ -220,11 +222,14 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	let llmAvailable = false;
 	try {
 		const convex = createConvexHttpClient({ token: locals.token });
-		const result = await convex.action(personalSearchLlm.standardizeInputs, {
+		const standardizeCall = convex.action(personalSearchLlm.standardizeInputs, {
 			keywords,
 			city: body.city || undefined,
 			country: body.country || undefined
 		});
+		// On the async path this LLM call must not eat the function budget: cap it
+		// and fall back to the raw keywords if it is slow.
+		const result = useAsync ? await withTimeout(standardizeCall, 4000) : await standardizeCall;
 		if (result) {
 			standardized = result;
 			llmAvailable = true;
@@ -248,6 +253,51 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	};
 
 	try {
+		if (useAsync) {
+			// Dispatch the search, then return without waiting for it to finish.
+			//
+			// The backend writes progress and results to Supabase independently of
+			// this connection -- the same property the old code already relied on
+			// when API Gateway 504'd at 30s. So we only need the request to *reach*
+			// the backend; once it has, the search continues on its own and the
+			// client picks up the outcome by polling the status endpoint.
+			//
+			// The abort below therefore cancels only our wait for the response, not
+			// the search itself.
+			const dispatch = fetch(`${SEARCH_API}/search`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(searchPayload),
+				signal: AbortSignal.timeout(4000)
+			});
+
+			let runId: string | null = null;
+			try {
+				// If the backend happens to answer quickly, keep the run_id so the
+				// client can poll that exact run instead of "latest".
+				const res = await dispatch;
+				if (res.ok) {
+					const data = await res.json().catch(() => null);
+					runId = data?.run_id ?? null;
+				}
+			} catch {
+				// Expected for any real search: it takes far longer than the abort.
+				// The backend is running regardless.
+			}
+
+			return json({
+				status: 'started',
+				run_id: runId,
+				standardized: {
+					keywords: standardized.keywords,
+					city: standardized.city,
+					country: standardized.country,
+					warnings: standardized.warnings
+				},
+				poll_url: '/api/personal-search/status'
+			});
+		}
+
 		if (useStream) {
 			// Compose a new SSE stream: LLM step → backend stream → LLM interpretation
 			const stream = new ReadableStream({

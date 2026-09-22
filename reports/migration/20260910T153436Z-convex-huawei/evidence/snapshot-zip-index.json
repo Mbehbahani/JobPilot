@@ -1,0 +1,777 @@
+[
+	{
+		"name": "README.md",
+		"size": 420,
+		"crc": "0d38d649"
+	},
+	{
+		"name": "_tables/documents.jsonl",
+		"size": 571,
+		"crc": "0ed7daa1"
+	},
+	{
+		"name": "_components/betterAuth/_tables/documents.jsonl",
+		"size": 179,
+		"crc": "247d18fd"
+	},
+	{
+		"name": "_components/resend/_components/emailWorkpool/_tables/documents.jsonl",
+		"size": 241,
+		"crc": "77d0f2f4"
+	},
+	{
+		"name": "_components/convexFilesControl/_tables/documents.jsonl",
+		"size": 135,
+		"crc": "a1b983a3"
+	},
+	{
+		"name": "_components/resend/_components/callbackWorkpool/_tables/documents.jsonl",
+		"size": 241,
+		"crc": "77d0f2f4"
+	},
+	{
+		"name": "_components/autumn/_tables/documents.jsonl",
+		"size": 31,
+		"crc": "5cd5d8a2"
+	},
+	{
+		"name": "_components/resend/_components/rateLimiter/_tables/documents.jsonl",
+		"size": 33,
+		"crc": "bd9f3780"
+	},
+	{
+		"name": "_components/resend/_tables/documents.jsonl",
+		"size": 165,
+		"crc": "dbb00499"
+	},
+	{
+		"name": "_components/unipile/_tables/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/convexFilesControl/_components/actionRetrier/_tables/documents.jsonl",
+		"size": 27,
+		"crc": "515567d7"
+	},
+	{
+		"name": "_components/agent/_tables/documents.jsonl",
+		"size": 601,
+		"crc": "4e303bc7"
+	},
+	{
+		"name": "_components/rateLimiter/_tables/documents.jsonl",
+		"size": 33,
+		"crc": "bd9f3780"
+	},
+	{
+		"name": "internalUserNotes/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "internalUserNotes/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/resend/_components/callbackWorkpool/pendingCompletion/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/resend/_components/callbackWorkpool/pendingCompletion/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/agent/embeddings_1408/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/agent/embeddings_1408/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/agent/embeddings_1024/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/agent/embeddings_1024/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/agent/apiKeys/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/agent/apiKeys/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/convexFilesControl/downloadGrants/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/convexFilesControl/downloadGrants/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/resend/_components/callbackWorkpool/pendingStart/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/resend/_components/callbackWorkpool/pendingStart/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/convexFilesControl/pendingUploads/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/convexFilesControl/pendingUploads/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/resend/_components/emailWorkpool/work/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/resend/_components/emailWorkpool/work/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/agent/embeddings_3072/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/agent/embeddings_3072/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "messages/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "messages/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "fileMetadata/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "fileMetadata/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/convexFilesControl/fileAccess/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/convexFilesControl/fileAccess/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/agent/embeddings_4096/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/agent/embeddings_4096/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/convexFilesControl/files/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/convexFilesControl/files/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/agent/files/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/agent/files/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/agent/embeddings_768/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/agent/embeddings_768/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "adminSettings/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "adminSettings/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/resend/_components/callbackWorkpool/work/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/resend/_components/callbackWorkpool/work/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "savedScripts/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "savedScripts/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/agent/embeddings_128/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/agent/embeddings_128/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/resend/_components/emailWorkpool/pendingStart/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/resend/_components/emailWorkpool/pendingStart/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "pendingAdminNotifications/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "pendingAdminNotifications/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/betterAuth/verification/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/betterAuth/verification/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/agent/embeddings_256/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/agent/embeddings_256/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/resend/_components/emailWorkpool/pendingCompletion/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/resend/_components/emailWorkpool/pendingCompletion/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/convexFilesControl/_components/actionRetrier/runs/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/convexFilesControl/_components/actionRetrier/runs/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/resend/_components/callbackWorkpool/pendingCancelation/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/resend/_components/callbackWorkpool/pendingCancelation/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/agent/embeddings_1536/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/agent/embeddings_1536/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/agent/embeddings_2048/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/agent/embeddings_2048/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/resend/_components/emailWorkpool/pendingCancelation/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/resend/_components/emailWorkpool/pendingCancelation/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/agent/memories/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/agent/memories/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/agent/embeddings_512/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/agent/embeddings_512/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/resend/nextBatchRun/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/resend/nextBatchRun/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/autumn/counters/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/autumn/counters/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/resend/_components/callbackWorkpool/runStatus/documents.jsonl",
+		"size": 118,
+		"crc": "9d59561f"
+	},
+	{
+		"name": "_components/resend/_components/callbackWorkpool/runStatus/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/resend/_components/emailWorkpool/runStatus/documents.jsonl",
+		"size": 118,
+		"crc": "e8f8080f"
+	},
+	{
+		"name": "_components/resend/_components/emailWorkpool/runStatus/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/resend/_components/callbackWorkpool/globals/documents.jsonl",
+		"size": 118,
+		"crc": "4498cd6f"
+	},
+	{
+		"name": "_components/resend/_components/callbackWorkpool/globals/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/resend/_components/emailWorkpool/globals/documents.jsonl",
+		"size": 119,
+		"crc": "d20a2c5d"
+	},
+	{
+		"name": "_components/resend/_components/emailWorkpool/globals/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/resend/_components/rateLimiter/rateLimits/documents.jsonl",
+		"size": 141,
+		"crc": "5022f4e8"
+	},
+	{
+		"name": "_components/resend/_components/rateLimiter/rateLimits/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/resend/lastOptions/documents.jsonl",
+		"size": 276,
+		"crc": "3a388d0d"
+	},
+	{
+		"name": "_components/resend/lastOptions/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/resend/_components/callbackWorkpool/internalState/documents.jsonl",
+		"size": 343,
+		"crc": "1569885f"
+	},
+	{
+		"name": "_components/resend/_components/callbackWorkpool/internalState/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/resend/_components/emailWorkpool/internalState/documents.jsonl",
+		"size": 343,
+		"crc": "879b55bd"
+	},
+	{
+		"name": "_components/resend/_components/emailWorkpool/internalState/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/betterAuth/passkey/documents.jsonl",
+		"size": 477,
+		"crc": "056bd765"
+	},
+	{
+		"name": "_components/betterAuth/passkey/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "taskNotifications/documents.jsonl",
+		"size": 518,
+		"crc": "754db8c8"
+	},
+	{
+		"name": "taskNotifications/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "adminNotificationPreferences/documents.jsonl",
+		"size": 614,
+		"crc": "949343ee"
+	},
+	{
+		"name": "adminNotificationPreferences/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/rateLimiter/rateLimits/documents.jsonl",
+		"size": 817,
+		"crc": "2eeae437"
+	},
+	{
+		"name": "_components/rateLimiter/rateLimits/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "adminAuditLogs/documents.jsonl",
+		"size": 2744,
+		"crc": "69c031e1"
+	},
+	{
+		"name": "adminAuditLogs/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "supportThreads/documents.jsonl",
+		"size": 2702,
+		"crc": "5965d386"
+	},
+	{
+		"name": "supportThreads/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "gmailConnections/documents.jsonl",
+		"size": 3199,
+		"crc": "3aceeca7"
+	},
+	{
+		"name": "gmailConnections/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/betterAuth/jwks/documents.jsonl",
+		"size": 3836,
+		"crc": "d6389e1c"
+	},
+	{
+		"name": "_components/betterAuth/jwks/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/resend/deliveryEvents/documents.jsonl",
+		"size": 4827,
+		"crc": "183d484b"
+	},
+	{
+		"name": "_components/resend/deliveryEvents/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/betterAuth/user/documents.jsonl",
+		"size": 5915,
+		"crc": "f29222b3"
+	},
+	{
+		"name": "_components/betterAuth/user/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "openaiConnections/documents.jsonl",
+		"size": 10644,
+		"crc": "06cb04bb"
+	},
+	{
+		"name": "openaiConnections/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "emailEvents/documents.jsonl",
+		"size": 11846,
+		"crc": "898d66dc"
+	},
+	{
+		"name": "emailEvents/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/resend/emails/documents.jsonl",
+		"size": 25768,
+		"crc": "35b95083"
+	},
+	{
+		"name": "_components/resend/emails/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/betterAuth/session/documents.jsonl",
+		"size": 28739,
+		"crc": "17834ca3"
+	},
+	{
+		"name": "_components/betterAuth/session/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "userSettings/documents.jsonl",
+		"size": 28057,
+		"crc": "c487d52e"
+	},
+	{
+		"name": "userSettings/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/betterAuth/account/documents.jsonl",
+		"size": 31266,
+		"crc": "adbd1ccc"
+	},
+	{
+		"name": "_components/betterAuth/account/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/agent/streamingMessages/documents.jsonl",
+		"size": 50228,
+		"crc": "221c8dfe"
+	},
+	{
+		"name": "_components/agent/streamingMessages/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/agent/streamDeltas/documents.jsonl",
+		"size": 53830,
+		"crc": "8c50a673"
+	},
+	{
+		"name": "_components/agent/streamDeltas/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/agent/threads/documents.jsonl",
+		"size": 154728,
+		"crc": "1be2be3d"
+	},
+	{
+		"name": "_components/agent/threads/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/resend/content/documents.jsonl",
+		"size": 506931,
+		"crc": "19a9477c"
+	},
+	{
+		"name": "_components/resend/content/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "todoBoards/documents.jsonl",
+		"size": 775709,
+		"crc": "1f5b1139"
+	},
+	{
+		"name": "todoBoards/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_components/agent/messages/documents.jsonl",
+		"size": 13129991,
+		"crc": "3f9114c9"
+	},
+	{
+		"name": "_components/agent/messages/generated_schema.jsonl",
+		"size": 10,
+		"crc": "cac8153f"
+	},
+	{
+		"name": "_storage/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/betterAuth/_storage/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/resend/_components/emailWorkpool/_storage/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/convexFilesControl/_storage/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/resend/_components/callbackWorkpool/_storage/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/autumn/_storage/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/resend/_components/rateLimiter/_storage/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/resend/_storage/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/unipile/_storage/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/convexFilesControl/_components/actionRetrier/_storage/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/agent/_storage/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	},
+	{
+		"name": "_components/rateLimiter/_storage/documents.jsonl",
+		"size": 0,
+		"crc": "00000000"
+	}
+]

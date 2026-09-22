@@ -1,0 +1,7 @@
+[build]
+  # Renovate pushes/rebases very frequently (schedule: "at any time"), and each
+  # push to a renovate/* branch was triggering a full Netlify deploy preview.
+  # Skip builds for those branches entirely; Renovate PRs are still verified by
+  # the repo's own GitHub Actions (static-checks.yml, e2e-preview.yml).
+  # A preview can still be triggered manually from the Netlify UI if needed.
+  ignore = "case $BRANCH in renovate/*|renovate-*) exit 0 ;; *) exit 1 ;; esac"

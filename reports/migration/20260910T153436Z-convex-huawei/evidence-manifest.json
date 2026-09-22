@@ -1,0 +1,495 @@
+{
+	"run_id": "20260910T153436Z-convex-huawei",
+	"generated_utc": "2026-09-10T18:20:37Z",
+	"acceptance_revision": "1",
+	"state": "isolated destination verified; AC-14 public reachability proven; cutover approved by owner but blocked on Cloudflare named-tunnel creation; production NOT migrated",
+	"bindings": {
+		"harness_session_id": "ses_8a6204c7375b4c008f49d0a98e057de6",
+		"harness_task_id": "MIG-SMOKE-002",
+		"harness_contract_hash": "fafb922990b9de5fd7b18f72378db616356fa55b21c429f0291a96fc5e69bad2",
+		"harness_attempt_id": "attempt_92b6f9d42f89411084f94bd9e775fdf5",
+		"harness_grant_id": "grant_834a0e50aad74e11a89a182716d8c396",
+		"harness_artifact_hash": "cb03aa33bc93e836d46b19a14f16c8b512ce991aec5b7095f64e20e4680956d6",
+		"harness_review_id": "review_52c9938e6fdf4bc6a4797ab7ee9fe5cd",
+		"harness_review_acknowledged": false,
+		"generator_context_snapshot_id": "ctx_b972ee995499434d9bf8e01482be8260",
+		"coordinator_review_context_snapshot_id": "ctx_15780304314f40c8aa9d9056a0ee00cb",
+		"evaluator_context_snapshot_id": "ctx_9900f6ffd842426e8d30273a7f235804",
+		"mcp_cited_query_context_snapshot_id": "ctx_60359d17907340ccbbf154b524b1ef0c",
+		"registered_check": {
+			"id": "rollback-targets-v1",
+			"policy_hash": "f41511f761f653121fc4806204644bbcf0448cc5f28cc3f1b0fa414f755346f7",
+			"result": "pass",
+			"exit_code": 0
+		},
+		"usage": {
+			"tokens": "unknown",
+			"cost": "unknown"
+		}
+	},
+	"source_topology": {
+		"backend": {
+			"provider": "AWS EC2",
+			"instance": "i-03a95de5085f45cd6",
+			"type": "t4g.small",
+			"arch": "arm64",
+			"az": "eu-central-1b",
+			"eip": "3.120.122.232",
+			"security_group": "sg-07789c8d3a90f8788",
+			"root_volume": "vol-032bdf0739a4902e1"
+		},
+		"database": {
+			"provider": "Railway",
+			"project": "convex",
+			"project_id": "5882fd90-3843-4a0d-8293-47b25d360649",
+			"service_id": "b16b2337-4181-4f93-a0c9-5fea416d8543",
+			"image": "postgres:17",
+			"image_digest": "sha256:7ad98329d513dd497293b951c195ca354274a77f12ddbbbbf85e68a811823d72",
+			"public_proxy": "kodama.proxy.rlwy.net:21648",
+			"convex_database_name": "railway",
+			"tls_enforced": false
+		},
+		"hostnames": ["convex-cloud.oploy.eu", "convex-site.oploy.eu", "convex-dashboard.oploy.eu"],
+		"frontend": "jobpilot.oploy.eu (Cloudflare) - unchanged, not migrated",
+		"status": "STILL AUTHORITATIVE - production runs here"
+	},
+	"destination_topology": {
+		"host": "Huawei Ubuntu 24.04.4, 10.130.231.5, x86_64, 8 cores, 7.5GiB",
+		"compose_project": "convex-huawei",
+		"network": "convex-huawei-net",
+		"volumes": ["convex-huawei-pgdata", "convex-huawei-convex-data"],
+		"ports": {
+			"cloud_origin": 3210,
+			"site_origin": 3211,
+			"dashboard": 6791,
+			"postgres": "NOT published to host"
+		},
+		"images_pinned_by_digest": {
+			"convex-backend": "sha256:71acf855388a71ad2fc597cd1dbea3fd262e179a07f93e754842a522024f1034",
+			"convex-dashboard": "sha256:6e35c65cdb56c3334da3c2fe0f2fe1dc6a8589f5570bd2c6146e06bc9792db70",
+			"postgres": "sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675"
+		},
+		"restart_policy": "unless-stopped",
+		"public_reachability": "PROVEN via cloudflared quick tunnel: HTTPS 200 + valid TLS + HTTP 101 websocket upgrade from the public internet (2026-09-10). Tunnel torn down. Named tunnel and production hostname mapping still pending a Cloudflare login."
+	},
+	"verification_results": {
+		"restore_source_to_destination": {
+			"tables": 89,
+			"documents": 3114,
+			"missing": 0,
+			"extra": 0,
+			"mismatches": 0,
+			"verdict": "PASS"
+		},
+		"restore_backup_to_fresh_volumes": {
+			"tables": 89,
+			"documents": 3114,
+			"verdict": "PASS"
+		},
+		"function_spec_diff": {
+			"source": 207,
+			"destination": 207,
+			"verdict": "IDENTICAL"
+		},
+		"migration_verification_suite": {
+			"passed": 8,
+			"failed": 0
+		},
+		"project_e2e_suite": {
+			"passed": 40,
+			"failed": 1,
+			"not_run": 1
+		},
+		"unit_tests": {
+			"passed": 190,
+			"failed": 3,
+			"note": "3 failures pre-existing (F-11)"
+		},
+		"type_check": {
+			"errors": 19,
+			"note": "all pre-existing in 3 unmodified files (F-12)"
+		},
+		"restart_recovery": {
+			"healthy_within_seconds": 10,
+			"tables_before": 15,
+			"tables_after": 15
+		}
+	},
+	"evaluator_verdicts": {
+		"MIG-002": "PASS (independent)",
+		"MIG-003": "PASS (independent)",
+		"MIG-004": "REVIEWED - DOES NOT PASS at revision 1: AC-6/7/8/9/10/11 PASS, AC-12 PARTIAL (host reboot never observed), AC-14 FAIL (no public path exists). One overclaim found and corrected.",
+		"harness_smoke_cycle": "PASS both criteria (independent); finalize blocked on human review-ack"
+	},
+	"backups": {
+		"location": "C:\\Backups\\jobpilot-convex\\20260910T153436Z-convex-huawei",
+		"policy": "Held outside Git and outside the reports directory. Contains real user data; never commit, never quote.",
+		"artifacts": [
+			{
+				"path": "C:\\Backups\\jobpilot-convex\\20260910T153436Z-convex-huawei\\convex-snapshot.zip",
+				"role": "source-backup",
+				"note": "read-only export from the live AWS production backend",
+				"sha256": "bf6755977d2145bfe31d78818f7978c1da83e62cbb6c567240c843ff6e575c16",
+				"bytes": 3496721,
+				"modified_utc": "2026-09-10T15:40:53Z",
+				"contains_sensitive_data": true
+			},
+			{
+				"path": "C:\\Backups\\jobpilot-convex\\20260910T153436Z-convex-huawei\\huawei-verify.zip",
+				"role": "verification-export",
+				"note": "re-export from the Huawei destination after restore",
+				"sha256": "3f7c4e8e1ff49846c60e48c6d45f0d133517feb19ce48ee41087ffc3bf46da2c",
+				"bytes": 3496721,
+				"modified_utc": "2026-09-10T15:52:55Z",
+				"contains_sensitive_data": true
+			},
+			{
+				"path": "C:\\Backups\\jobpilot-convex\\20260910T153436Z-convex-huawei\\restore-test-verify.zip",
+				"role": "verification-export",
+				"note": "re-export from a fresh-volume restore",
+				"sha256": "6ca5413577d19de41619d1d8b2915b3dcb219ce07fd1413e5eba73c240bfd37f",
+				"bytes": 3496721,
+				"modified_utc": "2026-09-10T18:19:12Z",
+				"contains_sensitive_data": true
+			},
+			{
+				"path": "C:\\Backups\\jobpilot-convex\\20260910T153436Z-convex-huawei\\SHA256SUMS.txt",
+				"role": "checksums",
+				"note": "checksums of the three archives",
+				"sha256": "eacbf38575569604b4d26a16d97ec30df7c37de24f5157b2ff5880a9e23d727f",
+				"bytes": 260,
+				"modified_utc": "2026-09-10T18:20:36Z",
+				"contains_sensitive_data": false
+			}
+		]
+	},
+	"reports": [
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\status.md",
+			"role": "report",
+			"note": "current state and blockers",
+			"sha256": "332d5642c04e52cd5b24df88bb2bc479c62f74b9d4ac3ad972cd31929a5c0930",
+			"bytes": 9099,
+			"modified_utc": "2026-09-10T18:20:26Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\plan.md",
+			"role": "report",
+			"note": "slices, bindings, authorization",
+			"sha256": "ef7375eddd5100a3570826505a4ad7a0da7323c20109a951865941c434ec7fab",
+			"bytes": 3886,
+			"modified_utc": "2026-09-10T16:54:06Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\decisions.md",
+			"role": "report",
+			"note": "decision record",
+			"sha256": "48567403bdd7194b07311a45c5cfd2c1fe7c6fd8fcea406a024828ba7f615186",
+			"bytes": 12671,
+			"modified_utc": "2026-09-10T17:31:50Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\problems-and-recovery.md",
+			"role": "report",
+			"note": "every failure encountered",
+			"sha256": "e64fa1af9a4c6273442d952d6c8d416750f5c96b1648acea6dae6afbb2648678",
+			"bytes": 9904,
+			"modified_utc": "2026-09-10T16:53:16Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\effort-and-usage.md",
+			"role": "report",
+			"note": "timings; tokens and cost remain unknown",
+			"sha256": "11e0c3c070ac2b2f07768cb94010acc0f32d7d2d03f04f76568312df49b8d984",
+			"bytes": 2752,
+			"modified_utc": "2026-09-10T16:53:36Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\cutover-and-rollback.md",
+			"role": "report",
+			"note": "MIG-005 plan - NOT executed",
+			"sha256": "21bb5f3b8a3875db9749ac1b7ff9a0618ea6cb6759d518a6dbb0a364906c2eed",
+			"bytes": 12172,
+			"modified_utc": "2026-09-10T16:52:24Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\decommissioning-list.md",
+			"role": "report",
+			"note": "candidates for later approval; nothing deleted",
+			"sha256": "15c8d53f425ecf96f191d804dd0b4f51a1171813a6fbb27316eef7716419cc5a",
+			"bytes": 3903,
+			"modified_utc": "2026-09-10T16:54:34Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\final-report.md",
+			"role": "report",
+			"note": "final summary",
+			"sha256": "b19d266a335484d1476e55efe4481ab0fe72b6b131d3eaf0fa87a75f95f04bad",
+			"bytes": 10975,
+			"modified_utc": "2026-09-10T17:34:14Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\activation-prep-log.md",
+			"role": "report",
+			"note": "activation preparation pass: AC-14 closure, permission boundaries",
+			"sha256": "b26f82d321ccd095e7e22cf3e1b328ecc958865c4f0ea4efa776c455565c0c11",
+			"bytes": 8793,
+			"modified_utc": "2026-09-10T18:08:19Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\slices/MIG-001-inventory-and-baseline.md",
+			"role": "report",
+			"note": "inventory and baseline",
+			"sha256": "a4a89921783b80be977c4bfb29c267e07b49dd2fe58fbe86c5cff772393dad95",
+			"bytes": 14912,
+			"modified_utc": "2026-09-10T15:45:53Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\slices/MIG-002-destination-and-recovery-design.md",
+			"role": "report",
+			"note": "destination design",
+			"sha256": "94c3addc7f517478a50fcc3dbcdf2634eb64ceffc14a546865d81468d8923c9d",
+			"bytes": 13946,
+			"modified_utc": "2026-09-10T18:17:19Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\slices/MIG-003-backup-and-isolated-restore.md",
+			"role": "report",
+			"note": "backup and restore",
+			"sha256": "227a5460c10b813d35b909366fb9de943e3193b13436d6554b9fd5e8e041b20d",
+			"bytes": 12020,
+			"modified_utc": "2026-09-10T17:31:38Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\slices/MIG-004-application-integration-and-verification.md",
+			"role": "report",
+			"note": "application verification",
+			"sha256": "4a8af301556a655063de8e9ccef37221e2e443b31d867df940cae0529c4e1dc5",
+			"bytes": 11560,
+			"modified_utc": "2026-09-10T16:48:44Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\evaluator/MIG-002-003-evaluator-verdict.md",
+			"role": "report",
+			"note": "independent evaluator: PASS",
+			"sha256": "d8421337bfcad658579229b37225c0e22036aaf97e8b59a523f6a07c020c7660",
+			"bytes": 7719,
+			"modified_utc": "2026-09-10T17:32:27Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\evaluator/MIG-004-evaluator-verdict.md",
+			"role": "report",
+			"note": "independent evaluator: NOT COMPLETED",
+			"sha256": "31110925e2251acc574542b9c6a051c0aa9b3e7d568a7dd6d7e8dd720137aef9",
+			"bytes": 10542,
+			"modified_utc": "2026-09-10T18:20:15Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\evaluator/harness-smoke-cycle-review.md",
+			"role": "report",
+			"note": "Harness cycle evidence and evaluator verdict",
+			"sha256": "caaf1ffb6181718583838df2509a6240c2e52a5e2495090664d2b0d838c7458d",
+			"bytes": 9858,
+			"modified_utc": "2026-09-10T16:57:27Z",
+			"contains_sensitive_data": false
+		}
+	],
+	"evidence": [
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\evidence\\convex-env-names.txt",
+			"role": "evidence",
+			"note": "deployment env var NAMES only; no values recorded",
+			"sha256": "93d35c492f9d4668a2a753ddf0b97a73954660c0b87e52bc38d37ca0b076c009",
+			"bytes": 454,
+			"modified_utc": "2026-09-10T15:46:42Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\evidence\\snapshot-zip-index.json",
+			"role": "evidence",
+			"note": "index of the source backup: entry names, sizes, CRCs",
+			"sha256": "6b67cb759ceb0290104c886f3896b73fa783ebaac561dd55740a95e65f9181f2",
+			"bytes": 17569,
+			"modified_utc": "2026-09-10T15:46:49Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\evidence\\source-tables.txt",
+			"role": "evidence",
+			"note": "application tables on the source",
+			"sha256": "e884647e24a2ba6334470fc998bf970d6acd986c1080f9907be268352b26add5",
+			"bytes": 241,
+			"modified_utc": "2026-09-10T15:46:43Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\evidence\\restore-comparison.txt",
+			"role": "evidence",
+			"note": "table-by-table source vs destination",
+			"sha256": "9c08f21639c372e8ac83ede3289b945178aa34182984e91a1d9bb947acb7d24c",
+			"bytes": 10171,
+			"modified_utc": "2026-09-10T15:53:18Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\evidence\\fresh-volume-restore-comparison.txt",
+			"role": "evidence",
+			"note": "backup vs fresh-volume restore",
+			"sha256": "000dd77f03249e0f8e9dcce3b8da40888568692ce0c91ed68164e55d189ef71c",
+			"bytes": 462,
+			"modified_utc": "2026-09-10T18:19:13Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\evidence\\function-spec-src.txt",
+			"role": "evidence",
+			"note": "207 functions on the source",
+			"sha256": "4d600f077b6336864b5c503065aee21a91b22df2968c46de306808eb27e059f2",
+			"bytes": 13862,
+			"modified_utc": "2026-09-10T15:55:24Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\evidence\\function-spec-dst.txt",
+			"role": "evidence",
+			"note": "207 functions on the destination",
+			"sha256": "4d600f077b6336864b5c503065aee21a91b22df2968c46de306808eb27e059f2",
+			"bytes": 13862,
+			"modified_utc": "2026-09-10T15:55:24Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\reports\\migration\\20260910T153436Z-convex-huawei\\evidence\\backup-SHA256SUMS.txt",
+			"role": "evidence",
+			"note": "mirror of the backup checksums",
+			"sha256": "eacbf38575569604b4d26a16d97ec30df7c37de24f5157b2ff5880a9e23d727f",
+			"bytes": 260,
+			"modified_utc": "2026-09-10T18:20:36Z",
+			"contains_sensitive_data": false
+		}
+	],
+	"repo_artifacts": [
+		{
+			"path": "D:\\AWS2\\JobPilot\\infra/huawei-convex/docker-compose.yml",
+			"role": "config",
+			"note": "destination stack, digest-pinned (UNTRACKED in git)",
+			"sha256": "02dd3947a0d3bc8537fa2ed51922f6d8306789e74d990a4a0d465a94354a8af9",
+			"bytes": 3436,
+			"modified_utc": "2026-09-10T15:50:46Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\infra/huawei-convex/docker-compose.restore-test.yml",
+			"role": "config",
+			"note": "throwaway restore-verification stack",
+			"sha256": "92cd0bc4b06fd2af9f756a7a7a140025c4879c7b656c140f593a1e7c10194a8b",
+			"bytes": 1896,
+			"modified_utc": "2026-09-10T16:25:40Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\infra/huawei-convex/.env.example",
+			"role": "config",
+			"note": "template only; contains no secrets",
+			"sha256": "f5751448fc754e90943fad29d0f38e2a2be323b5bd3f254b58be6730792a8c7d",
+			"bytes": 2569,
+			"modified_utc": "2026-09-10T15:51:00Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\infra/huawei-convex/.gitignore",
+			"role": "config",
+			"note": "keeps secrets out of git",
+			"sha256": "50a91081b63d5118d45b2acb1cd062a3f612abf2343ff2f031e5e6269f4fe43c",
+			"bytes": 39,
+			"modified_utc": "2026-09-10T15:51:01Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\e2e/_migration-verify.spec.ts",
+			"role": "config",
+			"note": "8-test migration verification suite",
+			"sha256": "5b25e8448ab244e0c42328e46f7955227d017b02a0b75367d466463f5efac133",
+			"bytes": 11108,
+			"modified_utc": "2026-09-10T16:21:35Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\playwright.migration.config.ts",
+			"role": "config",
+			"note": "config that starts no dev server",
+			"sha256": "b8d57a4842abba3ff22eba2b9824dfd5a4a799049c775a40c487fd117f4b1368",
+			"bytes": 1262,
+			"modified_utc": "2026-09-10T16:07:50Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\.mcp.json",
+			"role": "config",
+			"note": "Harness MCP entry merged additively",
+			"sha256": "b6d0b2bf8fe122a14e10f2a0a5fb2dd1fd1cf9a94797883a7be63cc675916e5f",
+			"bytes": 583,
+			"modified_utc": "2026-09-10T15:42:33Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\.mcp.json.bak-premigration",
+			"role": "config",
+			"note": "pre-merge copy",
+			"sha256": "d49719d16fb410a11ecf1691dd591a9b14730352729b355a4b0c594ac3b18fc7",
+			"bytes": 341,
+			"modified_utc": "2026-09-10T15:41:59Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\infra/huawei-convex/ACTIVATION-RUNBOOK.md",
+			"role": "config",
+			"note": "step-by-step activation checklist",
+			"sha256": "97999f13c72cd4c60d716e3aeb6c584d8320dd14240169559030c6aa5b13709b",
+			"bytes": 9045,
+			"modified_utc": "2026-09-10T17:52:15Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\infra/huawei-convex/cutover-sync.sh",
+			"role": "config",
+			"note": "final transfer with fidelity gate",
+			"sha256": "94bb92aaee543149889d39e20739cc8ecf3d0aa022f95ec47d0dd8668a4610ce",
+			"bytes": 2187,
+			"modified_utc": "2026-09-10T17:52:55Z",
+			"contains_sensitive_data": false
+		},
+		{
+			"path": "D:\\AWS2\\JobPilot\\infra/huawei-convex/activate-production-env.sh",
+			"role": "config",
+			"note": "production env restore at cutover",
+			"sha256": "e63ff2d11878dcaaa7704377bd3eb275574c2e4bd848222401598600ad8aa203",
+			"bytes": 3743,
+			"modified_utc": "2026-09-10T17:53:37Z",
+			"contains_sensitive_data": false
+		}
+	],
+	"excluded_by_policy": [
+		"infra/aws-convex/deploy/.env (source secrets)",
+		"infra/aws-convex/convex-aws-migration.pem (private key)",
+		"D:/AWS2/JobPilot/.env* (all local env files, incl. .env.huawei.local and .env.test)",
+		"~/convex-huawei/.env on the destination host",
+		"Account Center files, credential stores, and production backup contents",
+		"All record-level data: only aggregate counts and hashes appear in any report"
+	]
+}

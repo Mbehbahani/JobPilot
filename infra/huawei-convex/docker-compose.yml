@@ -1,0 +1,95 @@
+# Self-hosted Convex on the Huawei Ubuntu server (x86_64).
+#
+# Isolation contract:
+#   - Its own project name, network, and volumes. It shares nothing with the
+#     `oploy-test` stack, Portainer, or Cockpit already on this host.
+#   - Postgres is NOT published to the host. It is reachable only from the
+#     `convex-net` bridge, i.e. only by the backend container.
+#   - This stack must never point at Railway Postgres. POSTGRES_URL lives in
+#     .env and must always resolve to the `postgres` service below.
+#
+# Images are pinned by digest, not by tag. `:latest` is not reproducible and was
+# a recorded finding (F-05) against the AWS deployment this replaces.
+#   convex-backend   :latest resolved 2026-09-10, image created 2026-09-08T18:02:05Z
+#   convex-dashboard :latest resolved 2026-09-10, image created 2026-09-08T17:56:24Z
+#   postgres:17                                   image created 2026-08-25T00:41:57Z
+
+name: convex-huawei
+
+services:
+  postgres:
+    image: postgres@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675
+    container_name: convex-huawei-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: convex
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
+      # The Convex backend derives its database name from INSTANCE_NAME with
+      # hyphens replaced by underscores. INSTANCE_NAME is `railway` (inherited
+      # from the original Railway deployment and deliberately NOT renamed --
+      # the admin key derives from INSTANCE_NAME + INSTANCE_SECRET).
+      POSTGRES_DB: railway
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - convex-net
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U convex -d railway']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  backend:
+    image: ghcr.io/get-convex/convex-backend@sha256:71acf855388a71ad2fc597cd1dbea3fd262e179a07f93e754842a522024f1034
+    container_name: convex-huawei-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - '3210:3210' # cloud origin - the API the Convex client talks to
+      - '3211:3211' # site origin  - HTTP actions / webhooks
+    volumes:
+      - convex-data:/convex/data
+    env_file:
+      - .env
+    networks:
+      - convex-net
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3210/version']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    stop_signal: SIGINT
+    stop_grace_period: 10s
+
+  dashboard:
+    # Started by default, unlike the AWS stack, where the dashboard sat behind a
+    # compose profile and so never ran -- while Caddy still advertised its
+    # hostname. That is finding F-01 and it is not reproduced here.
+    image: ghcr.io/get-convex/convex-dashboard@sha256:6e35c65cdb56c3334da3c2fe0f2fe1dc6a8589f5570bd2c6146e06bc9792db70
+    container_name: convex-huawei-dashboard
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - '6791:6791'
+    environment:
+      NEXT_PUBLIC_DEPLOYMENT_URL: ${CONVEX_CLOUD_ORIGIN:?CONVEX_CLOUD_ORIGIN must be set in .env}
+    networks:
+      - convex-net
+    stop_signal: SIGINT
+    stop_grace_period: 10s
+
+networks:
+  convex-net:
+    name: convex-huawei-net
+
+volumes:
+  pgdata:
+    name: convex-huawei-pgdata
+  convex-data:
+    name: convex-huawei-convex-data

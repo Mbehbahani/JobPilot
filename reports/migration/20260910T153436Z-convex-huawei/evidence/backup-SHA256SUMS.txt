@@ -1,0 +1,3 @@
+bf6755977d2145bfe31d78818f7978c1da83e62cbb6c567240c843ff6e575c16 *convex-snapshot.zip
+3f7c4e8e1ff49846c60e48c6d45f0d133517feb19ce48ee41087ffc3bf46da2c *huawei-verify.zip
+6ca5413577d19de41619d1d8b2915b3dcb219ce07fd1413e5eba73c240bfd37f *restore-test-verify.zip

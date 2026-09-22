@@ -1,0 +1,10 @@
+userSettings                                                          5      5  OK (ids+content identical)
+--------------------------------------------------------------------------------------------------------------
+TOTALS                                                             3114   3114
+
+tables compared      : 89
+missing in dest      : 0
+extra in dest        : 0
+count/id mismatches  : 0
+content-only diffs   : 0
+VERDICT              : PASS

@@ -1,0 +1,6 @@
+.env
+*.pem
+*.key
+*.dump
+*.zip
+backups/

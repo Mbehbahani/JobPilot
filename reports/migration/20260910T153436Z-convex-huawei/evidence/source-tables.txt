@@ -1,0 +1,15 @@
+adminAuditLogs
+adminNotificationPreferences
+adminSettings
+emailEvents
+fileMetadata
+gmailConnections
+internalUserNotes
+messages
+openaiConnections
+pendingAdminNotifications
+savedScripts
+supportThreads
+taskNotifications
+todoBoards
+userSettings

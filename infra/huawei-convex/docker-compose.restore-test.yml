@@ -1,0 +1,67 @@
+# Throwaway stack used to prove the backup restores from scratch.
+#
+# Completely independent of the main convex-huawei stack: its own compose
+# project, its own network, its own volumes, its own Postgres, its own ports
+# (3220/3221 instead of 3210/3211). Nothing here touches the real destination
+# and nothing here can reach Railway.
+#
+# Bring up, import the snapshot, compare counts, then:
+#   docker compose -f docker-compose.restore-test.yml down -v
+# The -v is intentional here and ONLY here: these volumes are test artifacts.
+
+name: convex-restore-test
+
+services:
+  postgres:
+    image: postgres@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675
+    container_name: convex-restore-test-db
+    restart: 'no'
+    environment:
+      POSTGRES_USER: convex
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+      POSTGRES_DB: railway
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - net
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U convex -d railway']
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 15s
+
+  backend:
+    image: ghcr.io/get-convex/convex-backend@sha256:71acf855388a71ad2fc597cd1dbea3fd262e179a07f93e754842a522024f1034
+    container_name: convex-restore-test-backend
+    restart: 'no'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - '3220:3210'
+      - '3221:3211'
+    volumes:
+      - convex-data:/convex/data
+    env_file:
+      - .env.restore-test
+    networks:
+      - net
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3210/version']
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 20s
+    stop_signal: SIGINT
+    stop_grace_period: 10s
+
+networks:
+  net:
+    name: convex-restore-test-net
+
+volumes:
+  pgdata:
+    name: convex-restore-test-pgdata
+  convex-data:
+    name: convex-restore-test-convex-data
