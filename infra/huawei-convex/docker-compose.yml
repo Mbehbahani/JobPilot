@@ -18,7 +18,7 @@ name: convex-huawei
 
 services:
   postgres:
-    image: postgres@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675
+    image: postgres@sha256:5a5a84b19854a9ffaa54082c166ff4ec27473a361e496e5ea167f298f2da9722
     container_name: convex-huawei-db
     restart: unless-stopped
     environment:
@@ -41,7 +41,7 @@ services:
       start_period: 20s
 
   backend:
-    image: ghcr.io/get-convex/convex-backend@sha256:71acf855388a71ad2fc597cd1dbea3fd262e179a07f93e754842a522024f1034
+    image: ghcr.io/get-convex/convex-backend@sha256:d715e9ec088784407ca4ba2d3db592702cd328d02c76cdca3852c0018f2a76b4
     container_name: convex-huawei-backend
     restart: unless-stopped
     depends_on:
@@ -69,7 +69,7 @@ services:
     # Started by default, unlike the AWS stack, where the dashboard sat behind a
     # compose profile and so never ran -- while Caddy still advertised its
     # hostname. That is finding F-01 and it is not reproduced here.
-    image: ghcr.io/get-convex/convex-dashboard@sha256:6e35c65cdb56c3334da3c2fe0f2fe1dc6a8589f5570bd2c6146e06bc9792db70
+    image: ghcr.io/get-convex/convex-dashboard@sha256:f85cf0d0448b9c835ae3df5c7c1c6f0145dd4c8f0f92eb0245daf304efdd9f1a
     container_name: convex-huawei-dashboard
     restart: unless-stopped
     depends_on:
