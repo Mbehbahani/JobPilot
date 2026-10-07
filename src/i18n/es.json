@@ -250,8 +250,10 @@
 		"name": "JobPilot",
 		"sidebar": {
 			"admin_panel": "Panel de Admin",
-			"browse_jobs": "Explorar empleos",
+			"browse_jobs": "Explorar empleos de IO",
 			"browse_jobs_caution": "Esto abre el sitio externo de empleos. Se usa principalmente para pruebas y no es el flujo recomendado para la mayoría de los usuarios.",
+			"browse_ai_jobs": "Explorar empleos de IA",
+			"browse_ai_jobs_caution": "Esto abre el sitio externo de empleos de ingeniería de IA, ML y ciencia de datos (aieng.oploy.eu). Se usa principalmente para pruebas y no es el flujo recomendado para la mayoría de los usuarios.",
 			"support_jobpilot": "Ayuda a mantenerlo en funcionamiento",
 			"support_jobpilot_info": "🚀 Apoya JobLab y obtén acceso a funciones de búsqueda de empleo más potentes",
 			"my_job_search": "Mi búsqueda de empleo",

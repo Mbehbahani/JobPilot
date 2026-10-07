@@ -250,8 +250,10 @@
 		"name": "JobPilot",
 		"sidebar": {
 			"admin_panel": "Panneau Admin",
-			"browse_jobs": "Parcourir les offres",
+			"browse_jobs": "Parcourir les offres RO",
 			"browse_jobs_caution": "Cela ouvre le site externe d’offres d’emploi. C’est surtout destiné aux tests et ce n’est pas le parcours recommandé pour la plupart des utilisateurs.",
+			"browse_ai_jobs": "Parcourir les offres IA",
+			"browse_ai_jobs_caution": "Cela ouvre le site externe d’offres en ingénierie IA, ML et data science (aieng.oploy.eu). C’est surtout destiné aux tests et ce n’est pas le parcours recommandé pour la plupart des utilisateurs.",
 			"support_jobpilot": "Aidez à le faire tourner",
 			"support_jobpilot_info": "🚀 Soutenez JobLab et accédez à des fonctionnalités de recherche d’emploi plus puissantes",
 			"my_job_search": "Ma recherche d’emploi",

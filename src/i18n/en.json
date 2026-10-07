@@ -250,8 +250,10 @@
 		"name": "JobPilot",
 		"sidebar": {
 			"admin_panel": "Admin Panel",
-			"browse_jobs": "Browse Jobs",
+			"browse_jobs": "Browse OR Jobs",
 			"browse_jobs_caution": "This opens the external jobs site. It is mainly for testing and is not the recommended flow for most users.",
+			"browse_ai_jobs": "Browse AI Jobs",
+			"browse_ai_jobs_caution": "This opens the external AI engineering, ML and data science jobs site (aieng.oploy.eu). It is mainly for testing and is not the recommended flow for most users.",
 			"support_jobpilot": "Help keep it running",
 			"support_jobpilot_info": "🚀 Support JobLab and get access to more powerful job search features",
 			"my_job_search": "My Job Search",

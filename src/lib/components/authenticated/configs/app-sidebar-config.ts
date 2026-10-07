@@ -20,8 +20,28 @@ export function getAppSidebarConfig(
 ): SidebarConfig {
 	const { pathname, lang } = pageState;
 
-	const baseAnalyticsUrl = env.PUBLIC_ANALYTICS_URL || 'http://localhost:3000/dashboard';
-	const analyticsUrl = userId ? `${baseAnalyticsUrl}?kanbanUser=${userId}` : baseAnalyticsUrl;
+	// Job-browsing sites; both read ?kanbanUser= so "send to JobPilot" lands on this user's board.
+	const withKanbanUser = (base: string) => (userId ? `${base}?kanbanUser=${userId}` : base);
+	const analyticsUrl = withKanbanUser(
+		env.PUBLIC_ANALYTICS_URL || 'http://localhost:3000/dashboard'
+	);
+	const aiJobsUrl = withKanbanUser(env.PUBLIC_AI_JOBS_URL || 'https://aieng.oploy.eu/dashboard');
+	const browseJobsLinks = [
+		{
+			translationKey: 'app.sidebar.browse_jobs',
+			url: analyticsUrl,
+			icon: CircleAlertIcon,
+			infoTooltipKey: 'app.sidebar.browse_jobs_caution',
+			condition: true
+		},
+		{
+			translationKey: 'app.sidebar.browse_ai_jobs',
+			url: aiJobsUrl,
+			icon: CircleAlertIcon,
+			infoTooltipKey: 'app.sidebar.browse_ai_jobs_caution',
+			condition: true
+		}
+	];
 
 	return {
 		header: {
@@ -53,13 +73,7 @@ export function getAppSidebarConfig(
 							infoTooltipKey: 'app.sidebar.support_jobpilot_info',
 							condition: true
 						},
-						{
-							translationKey: 'app.sidebar.browse_jobs',
-							url: analyticsUrl,
-							icon: CircleAlertIcon,
-							infoTooltipKey: 'app.sidebar.browse_jobs_caution',
-							condition: true
-						},
+						...browseJobsLinks,
 						{
 							translationKey: 'app.sidebar.admin_panel',
 							url: localizedHref('/admin'),
@@ -75,13 +89,7 @@ export function getAppSidebarConfig(
 							infoTooltipKey: 'app.sidebar.support_jobpilot_info',
 							condition: true
 						},
-						{
-							translationKey: 'app.sidebar.browse_jobs',
-							url: analyticsUrl,
-							icon: CircleAlertIcon,
-							infoTooltipKey: 'app.sidebar.browse_jobs_caution',
-							condition: true
-						}
+						...browseJobsLinks
 					]
 	};
 }

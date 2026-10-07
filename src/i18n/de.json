@@ -250,8 +250,10 @@
 		"name": "JobPilot",
 		"sidebar": {
 			"admin_panel": "Admin-Bereich",
-			"browse_jobs": "Jobs durchsuchen",
+			"browse_jobs": "OR-Jobs durchsuchen",
 			"browse_jobs_caution": "Dies öffnet die externe Jobseite. Es ist hauptsächlich für Tests gedacht und für die meisten Nutzer nicht der empfohlene Weg.",
+			"browse_ai_jobs": "KI-Jobs durchsuchen",
+			"browse_ai_jobs_caution": "Dies öffnet die externe Jobseite für KI-Engineering, ML und Data Science (aieng.oploy.eu). Es ist hauptsächlich für Tests gedacht und für die meisten Nutzer nicht der empfohlene Weg.",
 			"support_jobpilot": "Hilf, es am Laufen zu halten",
 			"support_jobpilot_info": "🚀 Unterstütze JobLab und erhalte Zugang zu leistungsstärkeren Jobsuch-Funktionen",
 			"my_job_search": "Meine Jobsuche",
