@@ -13,7 +13,7 @@ name: convex-restore-test
 
 services:
   postgres:
-    image: postgres@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675
+    image: postgres@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336
     container_name: convex-restore-test-db
     restart: 'no'
     environment:
@@ -32,7 +32,7 @@ services:
       start_period: 15s
 
   backend:
-    image: ghcr.io/get-convex/convex-backend@sha256:71acf855388a71ad2fc597cd1dbea3fd262e179a07f93e754842a522024f1034
+    image: ghcr.io/get-convex/convex-backend@sha256:d715e9ec088784407ca4ba2d3db592702cd328d02c76cdca3852c0018f2a76b4
     container_name: convex-restore-test-backend
     restart: 'no'
     depends_on:
