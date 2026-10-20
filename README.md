@@ -2,13 +2,13 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/940d4565-dee8-42a6-a04b-b5fc4a16ea6c/deploy-status)](https://app.netlify.com/projects/jobpilot-eu/deploys)
 
-**AI-powered job orchestration system with production-oriented full-stack architecture.**
+SvelteKit job-application platform with Kanban tracking, Nova task assistance, Gmail integration and a separate search backend
 
 [![Watch the JobPilot tutorial](https://img.youtube.com/vi/N92yHginPRw/maxresdefault.jpg)](https://youtu.be/N92yHginPRw)
 
 ▶️ **Watch the product tutorial:** https://youtu.be/N92yHginPRw
 
-JobPilot is an open-source platform for managing job applications, running personalized job search workflows, and integrating AI into real user operations without reducing the system to prompt-only automation.
+JobPilot brings application tracking, search and Nova task assistance into one workspace. It keeps task state in Convex and connects to a separate Python search service.
 
 ---
 
@@ -23,7 +23,7 @@ At the product level, it combines:
 - **Gmail-assisted automation** for detecting interview, rejection, and acceptance signals
 - **AI-assisted task execution** for parsing jobs, enriching records, and generating application artifacts
 
-At the engineering level, the project demonstrates how to build an AI-enabled system with explicit boundaries, persistence layers, failure handling, deployment discipline, and evaluation loops.
+The application separates persistent task state, external tools and search results so that each workflow can be inspected and retried.
 
 This repository (`JobPilot`) is the main application layer for JobPilot. It is backed by a broader multi-service workspace that includes a dedicated Python search backend, data/evaluation modules, and deployment infrastructure.
 
@@ -32,7 +32,7 @@ This repository (`JobPilot`) is the main application layer for JobPilot. It is b
 ## Key Features
 
 - **Kanban-based job application tracking** with structured stages and task metadata
-- **AI task assistant** for parsing job descriptions, enriching task details, and generating motivation-letter content
+- **Nova task assistant** for parsing job descriptions, enriching task details, and generating motivation-letter content
 - **Gmail integration** that detects operational job-search signals and maps them into task updates
 - **Personal job search engine** with scraping, normalization, scoring, filtering, and persistence
 - **Power search mode** for extended search behavior and higher-coverage runs
@@ -241,13 +241,13 @@ This matters because prompt or workflow changes are not treated as purely subjec
 - scorer-driven iteration
 - measurable improvement loops
 
-This is an important part of the project’s engineering maturity: AI behavior is improved through instrumentation and evaluation, not only ad hoc manual inspection.
+The evaluation module keeps datasets and scorers separate from the application flow so changes can be compared.
 
 ---
 
 ## Deployment & Infrastructure
 
-The repository is set up with production-minded deployment patterns rather than a local-only developer experience.
+Deployment configuration separates the SvelteKit application, Convex backend and external search service.
 
 ### App and backend deployment
 
@@ -338,7 +338,7 @@ JobPilot is **free to use**.
 The intent behind open-sourcing it is twofold:
 
 - make the tool usable and inspectable by others
-- demonstrate how AI can be embedded into real user workflows with stronger engineering discipline than a demo-first prototype
+- let others inspect and adapt the task, search and integration workflows
 
 The project also includes an **optional donation/support path** for people who want to help sustain development, but the core philosophy is that the system should remain useful without turning access into a paywall.
 
@@ -354,21 +354,14 @@ This project was originally inspired by earlier work and starter foundations, bu
 - evaluation workflows
 - production-oriented architecture decisions
 
-The result is meaningfully beyond a template or hackathon-only prototype.
+The starter foundations and the added job-search components have different responsibilities; the sections above describe their boundaries.
 
 ---
 
-## Author Positioning
+## Related projects
 
-JobPilot reflects a combination of skills expected from an **AI Engineer / ML Systems Engineer / AI Solutions Engineer**:
-
-- full-stack product development across frontend, backend, and data boundaries
-- AI workflow design with explicit operational constraints
-- evaluation-driven iteration instead of prompt-only experimentation
-- reliability thinking around failure recovery and state cleanup
-- infrastructure awareness spanning deployment, configuration, CI, and service separation
-
-For hiring managers and technical reviewers, the strongest signal in this project is not just “uses AI,” but **how AI is integrated into a real system with architecture, measurement, and operational ownership**.
+- [JobLab Agent API](https://github.com/Mbehbahani/joblab-agent-api): a separate Bedrock-backed search and CV-matching API.
+- [JobLab Data Pipeline](https://github.com/Mbehbahani/joblab-data-pipeline): collection, enrichment and export of job-market data.
 
 ---
 
