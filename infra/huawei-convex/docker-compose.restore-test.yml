@@ -13,7 +13,7 @@ name: convex-restore-test
 
 services:
   postgres:
-    image: postgres@sha256:67f41722b7a8cbdb868a44a4995c846eddfdc2973bccb291ce937dce88ad5675
+    image: postgres@sha256:fe9ef8058929c976110d4b75d9b939e61a590ba1e105e609e891c71bb39a8944
     container_name: convex-restore-test-db
     restart: 'no'
     environment:
